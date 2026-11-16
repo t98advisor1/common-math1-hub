@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>공통수학1 학습관 · Ⅳ 행렬</title>
+<meta name="description" content="공통수학1 Ⅳ 행렬 단원의 차시별 학습 앱입니다." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="공통수학1 학습관 · Ⅳ 행렬" />
+<meta property="og:description" content="공통수학1 Ⅳ 행렬 단원의 차시별 학습 앱입니다." />
+<meta property="og:image" content="https://common-math1-hub.vercel.app/unit4.htmlog.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://common-math1-hub.vercel.app/unit4.html" />
+<meta property="og:locale" content="ko_KR" />
+<meta name="twitter:card" content="summary_large_image" />
+<style>
+:root { color-scheme: light; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; background:#faf7f4; color:#2b2622; line-height:1.7; }
+main { max-width:760px; margin:0 auto; padding:44px 20px 64px; }
+.unithead { background:#f1e9e1; border-radius:16px; padding:22px 24px 18px; margin-bottom:26px; }
+.eyebrow { font-size:14px; color:#8a7f75; letter-spacing:.02em; margin-bottom:10px; }
+h1 { font-size:32px; font-weight:700; margin-bottom:14px; line-height:1.35; min-height:1.35em; }
+.intro { font-size:17px; color:#4a423b; margin-bottom:30px; }
+.tw .cursor { display:inline-block; width:2px; height:1em; background:#8a7f75; margin-left:1px; vertical-align:-0.12em; animation:blink .8s steps(1) infinite; }
+@keyframes blink { 50% { opacity:0; } }
+a.unit { display:grid; grid-template-columns:150px 1fr; gap:0; text-decoration:none; color:inherit; background:#fff; border:1px solid #ece4dd; border-radius:16px; margin-bottom:14px; overflow:hidden; }
+a.unit:hover { border-color:#c9b8a8; }
+a.unit .uthumb { width:150px; height:100%; min-height:118px; object-fit:contain; object-position:center; display:block; background:#efe7df; }
+a.unit .ubody { padding:16px 20px; }
+a.unit .unum { font-size:13px; color:#8a7f75; }
+a.unit .uname { font-size:19px; font-weight:700; margin:2px 0; }
+a.unit .usub { font-size:13.5px; color:#8a7f75; }
+a.unit .ucount { float:right; font-size:13px; color:#a2968a; margin-top:2px; }
+a.unit.nothumb { grid-template-columns:1fr; }
+a.back { display:inline-block; font-size:14px; color:#6b5f54; text-decoration:none; margin-bottom:20px; }
+.rail { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth; border-radius:18px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.rail::-webkit-scrollbar { display:none; }
+.slide { min-width:100%; scroll-snap-align:start; }
+.card2 { display:grid; grid-template-columns:230px 1fr; background:#fff; border:1px solid #ece4dd; border-radius:18px; overflow:hidden; min-height:320px; }
+.card2 .timg { width:230px; height:100%; min-height:320px; object-fit:contain; object-position:center; display:block; background:#efe7df; }
+.card2 .tbody { padding:22px 24px; display:flex; flex-direction:column; }
+.card2 .wep { font-size:13px; color:#8a7f75; font-weight:700; }
+.card2 .wti { font-size:20px; font-weight:700; margin:2px 0 4px; line-height:1.4; }
+.card2.pending .wti, .card2.pending .ds { color:#6b5f54; }
+.app { margin-top:14px; padding-top:14px; border-top:1px solid #f0e9e2; }
+.app:first-of-type { border-top:none; padding-top:0; }
+.app .nm { font-size:16.5px; font-weight:700; margin-bottom:4px; }
+.app .ds { font-size:14.5px; color:#4a423b; margin-bottom:12px; }
+a.go { display:inline-block; background:#2b2622; color:#fff; text-decoration:none; font-size:14.5px; font-weight:700; padding:10px 20px; border-radius:10px; }
+a.go:hover { background:#453d36; }
+.soon { display:inline-block; font-size:14px; font-weight:700; color:#8a7f75; background:#f3ece2; border:1px dashed #c9b8a8; padding:10px 18px; border-radius:10px; }
+.ctrl { display:flex; align-items:center; justify-content:center; gap:14px; margin:16px 0 6px; }
+.ctrl button { width:42px; height:42px; border-radius:50%; border:1px solid #d8ccc2; background:#fff; font-size:19px; color:#4a423b; cursor:pointer; }
+.ctrl button:hover { background:#f3ece2; }
+.ctrl button:disabled { opacity:.35; cursor:default; }
+.dots { display:flex; gap:7px; }
+.dots button { width:9px; height:9px; border-radius:50%; border:none; background:#d8ccc2; padding:0; cursor:pointer; }
+.dots button.on { background:#2b2622; }
+.pos { text-align:center; font-size:13px; color:#a2968a; }
+.empty { font-size:14.5px; color:#a2968a; background:#fff; border:1px dashed #d8ccc2; border-radius:16px; padding:26px; text-align:center; }
+.updatenote { margin-top:12px; font-size:14px; color:#6b6157; background:#f5efe8; border:1px solid #e7ddd2; border-radius:10px; padding:8px 12px; }
+footer { margin-top:44px; font-size:13px; color:#a2968a; border-top:1px solid #ece4dd; padding-top:18px; }
+footer a { color:#8a7f75; }
+@media (max-width:600px) {
+  main { padding:32px 14px 48px; }
+  h1 { font-size:26px; }
+  .card2 { grid-template-columns:1fr; }
+  .card2 .timg { width:100%; height:210px; min-height:0; }
+  a.unit { grid-template-columns:110px 1fr; }
+  a.unit .uthumb { width:110px; min-height:104px; }
+}
+.mutebtn { position:fixed; left:14px; bottom:14px; z-index:50; font-size:13px; padding:8px 14px; border:1px solid #d8cfc6; border-radius:999px; background:#fffdf9; color:#5a4f45; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,.12); }
+.mutebtn:focus-visible { outline:2px solid #8a7f75; outline-offset:2px; }
+@media (prefers-reduced-motion: reduce) {
+  .rail { scroll-behavior:auto; }
+  .tw .cursor { display:none; }
+}
+
+a.unit .uthumb.tile, .card2 .timg.tile { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; color:#fff; box-sizing:border-box; }
+a.unit .uthumb.tile { width:150px; min-height:118px; }
+.card2 .timg.tile { width:230px; min-height:320px; }
+.tile .tbig { font-size:44px; font-weight:800; line-height:1.1; }
+.tile .tsub { font-size:15px; opacity:.92; margin-top:6px; }
+.card2 .timg.tile .tbig { font-size:64px; }
+@media (max-width:600px) {
+  a.unit .uthumb.tile { width:110px; min-height:104px; }
+  .tile .tbig { font-size:30px; }
+  .card2 .timg.tile { width:100%; min-height:120px; }
+  .card2 .timg.tile .tbig { font-size:34px; }
+}
+
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="index.html">← 학습관 첫 화면으로</a>
+  <div class="unithead">
+  <p class="eyebrow">공통수학1 학습관 · Ⅳ</p>
+  <h1 class="tw">Ⅳ 행렬</h1>
+  <p class="intro tw">행렬의 뜻과 연산 · 행렬 활용</p>
+  </div>
+  <div class="rail">
+  <section class="slide">
+    <div class="card2 pending">
+      <div class="timg tile" style="background:#8a4a52"><span class="tbig">42</span><span class="tsub">차시</span></div>
+      <div class="tbody">
+        <p class="wep">42차시 · 4-1 행렬</p>
+        <p class="wti tw">행렬의 뜻과 표현</p>
+        <p class="ds tw">반 도서 대출 현황 같은 표를 격자에 배치하고 성분의 위치 (i, j) 맞추기.</p>
+        <div class="app">
+          <span class="soon">준비 중</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="card2 pending">
+      <div class="timg tile" style="background:#8a4a52"><span class="tbig">43</span><span class="tsub">차시</span></div>
+      <div class="tbody">
+        <p class="wep">43차시 · 4-1 행렬</p>
+        <p class="wti tw">행렬의 덧셈과 뺄셈</p>
+        <p class="ds tw">두 격자를 포개어 같은 위치끼리 계산되는 애니메이션.</p>
+        <div class="app">
+          <span class="soon">준비 중</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="card2 pending">
+      <div class="timg tile" style="background:#8a4a52"><span class="tbig">44</span><span class="tsub">차시</span></div>
+      <div class="tbody">
+        <p class="wep">44차시 · 4-1 행렬</p>
+        <p class="wti tw">행렬의 실수배</p>
+        <p class="ds tw">배율 슬라이더로 모든 성분이 함께 스케일되는 것 관찰.</p>
+        <div class="app">
+          <span class="soon">준비 중</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="card2 pending">
+      <div class="timg tile" style="background:#8a4a52"><span class="tbig">45</span><span class="tsub">차시</span></div>
+      <div class="tbody">
+        <p class="wep">45차시 · 4-1 행렬</p>
+        <p class="wti tw">행렬의 곱셈 ①</p>
+        <p class="ds tw">앞 행과 뒤 열의 대응을 선으로 연결해 성분 하나씩 계산 체험.</p>
+        <div class="app">
+          <span class="soon">준비 중</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="card2 pending">
+      <div class="timg tile" style="background:#8a4a52"><span class="tbig">46</span><span class="tsub">차시</span></div>
+      <div class="tbody">
+        <p class="wep">46차시 · 4-1 행렬</p>
+        <p class="wti tw">행렬의 곱셈 ②</p>
+        <p class="ds tw">AB와 BA를 나란히 계산해 결과가 다름을 확인(교환법칙 성립 안 함).</p>
+        <div class="app">
+          <span class="soon">준비 중</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="card2 pending">
+      <div class="timg tile" style="background:#8a4a52"><span class="tbig">47</span><span class="tsub">차시</span></div>
+      <div class="tbody">
+        <p class="wep">47차시 · 4-1 행렬</p>
+        <p class="wti tw">행렬 활용</p>
+        <p class="ds tw">점수표·가격표를 행렬로 표현하고 총합 계산 자동화.</p>
+        <div class="app">
+          <span class="soon">준비 중</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="card2 pending">
+      <div class="timg tile" style="background:#8a4a52"><span class="tbig">48</span><span class="tsub">차시</span></div>
+      <div class="tbody">
+        <p class="wep">48차시 · 4단원 종합 확인</p>
+        <p class="wti tw">4단원 종합 확인</p>
+        <p class="ds tw">행렬 연산 미션 종합.</p>
+        <div class="app">
+          <span class="soon">준비 중</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  </div>
+  <div class="ctrl">
+    <button class="prev" aria-label="이전 차시">‹</button>
+    <div class="dots"></div>
+    <button class="next" aria-label="다음 차시">›</button>
+  </div>
+  <p class="pos"><span class="n">1</span> / 7</p>
+<footer>
+<p>공통수학1 학습관 · 미래엔 공통수학1 교과서를 바탕으로 한 차시별 학습 앱 모음. 실습은 준비되는 대로 추가됩니다.</p>
+<p style="margin-top:6px">Copyright © <a href="https://blog.naver.com/math-tong">mathtong</a>. All rights reserved.</p>
+</footer>
+</main>
+<script>
+(function(){
+  var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- sound (WebAudio, small volume, mute toggle) ----
+  var muted = false;
+  try { muted = sessionStorage.getItem('hubMute') === '1'; } catch(e) {}
+  var ac = null, unlocked = false, master = null, analyser = null, confirmed = false;
+  function confirmSnd(){
+    if (confirmed || muted || !unlocked) return;
+    confirmed = true;
+    setTimeout(function(){ beep(523, 0.1, 0.18); setTimeout(function(){ beep(784, 0.14, 0.18); }, 100); }, 60);
+  }
+  function unlock(){
+    if (rm) return;
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      ac = ac || new AC();
+      if (!master) {
+        master = ac.createGain(); master.gain.value = 1;
+        analyser = ac.createAnalyser(); analyser.fftSize = 2048;
+        master.connect(analyser); analyser.connect(ac.destination);
+      }
+      if (ac.state === 'running') { unlocked = true; confirmSnd(); return; }
+      var p = ac.resume();
+      if (p && p.then) p.then(function(){ if (ac.state === 'running') { unlocked = true; confirmSnd(); } }, function(){});
+    } catch(e) {}
+  }
+  function beep(freq, dur, gain, type){
+    if (muted || rm || !ac) return;
+    try {
+      if (ac.state === 'suspended') ac.resume();
+      var o = ac.createOscillator(), g = ac.createGain();
+      o.type = type || 'sine'; o.frequency.value = freq;
+      g.gain.setValueAtTime(gain, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
+      o.connect(g); g.connect(master || ac.destination);
+      o.start(); o.stop(ac.currentTime + dur);
+    } catch(e) {}
+  }
+  function tickSnd(){ beep(880, 0.05, 0.12, 'square'); }
+  function chime(){ beep(660, 0.12, 0.2); setTimeout(function(){ beep(880, 0.16, 0.2); }, 120); }
+  ['pointerdown','keydown','touchstart','click'].forEach(function(ev){
+    document.addEventListener(ev, unlock, {passive:true});
+  });
+  if (!rm) {
+    var mb = document.createElement('button');
+    mb.className = 'mutebtn';
+    function paintMute(){ mb.textContent = muted ? '소리 켜기' : '소리 끄기'; mb.setAttribute('aria-pressed', muted ? 'true' : 'false'); }
+    paintMute();
+    mb.addEventListener('click', function(){
+      muted = !muted;
+      try { sessionStorage.setItem('hubMute', muted ? '1' : '0'); } catch(e) {}
+      paintMute();
+      if (!muted) { unlock(); setTimeout(chime, 200); }
+    });
+    document.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(mb); });
+    if (document.body) document.body.appendChild(mb);
+  }
+
+  window.__hubSnd = function(){ return {unlocked: unlocked, muted: muted, confirmed: confirmed, acState: ac ? ac.state : 'none', chime: chime}; };
+  window.__hubMeasure = function(){
+    if (!analyser) return {ok:false, reason:'no-analyser'};
+    var buf = new Float32Array(analyser.fftSize);
+    chime();
+    var peak = 0;
+    return new Promise(function(res){
+      var t0 = performance.now();
+      (function poll(){
+        analyser.getFloatTimeDomainData(buf);
+        for (var i = 0; i < buf.length; i++) { var a = Math.abs(buf[i]); if (a > peak) peak = a; }
+        if (performance.now() - t0 < 500) requestAnimationFrame(poll);
+        else res({ok:true, peak: peak, acState: ac.state});
+      })();
+    });
+  };
+  // ---- typewriter: sequential per group (title -> body), slower ----
+  var SPEED = 60, GAP = 220;
+  function typeInto(el, done){
+    if (el.dataset.done) { if (done) done(); return; }
+    el.dataset.done = '1';
+    var full = el.dataset.text;
+    if (rm || !full) { el.textContent = full || el.textContent; if (done) done(); return; }
+    el.textContent = '';
+    var cur = document.createElement('span'); cur.className = 'cursor'; el.appendChild(cur);
+    var i = 0;
+    (function tick(){
+      if (i < full.length) {
+        cur.before(document.createTextNode(full[i++]));
+        if (i % 3 === 0) tickSnd();
+        setTimeout(tick, SPEED);
+      } else {
+        setTimeout(function(){ cur.remove(); }, 1600);
+        if (done) setTimeout(done, GAP);
+      }
+    })();
+  }
+  var els = Array.prototype.slice.call(document.querySelectorAll('.tw'));
+  els.forEach(function(el){ el.dataset.text = el.textContent; });
+  // group: slide cards, or top-level main (header area)
+  var groups = [];
+  els.forEach(function(el){
+    var g = el.closest('.slide') || el.closest('main');
+    var found = null;
+    for (var k = 0; k < groups.length; k++) if (groups[k].g === g) { found = groups[k]; break; }
+    if (!found) { found = {g: g, els: [], started: false}; groups.push(found); }
+    found.els.push(el);
+  });
+  function startGroup(gr){
+    if (gr.started) return; gr.started = true;
+    var j = 0;
+    (function nextEl(){
+      if (j >= gr.els.length) return;
+      typeInto(gr.els[j++], nextEl);
+    })();
+  }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        groups.forEach(function(gr){ if (gr.g === e.target) { startGroup(gr); io.unobserve(e.target); } });
+      });
+    }, {threshold: .35, root: null});
+    groups.forEach(function(gr){ if (gr.g) io.observe(gr.g); });
+  } else { groups.forEach(startGroup); }
+
+  // ---- carousels ----
+  document.querySelectorAll('.rail').forEach(function(rail){
+    var slides = rail.querySelectorAll('.slide');
+    var wrap = rail.parentElement;
+    var prev = wrap.querySelector('.prev'), next = wrap.querySelector('.next');
+    var dotsBox = wrap.querySelector('.dots'), pos = wrap.querySelector('.pos .n');
+    var idx = 0, lastIdx = -1;
+    var dots = [];
+    for (var i = 0; i < slides.length; i++) {
+      (function(k){
+        var b = document.createElement('button');
+        b.setAttribute('aria-label', (k+1) + '번 슬라이드');
+        b.addEventListener('click', function(){ rail.scrollTo({left: rail.clientWidth * k, behavior: rm ? 'auto' : 'smooth'}); });
+        dotsBox.appendChild(b); dots.push(b);
+      })(i);
+    }
+    function update(){
+      var w = rail.clientWidth || 1;
+      idx = Math.min(slides.length - 1, Math.round(rail.scrollLeft / w));
+      dots.forEach(function(d, k){ d.classList.toggle('on', k === idx); });
+      if (pos) pos.textContent = (idx + 1);
+      if (prev) prev.disabled = idx === 0;
+      if (next) next.disabled = idx === slides.length - 1;
+      if (idx !== lastIdx) { if (lastIdx !== -1) chime(); lastIdx = idx; }
+    }
+    if (prev) prev.addEventListener('click', function(){ rail.scrollBy({left: -rail.clientWidth, behavior: rm ? 'auto' : 'smooth'}); });
+    if (next) next.addEventListener('click', function(){ rail.scrollBy({left: rail.clientWidth, behavior: rm ? 'auto' : 'smooth'}); });
+    rail.addEventListener('scroll', function(){ requestAnimationFrame(update); }, {passive: true});
+    window.addEventListener('resize', update);
+    update();
+  });
+})();
+</script>
+
+</body>
+</html>
