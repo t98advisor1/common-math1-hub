@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>공통수학1 · 06 미정계수법</title><style>
+:root{--ink:#251f21;--muted:#585254;--teal:#377566;--pale:#edf5f2;--line:#eae9ea;--red:#b51f2b;--sand:#f4efec}
+*{box-sizing:border-box}
+html{overflow-x:hidden}
+body{margin:0;color:var(--ink);font:18px/1.65 'Noto Sans KR','Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif;background:#fff;overflow-x:hidden}
+button,input,select{font:inherit}
+button{min-height:46px;padding:9px 15px;cursor:pointer;border:1px solid #b8c6c1;border-radius:7px;background:white;color:var(--ink)}
+button:hover{background:var(--pale)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+button:disabled{color:#777;cursor:not-allowed;background:#eee;border-color:#ddd}
+.primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+.primary:hover{background:#285a4e}
+.wrap{max-width:1120px;margin:auto;padding:24px 30px}
+header{border-bottom:1px solid var(--line);padding-bottom:18px}
+.eyebrow{font-size:14px;color:var(--muted);letter-spacing:.04em}
+h1{font-size:30px;letter-spacing:-.04em;line-height:1.3;margin:8px 0 10px}
+h2{font-size:25px;letter-spacing:-.025em;line-height:1.4;margin:0 0 14px}
+h3{font-size:19px;margin:18px 0 8px}
+p{margin:10px 0}
+.muted,small{color:var(--muted);font-size:15px}
+.chip{display:inline-block;background:var(--sand);padding:3px 10px;font-size:14px;border-radius:4px}
+.progress{display:flex;gap:5px;margin:18px 0}
+.progress i{flex:1;height:5px;background:var(--line)}
+.progress i.done{background:var(--teal)}
+.layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:26px;margin-top:24px}
+.panel{min-width:0}
+.chartbox{border:1px solid var(--line);border-radius:10px;padding:12px}
+.chartbox svg{display:block;width:100%;height:auto}
+#legend{display:flex;flex-wrap:wrap;gap:12px;font-size:14px}
+#legend b{font-weight:600}
+.dot{display:inline-block;width:22px;border-top:3px solid;vertical-align:middle;margin-right:6px}
+.controls{display:grid;gap:8px;margin-top:14px}
+label{display:block}
+input[type=range]{width:100%;min-height:44px;accent-color:var(--teal);margin:0}
+select,input[type=number],input[type=text]{border:1px solid #a5ada9;border-radius:5px;padding:8px;min-height:44px;max-width:100%;background:white;color:var(--ink)}
+select{width:100%}
+.readout{background:var(--pale);padding:12px 14px;border-radius:6px;margin:12px 0;overflow-wrap:anywhere}
+.equation{font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1.8;overflow-wrap:anywhere}
+.choice{display:grid;gap:9px;margin:18px 0}
+.choice button{text-align:left}
+.notice{background:var(--sand);padding:12px 14px;border-radius:6px;font-size:15px}
+.status{min-height:32px;margin:12px 0;font-size:16px;color:var(--teal);font-weight:600}
+.status.error{color:var(--red)}
+nav{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:20px;margin-top:28px}
+.answer-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.answer-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.answer-grid label{font-size:14px;text-align:center}
+.answer-grid input{width:100%;text-align:center}
+.hint{border-left:3px solid var(--teal);padding:8px 12px;background:var(--pale);font-size:16px;margin:10px 0}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.term{background:#f3f6f5;padding:8px 12px;min-height:45px}
+.term.selected{outline:3px solid var(--teal)}
+.term.used{opacity:.4;pointer-events:none}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.bin{min-height:80px;padding:12px;text-align:left;background:#fff;border:1px dashed #84998f}
+.bin strong{display:block}
+.bin span{display:block;font-size:15px;min-height:25px}
+.formula{padding:14px;border:1px solid var(--line);border-radius:8px;margin:12px 0}
+.summary{display:grid;gap:8px}
+.summary p{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:7px 0;margin:0}
+.footer{border-top:1px solid var(--line);margin-top:28px;padding-top:14px;font-size:13px;color:var(--muted)}
+a{color:var(--teal);overflow-wrap:anywhere}
+.visuallyhidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.steps ol{margin:8px 0;padding-left:22px}
+.steps li{margin:6px 0}
+.blank{display:inline-block;min-width:64px;border-bottom:2px solid var(--teal);text-align:center;font-weight:700;color:var(--teal);padding:0 6px}
+@media(max-width:760px){
+body{font-size:17px}
+.wrap{padding:18px 16px}
+.layout{grid-template-columns:1fr;gap:22px;margin-top:18px}
+h1{font-size:26px}
+h2{font-size:23px}
+.equation{font-size:21px}
+.chartbox{padding:8px}
+.answer-grid{gap:5px}
+.answer-grid input{padding:8px 2px}
+.bins{gap:7px}
+.bin{padding:10px}
+.graph-panel{order:1}
+.activity-panel{order:2}
+nav{position:static}
+.term{padding:8px 10px}
+}
+</style></head>
+<body><main class="wrap"><header><div class="eyebrow">미래엔 공통수학1 · 48차시 계획 중 06</div><h1>미정계수법: 계수 비교와 수치 대입</h1><span class="chip">학생용 실습 앱 · 공통수학1 학습관</span><div class="progress" aria-hidden="true" id="progress"></div><div id="stageLabel" class="muted"></div></header>
+<div class="layout"><section class="panel graph-panel" aria-label="조작 그래프"><div class="chartbox"><div id="legend"></div><svg id="graph" viewBox="0 0 520 340" role="img" aria-labelledby="chartTitle chartDesc"></svg><div id="graphText" class="muted"></div></div><div class="controls"><label for="xslider">관찰할 x: <strong id="xvalue">1</strong></label><input id="xslider" type="range" min="-3" max="3" value="1" step="0.1"><div class="muted">슬라이더를 움직이면 그래프 위의 점과 함숫값이 바로 바뀝니다.</div></div><div class="readout" id="equations"></div><div id="graphNote" class="notice"></div></section>
+<section class="panel activity-panel" aria-labelledby="activityTitle"><div id="activity"></div><div id="message" class="status" aria-live="polite"></div></section></div>
+<nav><button id="back">이전</button><button class="primary" id="next">다음</button></nav>
+<footer class="footer">공통수학1 학습관의 차시 학습 앱입니다. 학생 이름·학번을 묻지 않으며, 응답을 외부로 전송하거나 기기에 저장하지 않습니다. 새로고침하면 처음으로 돌아갑니다.</footer></main>
+<script>
+
+'use strict';
+const $=id=>document.getElementById(id);
+function nice(n){return Math.abs(n)<1e-9?'0':Number(n.toFixed(3)).toString()}
+function sup(s){return '<sup>'+s+'</sup>'}
+/* polynomial [c0,c1,c2,...] helpers */
+const ev=(a,x)=>a.reduceRight((r,c)=>r*x+c,0);
+function format(a){let s='';for(let i=a.length-1;i>=0;i--){let c=a[i];if(Math.abs(c)<1e-9)continue;let term=(i===0||Math.abs(c)!==1?nice(Math.abs(c)):'')+(i===0?'':i===1?'x':'x'+sup(i));s+=(s?(c<0?' − ':' + '):(c<0?'−':''))+term;}return s||'0'}
+function message(t,error=false){$('message').textContent=t;$('message').className='status'+(error?' error':'');}
+/* generic plot: lines=[{name,f(x),color,dash,width,hide}] */
+function plot(lines,note,xr){
+ xr=xr||[-3,3];
+ let yMax=1;for(let l of lines){if(l.hide)continue;for(let x=xr[0];x<=xr[1]+.001;x+=.05){let y=l.f(x);if(isFinite(y))yMax=Math.max(yMax,Math.abs(y));}}
+ yMax=Math.ceil(yMax/5)*5;
+ const X=x=>48+(x-xr[0])/(xr[1]-xr[0])*450,Y=y=>302-(y+yMax)/(2*yMax)*280;
+ let s='<title id="chartTitle">함수 그래프</title><desc id="chartDesc">함숫값을 비교하는 그래프입니다.</desc><defs><clipPath id="clip"><rect x="48" y="22" width="450" height="280"/></clipPath></defs>';
+ for(let v=Math.ceil(xr[0]);v<=xr[1];v++){s+=`<path d="M${X(v)} 22 V302" stroke="#eae9ea"/><text x="${X(v)}" y="322" font-size="13" text-anchor="middle">${v}</text>`;}
+ for(let v of [-yMax,-yMax/2,0,yMax/2,yMax]){s+=`<path d="M48 ${Y(v)} H498" stroke="#eae9ea"/><text x="42" y="${Y(v)+4}" font-size="12" text-anchor="end">${nice(v)}</text>`;}
+ s+=`<path d="M48 ${Y(0)} H498 M${X(0)} 22 V302" stroke="#938c8f"/><text x="505" y="${Y(0)-5}" font-size="14">x</text><text x="${X(0)+6}" y="18" font-size="14">y</text><g clip-path="url(#clip)">`;
+ for(let l of lines){if(l.hide)continue;let d='';for(let i=0;i<=240;i++){let x=xr[0]+i*(xr[1]-xr[0])/240,y=l.f(x);if(!isFinite(y))continue;d+=(d&&!d.endsWith(' ')?'':'')+(i?'L':'M')+X(x).toFixed(2)+' '+Y(Math.max(-yMax*1.2,Math.min(yMax*1.2,y))).toFixed(2)+' ';}
+  s+=`<path d="${d}" fill="none" stroke="${l.color}" stroke-width="${l.width||2.5}" stroke-dasharray="${l.dash||''}"/><circle cx="${X(state.x)}" cy="${Y(l.f(state.x))}" r="5" fill="${l.color}" stroke="white"/>`;}
+ s+=`<path d="M${X(state.x)} 22 V302" stroke="#938c8f" stroke-dasharray="3 5"/></g>`;
+ $('graph').innerHTML=s;
+ $('legend').innerHTML=lines.filter(l=>!l.hide).map(l=>`<b style="color:${l.color}"><i class="dot" style="border-color:${l.color}"></i>${l.name}</b>`).join('');
+ $('graphText').textContent=`x=${nice(state.x)}일 때 `+lines.filter(l=>!l.hide).map(l=>l.name+' = '+nice(l.f(state.x))).join(' / ');
+ $('xvalue').textContent=nice(state.x);
+ $('graphNote').textContent=note||'';
+}
+function frac(n){ /* 0.5 -> 1/2 for display */
+ if(Math.abs(n-Math.round(n))<1e-9)return nice(Math.round(n));
+ let d=2;while(d<=16&&Math.abs(n*d-Math.round(n*d))>1e-9)d*=2;
+ return nice(Math.round(n*d))+'/'+d;
+}
+function numVal(id){let v=$(id).value.trim();if(v==='')return NaN;v=v.replace('−','-');if(v.includes('/')){let p=v.split('/');return Number(p[0])/Number(p[1]);}return Number(v);}
+
+const state={stage:0,ok:[false,false,false,false,false,false,false],x:1,start:Date.now(),
+ prediction:null,a:0,b:0,c:0,matched:false,moved:new Set(),
+ coefB:NaN,coefC:NaN,subC:NaN,
+ hints:0,bookDone:null,challenge:{understood:false,hints:0,blanks:0,done:null},variation:null,
+ chA:NaN,chB:NaN,chC:NaN};
+const labels=['예측하기','곡선 겹치기','두 가지 방법','교과서 문제','도전과 변형','개념 정리','마치기'];
+const L=x=>state.a*(x-1)*(x-1)+state.b*(x-1)+state.c;
+const R=x=>x*x+5*x;
+/* ---------- graph ---------- */
+function graph(){
+ let lines=[],note='',eq='';
+ const i=state.stage;
+ if(i===0){
+  lines=[{name:'y = x² + 5x',f:R,color:'#585254'}];
+  eq='a(x − 1)² + b(x − 1) + c = x² + 5x';
+  if(state.prediction!==null){lines.push({name:'y = (x − 1)² (a=1, b=0, c=0)',f:x=>(x-1)*(x-1),color:'#377566',width:3.5});
+   eq+='<br><b>a = 1, b = 0, c = 0 일 때의 좌변 — 아직 우변과 다릅니다</b>';note='b와 c도 맞춰야 완전히 겹칩니다. 다음 화면에서 직접 맞춰 보세요.';}
+  else note='우변 곡선을 먼저 보여 드립니다. x²의 계수를 예측해 보세요.';
+ }
+ else if(i===1){
+  lines=[{name:'y = a(x−1)² + b(x−1) + c',f:L,color:'#377566',width:3.5},
+   {name:'y = x² + 5x (목표)',f:R,color:'#585254',dash:'7 4'}];
+  eq=`전개: (${nice(state.a)})x² + (${nice(-2*state.a+state.b)})x + (${nice(state.a-state.b+state.c)})<br>목표: x² + 5x + 0`;
+  note=state.matched?'두 곡선이 완전히 겹쳤습니다! a = 1, b = 7, c = 6.':'세 슬라이더를 움직여 두 곡선을 완전히 겹쳐 보세요.';
+ }
+ else if(i===2){
+  lines=[{name:'y = a(x−1)² + b(x−1) + c',f:L,color:'#377566',width:3.5},
+   {name:'y = x² + 5x (목표)',f:R,color:'#585254',dash:'7 4'}];
+  eq=`전개: (${nice(state.a)})x² + (${nice(-2*state.a+state.b)})x + (${nice(state.a-state.b+state.c)})`;
+  note='계수를 비교하거나, 좋은 x 값을 대입해서 b와 c를 정해 보세요.';
+ }
+ else if(i===3){
+  lines=[{name:'y = (2x − 1)(x + 1)',f:x=>(2*x-1)*(x+1),color:'#377566',width:3.5}];
+  if(state.ok[3]){lines.push({name:'y = 2x² + x + 1 (좌변)',f:x=>2*x*x+x+1,color:'#585254',dash:'7 4'});
+   eq='<b>2x² + x + 1 = (2x − 1)(x + 1) + 2 — 완전히 겹칩니다</b>';note='c = 2 이면 두 곡선이 정확히 겹칩니다.';}
+  else{eq='ax² + bx + 1 = (2x − 1)(x + 1) + c';note='우변을 전개해서 양변의 계수를 비교하세요.';}
+ }
+ else{
+  const a=isNaN(state.chA)?0:state.chA,b=isNaN(state.chB)?0:state.chB,c=isNaN(state.chC)?0:state.chC;
+  lines=[{name:'y = a(x+1)² + b(x+1) + c',f:x=>a*(x+1)*(x+1)+b*(x+1)+c,color:'#377566',width:3.5},
+   {name:'y = x² + 2x − 4 (목표)',f:x=>x*x+2*x-4,color:'#585254',dash:'7 4'}];
+  eq=`현재 입력: (${nice(a)})x² + (${nice(2*a+b)})x + (${nice(a+b+c)})<br>목표: x² + 2x − 4`;
+  note=(a===1&&b===0&&c===-5)?'두 곡선이 완전히 겹칩니다! a = 1, b = 0, c = −5.':'입력을 바꾸면 곡선이 바로 바뀝니다. 겹치는 순간을 찾아보세요.';
+ }
+ plot(lines,note);
+ $('equations').innerHTML='<div class="equation">'+eq+'</div>';
+}
+/* ---------- stages ---------- */
+function render(){let i=state.stage;
+ $('stageLabel').textContent=`${i+1} / ${labels.length} · ${labels[i]}`;
+ $('progress').innerHTML=labels.map((_,n)=>`<i class="${n<=i?'done':''}"></i>`).join('');
+ $('back').disabled=i===0;$('next').disabled=!state.ok[i]||i===6;
+ $('next').textContent=i===5?'학습 요약 보기':'다음';message('');let h='';
+ if(i===0){h=`<h2 id="activityTitle">같은 식, 다른 모양</h2>
+ <p>같은 다항식도 모양을 바꿔 쓸 수 있습니다.</p>
+ <div class="equation">a(x − 1)² + b(x − 1) + c = x² + 5x</div>
+ <p>이 등식이 x에 대한 항등식이 되려고 합니다. <strong>좌변을 전개했을 때 x²의 계수</strong>는 얼마여야 할까요?</p>
+ <div class="choice"><button data-pred="1">1</button><button data-pred="2">2</button><button data-pred="5">5</button></div>
+ <p class="muted">예측을 고른 뒤 그래프로 확인합니다. 틀려도 괜찮습니다.</p>`;}
+ if(i===1){h=`<h2 id="activityTitle">세 슬라이더로 곡선을 겹쳐 보세요</h2>
+ <p>a, b, c를 바꾸면 좌변의 곡선이 바뀝니다. 목표 곡선 y = x² + 5x 와 <strong>완전히</strong> 겹치게 만들어 보세요.</p>
+ <div class="controls"><label for="asl">a: <b id="aval">${nice(state.a)}</b></label><input id="asl" type="range" min="-2" max="4" step="1" value="${state.a}">
+ <label for="bsl">b: <b id="bval">${nice(state.b)}</b></label><input id="bsl" type="range" min="-5" max="10" step="1" value="${state.b}">
+ <label for="csl">c: <b id="cval">${nice(state.c)}</b></label><input id="csl" type="range" min="-8" max="8" step="1" value="${state.c}"></div>
+ <p class="muted">힌트 없이 겹치는 값을 찾아보세요. 어려우면 다음 화면의 두 가지 방법이 도와줍니다.</p>`;}
+ if(i===2){h=`<h2 id="activityTitle">두 가지 방법으로 b와 c를 정하세요</h2>
+ <p>예측과 조작에서 <strong>a = 1</strong>임을 확인했습니다 (x²의 계수).</p>
+ <h3>방법 1 · 계수 비교</h3>
+ <p class="steps">전개식의 x 계수: −2a + b = −2(1) + b = 5 → b = <input id="cb" type="number" step="any" style="width:80px"><br>
+ 상수항: a − b + c = 1 − 7 + c = 0 → c = <input id="cc" type="number" step="any" style="width:80px">
+ <button id="coefBtn">확인</button></p>
+ <h3>방법 2 · 수치 대입</h3>
+ <p class="steps">x = 1 을 대입하면 (x − 1) 부분이 모두 0: c = 1² + 5·1 = <input id="sc" type="number" step="any" style="width:80px">
+ <button id="subBtn">확인</button></p>
+ <p class="muted">두 방법이 같은 값을 주는지 비교해 보세요. (x − 1)을 0으로 만드는 x = 1 이 편한 대입값입니다.</p>`;}
+ if(i===3){h=`<h2 id="activityTitle">교과서 문제를 풀어 보세요</h2>
+ <p class="muted">미래엔 공통수학1 · 25쪽 문제 2⑴</p>
+ <p>등식 ax² + bx + 1 = (2x − 1)(x + 1) + c 가 x에 대한 항등식이 되도록 상수 a, b, c의 값을 정하시오.</p>
+ <div class="answer-grid three"><label>a<input id="ba" type="number" step="any" inputmode="decimal"></label><label>b<input id="bb" type="number" step="any" inputmode="decimal"></label><label>c<input id="bc" type="number" step="any" inputmode="decimal"></label></div>
+ <div class="tools"><button id="checkBook" class="primary">채점하기</button><button id="hintBtn">단계별 도움 (${state.hints}/3)</button><button id="workedBtn">전체 풀이 보기</button></div>
+ <div id="hints"></div><div id="worked"></div>
+ <p class="muted">우변을 먼저 전개한 뒤, 양변에서 같은 차수의 계수를 비교하세요.</p>`;}
+ if(i===4){h=`<h2 id="activityTitle">모양이 다른 항등식</h2>
+ <p class="muted">미래엔 공통수학1 · 36쪽 중단원 마무리 문제 01⑵ · 4단계 도움 제공</p>
+ <p>등식 x² + 2x − 4 = a(x + 1)² + b(x + 1) + c 가 x에 대한 항등식이 되도록 상수 a, b, c의 값을 정하시오.</p>
+ <h3>1단계 · 문제 이해</h3>
+ <p>우변을 전개했을 때 x²의 계수는?</p>
+ <div class="choice"><button data-u="a">a</button><button data-u="b">b</button><button data-u="ab">a + b</button></div>
+ <h3>2단계 · 도움 카드</h3>
+ <div class="tools"><button id="cHintBtn">도움 카드 열기 (${state.challenge.hints}/3)</button></div><div id="cHints"></div>
+ <h3>3단계 · 부분 풀이</h3>
+ <p class="steps">a(x + 1)² + b(x + 1) + c = ax² + (2a + b)x + (a + b + c)<br>
+ x²의 계수: a = <input id="pa" type="number" step="any" style="width:80px">,
+ x의 계수: 2a + b = 2 → b = <input id="pb" type="number" step="any" style="width:80px">,
+ 상수항: a + b + c = −4 → c = <input id="pc" type="number" step="any" style="width:80px">
+ <button id="blankBtn">빈칸 확인</button></p>
+ <h3>4단계 · 완성</h3>
+ <div class="answer-grid three"><label>a<input id="ca" type="number" step="any" inputmode="decimal"></label><label>b<input id="cb2" type="number" step="any" inputmode="decimal"></label><label>c<input id="cc2" type="number" step="any" inputmode="decimal"></label></div>
+ <div class="tools"><button id="checkCh" class="primary">채점하기</button><button id="cWorkedBtn">전체 풀이 보기</button></div><div id="cWorked"></div>
+ <h3>수치를 바꾼 변형</h3>
+ <p>x² − x + 1 = a(x + 2)² + b(x + 2) + c 가 항등식이 되도록 a, b, c를 정하시오.</p>
+ <div class="answer-grid three"><label>a<input id="va" type="number" step="any" inputmode="decimal"></label><label>b<input id="vb" type="number" step="any" inputmode="decimal"></label><label>c<input id="vc" type="number" step="any" inputmode="decimal"></label></div>
+ <div class="tools"><button id="checkVar" class="primary">변형 채점</button></div>
+ <p class="muted">입력한 a, b, c의 곡선이 왼쪽 목표 곡선과 겹치는지 함께 확인해 보세요.</p>`;}
+ if(i===5){h=`<h2 id="activityTitle">마지막으로 개념을 정리해요</h2>
+ <div class="formula"><h3>미정계수법</h3><p>항등식에서 아직 정해지지 않은 계수를 항등식의 성질로 정하는 방법입니다.</p></div>
+ <div class="formula"><h3>방법 1 · 계수 비교법</h3><p>양변을 전개해 같은 차수의 계수끼리 같다고 놓고 연립합니다.</p><div class="equation">a = 1, −2a + b = 5, a − b + c = 0</div></div>
+ <div class="formula"><h3>방법 2 · 수치 대입법</h3><p>양변에 적당한 수를 대입합니다. (x − 1)처럼 인수가 보이면 그 인수를 0으로 만드는 x = 1 이 편합니다.</p></div>
+ <div class="formula"><h3>주의</h3><p>두 방법 모두 'x에 대한 항등식'일 때만 쓸 수 있습니다. 방정식에는 쓰지 않습니다.</p></div>
+ <label><input type="checkbox" id="reflect"> 계수 비교법과 수치 대입법을 언제 쓰는지 설명할 수 있습니다.</label>`;}
+ if(i===6){let mins=Math.max(1,Math.round((Date.now()-state.start)/60000));h=`<h2 id="activityTitle">오늘의 학습 요약</h2><div class="summary">
+ <p>예측한 x²의 계수 <b>${state.prediction}</b></p>
+ <p>곡선 겹치기 <b>${state.matched?'성공 (a=1, b=7, c=6)':'미완료'}</b> · 움직인 슬라이더 <b>${state.moved.size}개</b></p>
+ <p>계수 비교 b, c <b>${state.coefB===7&&state.coefC===6?'확인 완료':'미완료'}</b> · 수치 대입 c <b>${state.subC===6?'확인 완료':'미완료'}</b></p>
+ <p>교과서 문제 <b>${state.bookDone==='self'?'정답 확인':state.bookDone==='help'?'풀이 도움 후 완료':'미완료'}</b> · 도움 카드 <b>${state.hints} / 3장</b></p>
+ <p>심화 문제 <b>${state.challenge.done==='self'?'정답 확인':state.challenge.done==='help'?'풀이 도움 후 완료':'미완료'}</b> · 도움 카드 <b>${state.challenge.hints} / 3장</b></p>
+ <p>변형 문제 <b>${state.variation==='self'?'정답 확인':'미완료'}</b></p>
+ <p>이 화면을 연 시간 <b>약 ${mins}분</b></p></div>
+ <div class="notice">이 요약은 현재 화면에만 표시됩니다. 교사나 외부 서비스로 전송하지 않습니다. 배포판에서는 학생 동의 후 학습 이력을 Sheet에 기록하도록 연결할 예정입니다.</div>
+ <button id="restart" style="margin-top:18px">처음부터 다시</button>`;}
+ $('activity').innerHTML=h;bind();graph();}
+/* ---------- bindings ---------- */
+function bind(){let i=state.stage;
+ if(i===0){document.querySelectorAll('[data-pred]').forEach(b=>b.onclick=()=>{state.prediction=Number(b.dataset.pred);state.ok[0]=true;
+  document.querySelectorAll('[data-pred]').forEach(c=>c.style.background=c===b?'#edf5f2':'white');
+  message(state.prediction===1?'예측을 기록했어요. a = 1 일 때 좌변이 어떻게 보이는지 그래프로 확인하세요.':'예측을 기록했어요. x²의 계수가 왜 a인지 전개를 생각해 보세요.');
+  $('next').disabled=false;graph();});}
+ if(i===1){['asl','bsl','csl'].forEach(id=>{$(id).oninput=e=>{state.a=Number($('asl').value);state.b=Number($('bsl').value);state.c=Number($('csl').value);
+   state.moved.add(id);$('aval').textContent=nice(state.a);$('bval').textContent=nice(state.b);$('cval').textContent=nice(state.c);
+   if(state.a===1&&state.b===7&&state.c===6){if(!state.matched)message('완전히 겹쳤습니다! a = 1, b = 7, c = 6.');state.matched=true;state.ok[1]=true;$('next').disabled=false;}
+   graph();};});}
+ if(i===2){$('coefBtn').onclick=()=>{let b=numVal('cb'),c=numVal('cc');
+   if(isNaN(b)||isNaN(c)){message('두 칸을 모두 입력하세요.',true);return;}
+   state.coefB=b;state.coefC=c;
+   message(b===7&&c===6?'맞습니다! b = 7, c = 6. 수치 대입법으로도 확인해 보세요.':'다시: −2(1) + b = 5, 1 − b + c = 0 을 푸세요.',!(b===7&&c===6));};
+  $('subBtn').onclick=()=>{let c=numVal('sc');
+   if(isNaN(c)){message('값을 입력하세요.',true);return;}
+   state.subC=c;
+   message(c===6?'맞습니다! x = 1 대입으로도 c = 6. 두 방법이 일치합니다.':'x = 1 을 x² + 5x 에 대입하면 얼마인가요?',c!==6);};
+  if(state.coefB===7&&state.coefC===6&&state.subC===6){state.ok[2]=true;$('next').disabled=false;}
+  let origCoef=$('coefBtn').onclick,origSub=$('subBtn').onclick;
+  $('coefBtn').onclick=()=>{origCoef();if(state.coefB===7&&state.coefC===6&&state.subC===6){state.ok[2]=true;$('next').disabled=false;}};
+  $('subBtn').onclick=()=>{origSub();if(state.coefB===7&&state.coefC===6&&state.subC===6){state.ok[2]=true;$('next').disabled=false;message('두 방법 모두 확인! 계수 비교와 수치 대입이 같은 답을 줍니다.');}};}
+ if(i===3){const hints=['우변 전개: (2x − 1)(x + 1) = 2x² + x − 1.','계수 비교: a = 2, b = 1, 그리고 상수항 1 = −1 + c.','c = 2. 정리하면 a = 2, b = 1, c = 2.'];
+  $('hintBtn').onclick=()=>{if(state.hints<3){$('hints').innerHTML+=`<div class="hint">${hints[state.hints]}</div>`;state.hints++;$('hintBtn').textContent=`단계별 도움 (${state.hints}/3)`;}};
+  $('checkBook').onclick=()=>{let v=[numVal('ba'),numVal('bb'),numVal('bc')];
+   if(v.some(isNaN)){message('세 칸을 모두 입력해야 채점할 수 있습니다.',true);return;}
+   if(v[0]===2&&v[1]===1&&v[2]===2){state.bookDone='self';state.ok[3]=true;$('next').disabled=false;
+    message('정답입니다! a = 2, b = 1, c = 2. 왼쪽에서 두 곡선이 겹치는지 확인하세요.');graph();}
+   else message('다시: 우변 (2x − 1)(x + 1) + c = 2x² + x + (c − 1). 좌변과 계수를 비교하세요.',true);};
+  $('workedBtn').onclick=()=>{$('worked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>① 우변 전개: (2x − 1)(x + 1) + c = 2x² + x − 1 + c<br>② 계수 비교: a = 2, b = 1, 1 = −1 + c<br>③ 따라서 a = 2, b = 1, c = 2<br>검산: 2x² + x + 1 = (2x − 1)(x + 1) + 2</div>`;
+   state.bookDone='help';state.ok[3]=true;$('next').disabled=false;message('전체 풀이를 확인했습니다.');graph();};}
+ if(i===4){const cHints=['우변 전개: a(x + 1)² + b(x + 1) + c = ax² + (2a + b)x + (a + b + c).','x²의 계수 비교: a = 1. 그러면 2a + b = 2 에서 b = 0.','상수항: a + b + c = −4 → 1 + 0 + c = −4 → c = −5.'];
+  document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{let ok=b.dataset.u==='a';state.challenge.understood=ok||state.challenge.understood;
+   document.querySelectorAll('[data-u]').forEach(c=>c.style.background=c===b?(ok?'#edf5f2':'#f8e7e8'):'white');
+   message(ok?'맞습니다. a(x + 1)² 에서 x²의 계수는 a 하나뿐입니다.':'(x + 1)² = x² + 2x + 1 에 곱해지는 것은 a뿐입니다. b(x + 1)에는 x²이 없습니다.',true);});
+  $('cHintBtn').onclick=()=>{if(state.challenge.hints<3){$('cHints').innerHTML+=`<div class="hint">${cHints[state.challenge.hints]}</div>`;state.challenge.hints++;$('cHintBtn').textContent=`도움 카드 열기 (${state.challenge.hints}/3)`;}};
+  $('blankBtn').onclick=()=>{let pa=numVal('pa'),pb=numVal('pb'),pc=numVal('pc');
+   if(isNaN(pa)||isNaN(pb)||isNaN(pc)){message('세 빈칸을 모두 입력하세요.',true);return;}
+   let got=0;if(pa===1)got++;if(pb===0)got++;if(pc===-5)got++;state.challenge.blanks=got;
+   message(got===3?'맞습니다! a = 1, b = 0, c = −5. 아래 완성 단계에 입력해 보세요.':`빈칸 ${got}/3 정답. 계수 비교를 다시 확인하세요.`,got!==3);};
+  function syncInputs(){state.chA=numVal('ca');state.chB=numVal('cb2');state.chC=numVal('cc2');graph();}
+  ['ca','cb2','cc2'].forEach(id=>$(id).oninput=syncInputs);
+  $('checkCh').onclick=()=>{let a=numVal('ca'),b=numVal('cb2'),c=numVal('cc2');
+   if(isNaN(a)||isNaN(b)||isNaN(c)){message('세 칸을 모두 입력해야 채점할 수 있습니다.',true);return;}
+   if(a===1&&b===0&&c===-5){state.challenge.done='self';message('정답입니다! a = 1, b = 0, c = −5. 왼쪽 곡선이 겹치는지 확인하세요.');}
+   else{message('다시: a = 1 부터, 2a + b = 2, a + b + c = −4 순서로 푸세요.',true);return;}
+   maybeDone();};
+  $('cWorkedBtn').onclick=()=>{$('cWorked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>① 우변 전개: ax² + (2a + b)x + (a + b + c)<br>② 계수 비교: a = 1, 2a + b = 2, a + b + c = −4<br>③ a = 1, b = 0, c = −5<br>검산: (x + 1)² + 0·(x + 1) − 5 = x² + 2x − 4</div>`;
+   state.challenge.done='help';message('전체 풀이를 확인했습니다.');maybeDone();};
+  $('checkVar').onclick=()=>{let a=numVal('va'),b=numVal('vb'),c=numVal('vc');
+   if(isNaN(a)||isNaN(b)||isNaN(c)){message('세 칸을 모두 입력해야 채점할 수 있습니다.',true);return;}
+   if(a===1&&b===-5&&c===7){state.variation='self';message('정답입니다! a = 1, b = −5, c = 7.');}
+   else{message('다시: a = 1, 4a + b = −1 → b, 4a + 2b + c = 1 → c 순서로 푸세요.',true);return;}
+   maybeDone();};
+  function maybeDone(){if(state.challenge.done&&state.variation){state.ok[4]=true;$('next').disabled=false;graph();}}}
+ if(i===5){$('reflect').onchange=e=>{state.ok[5]=e.target.checked;$('next').disabled=!state.ok[5];};}
+ if(i===6){$('restart').onclick=()=>{location.hash='';location.reload();};}
+}
+$('back').onclick=()=>{if(state.stage>0){state.stage--;render();}};
+$('next').onclick=()=>{if(state.stage<6&&state.ok[state.stage]){state.stage++;render();}};
+$('xslider').oninput=e=>{state.x=Number(e.target.value);graph();};
+(function(){let m=location.hash.match(/s=(\d)/);if(m){let n=Number(m[1]);
+ if(n>=1){state.prediction=1;state.ok[0]=true;}
+ if(n>=2){state.a=1;state.b=7;state.c=6;state.matched=true;state.ok[1]=true;}
+ if(n>=3){state.coefB=7;state.coefC=6;state.subC=6;state.ok[2]=true;}
+ if(n>=4){state.bookDone='self';state.ok[3]=true;}
+ if(n>=5){state.challenge={understood:true,hints:3,blanks:3,done:'self'};state.variation='self';state.ok[4]=true;state.ok[5]=true;state.chA=1;state.chB=0;state.chC=-5;}
+ state.stage=Math.min(n,6);}})();
+render();
+
+</script></body></html>
