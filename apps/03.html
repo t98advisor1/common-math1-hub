@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>공통수학1 · 03 다항식의 나눗셈</title>
+<style>
+  :root{
+    --ink:#1c2430; --sub:#55616e; --line:#d7dde4;
+    --brand:#2557d6; --brand-soft:#eaf0fd; --ok:#14804a; --ok-soft:#e6f4ec;
+    --warn:#b3261e; --warn-soft:#fdeceb; --amber:#8a5a00; --amber-soft:#fdf3e0;
+    --hl:#fff1b8; --mono:"Noto Sans CJK KR","Noto Sans KR",sans-serif;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:#eef1f5;color:var(--ink);
+    font-family:"Noto Sans CJK KR","Noto Sans KR",-apple-system,sans-serif;
+    font-size:17px;line-height:1.55;overflow-x:hidden;}
+  sup{font-size:.68em;line-height:0;}
+  #app{max-width:480px;margin:0 auto;min-height:100vh;background:#fff;display:flex;flex-direction:column;
+    box-shadow:0 0 0 1px var(--line);}
+  header.top{padding:12px 16px 10px;border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:20;}
+  .crumb{font-size:13px;color:var(--sub);letter-spacing:.02em;}
+  .sc-title{font-size:20px;font-weight:700;margin-top:2px;}
+  main{flex:1;padding:16px 16px 24px;}
+  .dots{display:flex;gap:6px;padding:10px 16px 0;flex-wrap:wrap;background:#fff;position:sticky;top:64px;z-index:19;}
+  .dot{flex:1;min-width:34px;height:30px;border:1px solid var(--line);border-radius:8px;background:#f7f9fb;
+    font-size:12px;color:var(--sub);display:flex;align-items:center;justify-content:center;cursor:default;}
+  .dot.cur{border-color:var(--brand);color:var(--brand);font-weight:700;background:var(--brand-soft);}
+  .dot.done{background:var(--ok-soft);border-color:#bfe0cd;color:var(--ok);cursor:pointer;}
+  .dot.locked{background:#f1f3f5;color:#a7b0ba;}
+  .card{border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 14px;background:#fff;}
+  .card.soft{background:#f8fafc;}
+  .tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--brand-soft);color:var(--brand);margin-bottom:8px;}
+  .tag.ext{background:var(--amber-soft);color:var(--amber);}
+  h2{font-size:19px;margin:0 0 10px;}
+  h3{font-size:17px;margin:18px 0 8px;}
+  p{margin:8px 0;}
+  .muted{color:var(--sub);font-size:14px;}
+  .mathbox{font-family:var(--mono);background:#f6f8fb;border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;margin:10px 0;font-size:17px;overflow-x:hidden;}
+  .chips{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+  .chip{border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:12px 14px;font-size:17px;
+    text-align:left;cursor:pointer;font-family:var(--mono);transition:border-color .15s,background .15s;}
+  .chip:active{transform:scale(.99);}
+  .chip:disabled{opacity:.45;cursor:default;}
+  .chip.correct{border-color:var(--ok);background:var(--ok-soft);color:var(--ok);font-weight:700;}
+  .chip.wrong{border-color:var(--warn);background:var(--warn-soft);}
+  .fb{margin-top:10px;border-radius:10px;padding:10px 12px;font-size:15px;display:none;}
+  .fb.ok{display:block;background:var(--ok-soft);color:var(--ok);}
+  .fb.no{display:block;background:var(--warn-soft);color:var(--warn);}
+  .fb.info{display:block;background:var(--brand-soft);color:#1c3f94;}
+  .btn{display:inline-block;border:none;border-radius:12px;padding:12px 18px;font-size:16px;font-weight:700;
+    background:var(--brand);color:#fff;cursor:pointer;}
+  .btn:disabled{background:#c3ccd6;cursor:default;}
+  .btn.ghost{background:#fff;color:var(--brand);border:1.5px solid var(--brand);}
+  .navbar{display:flex;gap:10px;justify-content:space-between;padding:12px 16px 18px;border-top:1px solid var(--line);background:#fff;position:sticky;bottom:0;}
+  /* long division table */
+  .ld{font-family:var(--mono);font-size:16px;margin:14px 0 4px;width:100%;}
+  .ld-row{display:grid;grid-template-columns:58px repeat(4,1fr);align-items:end;}
+  .ld-cell{padding:3px 2px;text-align:right;min-height:26px;white-space:nowrap;}
+  .ld-cell.div{text-align:left;color:var(--sub);font-size:14px;padding-right:6px;}
+  .ld-cell.blank{color:var(--brand);font-weight:700;}
+  .ld-bar{border-top:2px solid var(--ink);margin:2px 0;grid-column:2/6;}
+  .ld-row.rule> .ld-cell{border-top:1.5px solid var(--ink);}
+  .ld-q .ld-cell{border-bottom:2px solid var(--ink);}
+  .pop{animation:pop .35s ease;}
+  @keyframes pop{0%{transform:scale(.6);background:var(--hl);}100%{transform:scale(1);background:transparent;}}
+  .shake{animation:shake .3s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+  /* synthetic */
+  .syn{font-family:var(--mono);font-size:16px;margin:12px 0;}
+  .syn-grid{display:grid;grid-template-columns:44px repeat(4,1fr);gap:2px;align-items:center;}
+  .syn-cell{padding:6px 2px;text-align:center;min-height:30px;border-radius:6px;}
+  .syn-cell.edge{border-right:2px solid var(--ink);}
+  .syn-cell.base{border-bottom:2px solid var(--ink);}
+  .hl{background:var(--hl);transition:background .3s;}
+  .hlg{background:#dcebe1;}
+  .synrow-hidden{opacity:0;}
+  .synrow{transition:opacity .4s;}
+  .stepbtns{display:flex;gap:8px;margin-top:10px;}
+  .kwd{font-weight:700;color:var(--brand);}
+  canvas.graph{width:100%;height:auto;border:1px solid var(--line);border-radius:12px;background:#fff;touch-action:none;}
+  input[type=range]{width:100%;margin:14px 0 4px;accent-color:var(--brand);height:32px;}
+  .readout{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-family:var(--mono);font-size:15px;
+    background:#f6f8fb;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;}
+  .locknote{border:1.5px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--sub);background:#fafbfc;}
+  .locknote b{color:var(--ink);}
+  .concept{border-left:4px solid var(--brand);}
+  .hintcard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fffef5;margin-top:8px;font-size:15px;}
+  .done-list{list-style:none;padding:0;margin:8px 0;}
+  .done-list li{padding:6px 0;border-bottom:1px solid #eef1f5;font-size:15px;}
+  .check{display:inline-block;width:20px;height:20px;border-radius:50%;background:var(--ok);color:#fff;text-align:center;
+    font-size:13px;line-height:20px;margin-right:8px;font-weight:700;}
+  footer.fin{font-size:13px;color:var(--sub);text-align:center;padding:6px 0 2px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="crumb">미래엔 공통수학1 · Ⅰ. 다항식 · 3편</div>
+    <div class="sc-title" id="scTitle">다항식의 나눗셈</div>
+    <div class="dots" id="dots"></div>
+  </header>
+  <main id="screen"></main>
+  <div class="navbar">
+    <button class="btn ghost" id="prevBtn">이전</button>
+    <button class="btn" id="nextBtn">다음</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============ 상태 ============ */
+var SCREENS = [
+  {id:'intro',     name:'도입'},
+  {id:'longdiv',   name:'세로나눗셈'},
+  {id:'graph',     name:'그래프 확인'},
+  {id:'synthetic', name:'조립제법'},
+  {id:'practice',  name:'교과서 연습'},
+  {id:'quiz',      name:'퀴즈'},
+  {id:'concept',   name:'개념카드'},
+  {id:'finish',    name:'마치기'}
+];
+var state = {cur:0, done:{}, startedAt:Date.now(), prediction:null};
+function unlockedUpTo(){ // 처음으로 완료되지 않은 화면 번호
+  for (var i=0;i<SCREENS.length;i++){ if(!state.done[SCREENS[i].id]) return i; }
+  return SCREENS.length-1;
+}
+function complete(id){ state.done[id]=true; renderDots(); updateNav(); }
+
+/* ============ 골격 ============ */
+function renderDots(){
+  var d = document.getElementById('dots'); d.innerHTML='';
+  var upto = unlockedUpTo();
+  SCREENS.forEach(function(s,i){
+    var el=document.createElement('div');
+    el.className='dot';
+    if(state.done[s.id]) el.classList.add('done');
+    else if(i>upto) el.classList.add('locked');
+    if(i===state.cur) el.classList.add('cur');
+    el.textContent = state.done[s.id] ? '✓' : (i>upto ? '잠김' : String(i+1));
+    el.title = s.name;
+    el.style.cursor='pointer';
+    el.addEventListener('click',function(){ go(i); });
+    d.appendChild(el);
+  });
+}
+function updateNav(){
+  var cur=state.cur, id=SCREENS[cur].id;
+  document.getElementById('prevBtn').disabled = (cur===0);
+  var nb=document.getElementById('nextBtn');
+  if(cur===SCREENS.length-1){ nb.disabled=true; }
+  else nb.disabled = !state.done[id];
+  document.getElementById('scTitle').textContent =
+    ({intro:'도입 미션: 몫과 나머지 예측하기', longdiv:'활동 1 · 세로나눗셈으로 직접 나누기',
+      graph:'활동 2 · 그래프로 확인하기', synthetic:'확장 · 조립제법과의 대응',
+      practice:'교과서 연습 · 문제 5 ⑵', quiz:'확인 퀴즈', concept:'개념 정리 카드', finish:'마치기'})[id];
+}
+function go(i){
+  if(i<0||i>=SCREENS.length) return;
+  if(i>unlockedUpTo()){ // 잠긴 화면
+    var scr=document.getElementById('screen');
+    scr.innerHTML='<div class="locknote"><b>아직 잠겨 있어요</b><br>앞의 활동을 먼저 완료하면 열립니다.</div>';
+    state.cur=i; renderDots(); updateNav();
+    document.getElementById('nextBtn').disabled=true;
+    document.getElementById('prevBtn').disabled=(i===0);
+    return;
+  }
+  state.cur=i; RENDER[SCREENS[i].id](); renderDots(); updateNav();
+  window.scrollTo(0,0);
+}
+
+/* ============ 공용 UI 부품 ============ */
+function chipGroup(el, options, onPick){
+  var box=document.createElement('div'); box.className='chips';
+  options.forEach(function(op){
+    var b=document.createElement('button'); b.className='chip'; b.innerHTML=op.html;
+    b.addEventListener('click',function(){
+      if(op.ok){ b.classList.add('correct'); onPick(true,b,box); }
+      else { b.classList.add('wrong'); b.disabled=true; b.classList.add('shake');
+             setTimeout(function(){b.classList.remove('shake');},350); onPick(false,b,box); }
+    });
+    box.appendChild(b);
+  });
+  el.appendChild(box);
+  return box;
+}
+function fbEl(){ var d=document.createElement('div'); d.className='fb'; return d; }
+function poly(s){ return s; } // 이미 sup 포함 문자열
+
+/* ============ 화면 0: 도입 ============ */
+function renderIntro(){
+  var m=document.getElementById('screen');
+  m.innerHTML='';
+  var c=document.createElement('div'); c.className='card';
+  c.innerHTML=
+    '<span class="tag">도입 미션</span>'+
+    '<h2>A를 B로 나누면 몫과 나머지는?</h2>'+
+    '<p>다항식 <b>A = 3x<sup>3</sup> - 5x<sup>2</sup> - 2x + 1</b>을 다항식 <b>B = x - 2</b>로 나눕니다.</p>'+
+    '<p>계산하기 전에, 몫 Q와 나머지 R이 어떤 식일지 <span class="kwd">먼저 예측</span>해 봅시다. 나눗셈의 결과는 <span class="kwd">A = BQ + R</span> 꼴로 나타낼 수 있고, R의 차수는 B의 차수보다 낮습니다.</p>'+
+    '<p class="muted">정답을 바로 알려 주지 않습니다. 예측을 고른 뒤 다음 활동에서 세로나눗셈으로 직접 확인합니다.</p>';
+  m.appendChild(c);
+  var q=document.createElement('div'); q.className='card soft';
+  q.innerHTML='<h3>예측: 몫 Q와 나머지 R은?</h3>';
+  var fb=fbEl(); q.appendChild(fb);
+  m.appendChild(q);
+  var opts=[
+    {html:'Q = 3x<sup>2</sup> + x, R = 0', ok:false},
+    {html:'Q = 3x<sup>2</sup> + x, R = 1', ok:true},
+    {html:'Q = 3x<sup>2</sup> - 5x - 2, R = 1', ok:false},
+    {html:'Q = 3x<sup>2</sup> + x, R = x + 1', ok:false}
+  ];
+  var box=document.createElement('div'); box.className='chips';
+  opts.forEach(function(op){
+    var b=document.createElement('button'); b.className='chip'; b.innerHTML=op.html;
+    b.addEventListener('click',function(){
+      b.style.borderColor='var(--brand, #3b6fd8)'; b.style.fontWeight='700';
+      fb.className='fb info';
+      fb.innerHTML='예측을 기록했습니다. 다음 화면의 <b>세로나눗셈</b>으로 직접 나눠 보고, 예측과 같은지 비교해 봅시다.';
+      state.prediction=op.ok;
+      complete('intro');
+      Array.prototype.forEach.call(box.querySelectorAll('.chip'),function(x){ if(x!==b) x.disabled=true; });
+      b.disabled=true; b.style.opacity='1';
+    });
+    box.appendChild(b);
+  });
+  q.appendChild(box);
+  var note=document.createElement('p'); note.className='muted';
+  note.textContent='출처: 미래엔 공통수학1 교과서 18쪽 문제 5 ⑴ (A=3x³-5x²-2x+1, B=x-2)';
+  m.appendChild(note);
+}
+
+/* ============ 화면 1: 세로나눗셈 칸 채우기 ============ */
+function renderLongdiv(){
+  var m=document.getElementById('screen');
+  m.innerHTML='';
+  var c=document.createElement('div'); c.className='card';
+  c.innerHTML='<span class="tag">활동 1 · 필수</span>'+
+    '<h2>세로나눗셈(장제법)으로 나누기</h2>'+
+    '<p>다항식의 나눗셈은 각 다항식을 <b>내림차순으로 정리</b>한 다음, <b>자연수의 나눗셈과 같은 방법</b>으로 계산합니다(교과서 18쪽).</p>'+
+    '<div class="mathbox">(3x<sup>3</sup> - 5x<sup>2</sup> - 2x + 1) ÷ (x - 2)</div>'+
+    '<p class="muted">빈칸을 순서대로 채우며 몫과 나머지를 완성하세요. 틀리면 힌트가 나옵니다.</p>';
+  m.appendChild(c);
+
+  var ld=document.createElement('div'); ld.className='ld card';
+  ld.innerHTML=
+    '<div class="ld-row ld-q"><div class="ld-cell div"></div>'+
+      '<div class="ld-cell blank" id="cQ1"></div><div class="ld-cell blank" id="cQ2"></div><div class="ld-cell"></div></div>'+
+    '<div class="ld-row"><div class="ld-cell div">x - 2</div>'+
+      '<div class="ld-cell">3x<sup>3</sup></div><div class="ld-cell">- 5x<sup>2</sup></div><div class="ld-cell">- 2x</div><div class="ld-cell">+ 1</div></div>'+
+    '<div class="ld-row"><div class="ld-cell"></div>'+
+      '<div class="ld-cell blank" id="cM1a"></div><div class="ld-cell blank" id="cM1b"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
+    '<div class="ld-row rule"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
+    '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell"></div>'+
+      '<div class="ld-cell blank" id="cR1a"></div><div class="ld-cell" id="cR1b"></div><div class="ld-cell"></div></div>'+
+    '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell"></div>'+
+      '<div class="ld-cell blank" id="cM2a"></div><div class="ld-cell blank" id="cM2b"></div><div class="ld-cell"></div></div>'+
+    '<div class="ld-row rule"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
+    '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div>'+
+      '<div class="ld-cell blank" id="cRem"></div></div>';
+  m.appendChild(ld);
+
+  var stepCard=document.createElement('div'); stepCard.className='card soft';
+  m.appendChild(stepCard);
+
+  var steps=[
+    {q:'1단계 · 몫의 첫째 항: <b>3x<sup>3</sup> ÷ x = ?</b>', hint:'최고차항끼리 나눕니다. 3x³ ÷ x = 3x²',
+     opts:[{h:'3x<sup>2</sup>',ok:true},{h:'3x<sup>3</sup>',ok:false},{h:'x<sup>2</sup>',ok:false}],
+     fill:[['cQ1','3x<sup>2</sup>']]},
+    {q:'2단계 · (x - 2) × 3x<sup>2</sup> = ?', hint:'분배법칙: 3x²·x = 3x³, 3x²·(-2) = -6x²',
+     opts:[{h:'3x<sup>3</sup> - 6x<sup>2</sup>',ok:true},{h:'3x<sup>3</sup> - 5x<sup>2</sup>',ok:false},{h:'3x<sup>3</sup> + 6x<sup>2</sup>',ok:false}],
+     fill:[['cM1a','3x<sup>3</sup>'],['cM1b','- 6x<sup>2</sup>']]},
+    {q:'3단계 · 빼기: (3x<sup>3</sup> - 5x<sup>2</sup>) - (3x<sup>3</sup> - 6x<sup>2</sup>) = ?', hint:'-5x² - (-6x²) = -5x² + 6x²',
+     opts:[{h:'x<sup>2</sup>',ok:true},{h:'- 11x<sup>2</sup>',ok:false},{h:'- x<sup>2</sup>',ok:false}],
+     fill:[['cR1a','x<sup>2</sup>'],['cR1b','- 2x <span style="color:#8a94a0;font-size:13px">(내려옴)</span>']]},
+    {q:'4단계 · 몫의 둘째 항: <b>x<sup>2</sup> ÷ x = ?</b>', hint:'다시 최고차항끼리 나눕니다.',
+     opts:[{h:'x',ok:true},{h:'- 2x',ok:false},{h:'2x',ok:false}],
+     fill:[['cQ2','+ x']]},
+    {q:'5단계 · (x - 2) × x = ?', hint:'x·x = x², x·(-2) = -2x',
+     opts:[{h:'x<sup>2</sup> - 2x',ok:true},{h:'x<sup>2</sup> + 2x',ok:false},{h:'x<sup>2</sup> - 2',ok:false}],
+     fill:[['cM2a','x<sup>2</sup>'],['cM2b','- 2x']]},
+    {q:'6단계 · 빼면 0. 남은 상수항 +1을 내리면? (차수 비교: 1은 0차, x - 2는 1차)', hint:'나머지의 차수는 나누는 식의 차수보다 낮아야 하므로 여기서 멈춥니다.',
+     opts:[{h:'1 (나머지)',ok:true},{h:'0 (나누어떨어짐)',ok:false},{h:'- 2x + 1',ok:false}],
+     fill:[['cRem','1']]}
+  ];
+  var idx=0;
+  function renderStep(){
+    stepCard.innerHTML='';
+    if(idx>=steps.length){
+      stepCard.innerHTML='<div class="fb ok" style="margin-top:0">완성! 몫 Q = <b>3x<sup>2</sup> + x</b>, 나머지 R = <b>1</b> 입니다.</div>'+
+        '<div class="mathbox">3x<sup>3</sup> - 5x<sup>2</sup> - 2x + 1 = (x - 2)(3x<sup>2</sup> + x) + 1</div>'+
+        '<p class="muted">A = BQ + R 꼴로 나타냈습니다. 도입의 예측과 비교해 보세요.</p>';
+      complete('longdiv');
+      return;
+    }
+    var st=steps[idx];
+    var h=document.createElement('h3'); h.innerHTML=st.q; stepCard.appendChild(h);
+    var fb=fbEl(); stepCard.appendChild(fb);
+    var processing=false;
+    chipGroup(stepCard, st.opts.map(function(o){return {html:o.h, ok:o.ok};}), function(ok,btn,box){
+      if(processing) return; // 정답 처리 중 중복 입력 차단
+      if(ok){
+        processing=true;
+        Array.prototype.forEach.call(box.querySelectorAll('.chip'),function(x){x.disabled=true;});
+        fb.className='fb ok'; fb.innerHTML='맞았습니다.';
+        st.fill.forEach(function(f){
+          var cell=document.getElementById(f[0]);
+          cell.innerHTML=f[1]; cell.classList.remove('blank'); cell.classList.add('pop');
+        });
+        idx++; setTimeout(renderStep, 650);
+      } else {
+        fb.className='fb no'; fb.innerHTML='힌트: '+st.hint;
+      }
+    });
+  }
+  renderStep();
+}
+
+/* ============ 화면 2: 그래프 + 슬라이더 ============ */
+function A(x){return 3*x*x*x-5*x*x-2*x+1;}
+function Qf(x){return 3*x*x+x;}
+function B(x){return x-2;}
+function renderGraph(){
+  var m=document.getElementById('screen');
+  m.innerHTML='';
+  var c=document.createElement('div'); c.className='card';
+  c.innerHTML='<span class="tag">활동 2 · 조작</span>'+
+    '<h2>A = BQ + R을 그래프로 확인</h2>'+
+    '<p>슬라이더로 x 값을 바꾸면, <b>y = A(x)</b>(실선)와 <b>y = (x - 2)(3x<sup>2</sup> + x)</b>(파선) 사이의 세로 간격을 확인할 수 있습니다.</p>';
+  m.appendChild(c);
+
+  var cv=document.createElement('canvas'); cv.className='graph'; cv.width=672; cv.height=520;
+  m.appendChild(cv);
+  var rng=document.createElement('input'); rng.type='range'; rng.min='-20'; rng.max='40'; rng.value='30';
+  m.appendChild(rng);
+  var lab=document.createElement('div'); lab.className='muted'; lab.style.textAlign='center';
+  m.appendChild(lab);
+  var ro=document.createElement('div'); ro.className='readout'; m.appendChild(ro);
+
+  function draw(){
+    var x=Number(rng.value)/10;
+    lab.innerHTML='x = '+x.toFixed(1);
+    var ctx=cv.getContext('2d');
+    var W=cv.width,H=cv.height, x0=-2.5,x1=4.8, y0=-80,y1=180;
+    function px(x){return (x-x0)/(x1-x0)*W;}
+    function py(y){return H-(y-y0)/(y1-y0)*H;}
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='#d7dde4'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,py(0)); ctx.lineTo(W,py(0)); ctx.moveTo(px(0),0); ctx.lineTo(px(0),H); ctx.stroke();
+    ctx.fillStyle='#8a94a0'; ctx.font='20px "Noto Sans CJK KR",sans-serif';
+    ctx.fillText('O',px(0)-18,py(0)+22); ctx.fillText('x',W-22,py(0)-8); ctx.fillText('y',px(0)+8,22);
+    // y=A(x) 실선
+    ctx.strokeStyle='#2557d6'; ctx.lineWidth=4; ctx.beginPath();
+    for(var i=0;i<=300;i++){var xx=x0+(x1-x0)*i/300, yy=A(xx); if(i===0)ctx.moveTo(px(xx),py(yy)); else ctx.lineTo(px(xx),py(yy));}
+    ctx.stroke();
+    // y=B(x)Q(x) 파선
+    ctx.strokeStyle='#b3261e'; ctx.lineWidth=3; ctx.setLineDash([8,7]); ctx.beginPath();
+    for(var j=0;j<=300;j++){var xr=x0+(x1-x0)*j/300, yr=B(xr)*Qf(xr); if(j===0)ctx.moveTo(px(xr),py(yr)); else ctx.lineTo(px(xr),py(yr));}
+    ctx.stroke(); ctx.setLineDash([]);
+    // 슬라이더 위치의 두 점과 간격
+    var ya=A(x), yb=B(x)*Qf(x);
+    ctx.strokeStyle='#14804a'; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(px(x),py(yb)); ctx.lineTo(px(x),py(ya)); ctx.stroke();
+    ctx.fillStyle='#2557d6'; ctx.beginPath(); ctx.arc(px(x),py(ya),7,0,7); ctx.fill();
+    ctx.fillStyle='#b3261e'; ctx.beginPath(); ctx.arc(px(x),py(yb),7,0,7); ctx.fill();
+    ctx.fillStyle='#14804a'; ctx.font='bold 24px "Noto Sans CJK KR",sans-serif';
+    ctx.fillText('차이 = 1', px(x)+12, py((ya+yb)/2)+8);
+    ctx.fillStyle='#2557d6'; ctx.font='22px "Noto Sans CJK KR",sans-serif';
+    ctx.fillText('y = A(x)', 16, 30);
+    ctx.fillStyle='#b3261e'; ctx.fillText('y = (x-2)(3x²+x)', 16, 58);
+    ro.innerHTML='<span>A('+x.toFixed(1)+')</span><span>= '+ya.toFixed(1)+'</span>'+
+      '<span>(x-2)·(3x²+x)</span><span>= '+B(x).toFixed(1)+' × '+Qf(x).toFixed(1)+' = '+yb.toFixed(1)+'</span>'+
+      '<span>나머지 R</span><span>= A(x) - (x-2)(3x²+x) = <b>1</b></span>';
+  }
+  rng.addEventListener('input',draw); draw();
+
+  var q=document.createElement('div'); q.className='card soft';
+  q.innerHTML='<h3>관찰 질문: x를 움직여도 두 그래프의 세로 간격은?</h3>';
+  var fb=fbEl(); q.appendChild(fb); m.appendChild(q);
+  chipGroup(q,[
+    {html:'항상 1이다', ok:true},
+    {html:'x 값에 따라 달라진다', ok:false},
+    {html:'항상 0이다', ok:false}
+  ],function(ok){
+    if(ok){ fb.className='fb ok'; fb.innerHTML='맞았습니다. <b>A = BQ + R</b>에서 R = 1은 상수이므로, 모든 x에서 두 값의 차가 1입니다.'; complete('graph');
+      Array.prototype.forEach.call(q.querySelectorAll('.chip'),function(b){b.disabled=true;}); }
+    else { fb.className='fb no'; fb.innerHTML='힌트: 아래 수치 패널에서 R 값이 x에 따라 변하는지 확인해 보세요.'; }
+  });
+}
+
+/* ============ 화면 3: 조립제법 대응 (확장) ============ */
+function renderSynthetic(){
+  var m=document.getElementById('screen');
+  m.innerHTML='';
+  var c=document.createElement('div'); c.className='card';
+  c.innerHTML='<span class="tag ext">확장 학습 · 계획서 기반(교과서 본문 외)</span>'+
+    '<h2>조립제법: 세로나눗셈의 계수만 추리면</h2>'+
+    '<p>나누는 식이 <b>일차식 x - c</b>일 때는 계수만으로 같은 계산을 할 수 있습니다. 이를 <b>조립제법</b>이라 하며, 세로나눗셈을 대신하는 것이 아니라 <b>세로나눗셈의 각 단계와 정확히 대응</b>합니다.</p>'+
+    '<p class="muted">아래 [다음 단계]를 눌러 두 방법의 대응을 한 단계씩 확인하세요.</p>';
+  m.appendChild(c);
+
+  var v=document.createElement('div'); v.className='card';
+  v.innerHTML=
+   '<h3 style="margin-top:0">세로나눗셈</h3>'+
+   '<div class="ld" style="font-size:15px">'+
+   '<div class="ld-row ld-q"><div class="ld-cell div"></div><div class="ld-cell" id="sLq1">3x<sup>2</sup></div><div class="ld-cell" id="sLq2">+ x</div><div class="ld-cell"></div></div>'+
+   '<div class="ld-row"><div class="ld-cell div">x - 2</div><div class="ld-cell" id="sLa">3x<sup>3</sup></div><div class="ld-cell" id="sLb">- 5x<sup>2</sup></div><div class="ld-cell" id="sLc">- 2x</div><div class="ld-cell" id="sLd">+ 1</div></div>'+
+   '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell" id="sLm1a">3x<sup>3</sup></div><div class="ld-cell" id="sLm1b">- 6x<sup>2</sup></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
+   '<div class="ld-row rule"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
+   '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell" id="sLr1">x<sup>2</sup></div><div class="ld-cell" id="sLr2">- 2x</div><div class="ld-cell"></div></div>'+
+   '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell" id="sLm2a">x<sup>2</sup></div><div class="ld-cell" id="sLm2b">- 2x</div><div class="ld-cell"></div></div>'+
+   '<div class="ld-row rule"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
+   '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell" id="sLrem">1</div></div>'+
+   '</div>'+
+   '<h3>조립제법 (x - 2 = 0 → x = 2 이용)</h3>'+
+   '<div class="syn"><div class="syn-grid">'+
+     '<div class="syn-cell" id="sC0">2</div>'+
+     '<div class="syn-cell" id="sA3">3</div><div class="syn-cell" id="sA5">-5</div><div class="syn-cell" id="sA2">-2</div><div class="syn-cell" id="sA1">1</div>'+
+     '<div class="syn-cell"></div>'+
+     '<div class="syn-cell synrow synrow-hidden" id="sP1"></div><div class="syn-cell synrow synrow-hidden" id="sP2">6</div><div class="syn-cell synrow synrow-hidden" id="sP3">2</div><div class="syn-cell synrow synrow-hidden" id="sP4">0</div>'+
+     '<div class="syn-cell"></div>'+
+     '<div class="syn-cell base" id="sQ0">3</div><div class="syn-cell base synrow synrow-hidden" id="sQ1">1</div><div class="syn-cell base synrow synrow-hidden" id="sQ2">0</div><div class="syn-cell base edge synrow synrow-hidden" id="sR">1</div>'+
+   '</div></div>'+
+   '<div class="mathbox" id="synResult" style="visibility:hidden">결과줄 3, 1, 0, <b>1</b> → 몫 Q = 3x<sup>2</sup> + x, 나머지 R = 1 (세로나눗셈과 동일)</div>';
+  m.appendChild(v);
+
+  var stepText=[
+    '0단계: 계수만 나열합니다. 3x³ - 5x² - 2x + 1 → 3, -5, -2, 1. x - 2 = 0을 만족하는 x = 2를 왼쪽에 씁니다.',
+    '1단계: 3을 그대로 내립니다. ↔ 세로나눗셈에서 몫의 첫째 항 3x²의 계수 3에 대응합니다.',
+    '2단계: 2 × 3 = 6을 -5 아래에 쓰고 더하면 1. ↔ (3x³ - 5x²) - (3x³ - 6x²) = x²의 계수 1에 대응합니다.',
+    '3단계: 2 × 1 = 2를 -2 아래에 쓰고 더하면 0. ↔ (x² - 2x) - (x² - 2x) = 0에 대응합니다.',
+    '4단계: 2 × 0 = 0을 1 아래에 쓰고 더하면 1. ↔ 마지막에 남은 나머지 1에 대응합니다.',
+    '완성: 결과줄 3, 1, 0은 몫 3x² + x의 계수, 마지막 1은 나머지입니다. 세로나눗셈과 같은 답입니다.'
+  ];
+  var hlSteps=[
+    [['sC0','hl'],['sA3','hl'],['sA5','hl'],['sA2','hl'],['sA1','hl'],['sLa','hl'],['sLb','hl'],['sLc','hl'],['sLd','hl']],
+    [['sQ0','hlg'],['sLq1','hlg']],
+    [['sP2','hl'],['sQ1','hlg'],['sLm1b','hl'],['sLr1','hlg']],
+    [['sP3','hl'],['sQ2','hlg'],['sLm2a','hl'],['sLm2b','hl'],['sLr2','hl']],
+    [['sP4','hl'],['sR','hlg'],['sLrem','hlg']],
+    [['sQ0','hlg'],['sQ1','hlg'],['sQ2','hlg'],['sR','hlg'],['sLq1','hlg'],['sLq2','hlg'],['sLrem','hlg']]
+  ];
+  var revSteps=[null,['sP1'], ['sP2','sQ1'], ['sP3','sQ2'], ['sP4','sR'], ['sR']];
+  var step=0;
+  var sc=document.createElement('div'); sc.className='card soft';
+  var st=document.createElement('p'); st.innerHTML=stepText[0];
+  sc.appendChild(st);
+  var btns=document.createElement('div'); btns.className='stepbtns';
+  var nb=document.createElement('button'); nb.className='btn'; nb.textContent='다음 단계';
+  btns.appendChild(nb); sc.appendChild(btns);
+  m.appendChild(sc);
+
+  function applyHL(n){
+    // 기존 하이라이트 제거
+    Array.prototype.forEach.call(v.querySelectorAll('.hl,.hlg'),function(e){e.classList.remove('hl');e.classList.remove('hlg');});
+    hlSteps[n].forEach(function(p){var e=document.getElementById(p[0]); if(e) e.classList.add(p[1]);});
+  }
+  applyHL(0);
+  nb.addEventListener('click',function(){
+    if(step>=5) return;
+    step++;
+    (revSteps[step]||[]).forEach(function(id){var e=document.getElementById(id); if(e) e.classList.remove('synrow-hidden');});
+    applyHL(step);
+    st.innerHTML=stepText[step];
+    if(step===5){
+      document.getElementById('synResult').style.visibility='visible';
+      nb.disabled=true;
+      askCheck();
+    }
+  });
+
+  function askCheck(){
+    var q=document.createElement('div'); q.className='card soft';
+    q.innerHTML='<h3>확인: 조립제법 결과줄 3, 1, 0, 1에서 마지막 수 1은?</h3>';
+    var fb=fbEl(); q.appendChild(fb); m.appendChild(q);
+    chipGroup(q,[
+      {html:'나머지 R', ok:true},
+      {html:'몫의 상수항', ok:false},
+      {html:'나누는 수', ok:false}
+    ],function(ok){
+      if(ok){ fb.className='fb ok'; fb.innerHTML='맞았습니다. 마지막 수는 나머지, 앞의 수들은 몫의 계수입니다. <b>어떤 방법으로 계산해도 몫과 나머지는 같습니다.</b>'; complete('synthetic');
+        Array.prototype.forEach.call(q.querySelectorAll('.chip'),function(b){b.disabled=true;}); }
+      else { fb.className='fb no'; fb.innerHTML='힌트: 세로나눗셈에서 마지막 줄에 남는 수를 떠올려 보세요.'; }
+    });
+    q.scrollIntoView({behavior:'smooth'});
+  }
+}
+
+/* ============ 화면 4: 교과서 연습 문제 5 ⑵ ============ */
+function renderPractice(){
+  var m=document.getElementById('screen');
+  m.innerHTML='';
+  var c=document.createElement('div'); c.className='card';
+  c.innerHTML='<span class="tag">교과서 연습</span>'+
+    '<h2>문제 5 ⑵ (교과서 18쪽)</h2>'+
+    '<p>다항식 A = <b>2x<sup>3</sup> - 5x<sup>2</sup> + 3</b> 을 B = <b>x<sup>2</sup> - 3x - 1</b> 로 나누었을 때의 몫 Q와 나머지 R을 구하고, A = BQ + R 꼴로 나타내 봅시다.</p>'+
+    '<p class="muted">이번에는 나누는 식이 이차식입니다. 방법은 같습니다. x 항이 없으므로 자리를 비워 두세요.</p>';
+  m.appendChild(c);
+
+  var ld=document.createElement('div'); ld.className='ld card'; ld.style.fontSize='14px';
+  ld.innerHTML=
+    '<div class="ld-row ld-q" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell div"></div>'+
+      '<div class="ld-cell blank" id="pQ1"></div><div class="ld-cell blank" id="pQ2"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
+    '<div class="ld-row" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell div">x<sup>2</sup>-3x-1</div>'+
+      '<div class="ld-cell">2x<sup>3</sup></div><div class="ld-cell">- 5x<sup>2</sup></div><div class="ld-cell"></div><div class="ld-cell">+ 3</div></div>'+
+    '<div class="ld-row" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell"></div>'+
+      '<div class="ld-cell blank" id="pM1a"></div><div class="ld-cell blank" id="pM1b"></div><div class="ld-cell blank" id="pM1c"></div><div class="ld-cell"></div></div>'+
+    '<div class="ld-row rule" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
+    '<div class="ld-row" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell"></div><div class="ld-cell"></div>'+
+      '<div class="ld-cell blank" id="pR1a"></div><div class="ld-cell blank" id="pR1b"></div><div class="ld-cell" id="pR1c"></div></div>'+
+    '<div class="ld-row" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell"></div><div class="ld-cell"></div>'+
+      '<div class="ld-cell blank" id="pM2a"></div><div class="ld-cell blank" id="pM2b"></div><div class="ld-cell blank" id="pM2c"></div></div>'+
+    '<div class="ld-row rule" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
+    '<div class="ld-row" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div>'+
+      '<div class="ld-cell blank" id="pRem1"></div><div class="ld-cell blank" id="pRem2"></div></div>';
+  m.appendChild(ld);
+
+  var stepCard=document.createElement('div'); stepCard.className='card soft';
+  m.appendChild(stepCard);
+  var steps=[
+    {q:'1단계 · 몫의 첫째 항: <b>2x<sup>3</sup> ÷ x<sup>2</sup> = ?</b>', hint:'최고차항끼리 나눕니다.',
+     opts:[{h:'2x',ok:true},{h:'2x<sup>2</sup>',ok:false},{h:'x',ok:false}],
+     fill:[['pQ1','2x']]},
+    {q:'2단계 · (x<sup>2</sup> - 3x - 1) × 2x = ?', hint:'각 항에 2x를 곱합니다.',
+     opts:[{h:'2x<sup>3</sup> - 6x<sup>2</sup> - 2x',ok:true},{h:'2x<sup>3</sup> - 6x<sup>2</sup> + 2x',ok:false},{h:'2x<sup>3</sup> - 5x<sup>2</sup> - 2x',ok:false}],
+     fill:[['pM1a','2x<sup>3</sup>'],['pM1b','- 6x<sup>2</sup>'],['pM1c','- 2x']]},
+    {q:'3단계 · 빼고 +3을 내리면?', hint:'(-5x²)-(-6x²)=x², 0x-(-2x)=+2x',
+     opts:[{h:'x<sup>2</sup> + 2x + 3',ok:true},{h:'x<sup>2</sup> - 8x + 3',ok:false},{h:'- 11x<sup>2</sup> + 2x + 3',ok:false}],
+     fill:[['pR1a','x<sup>2</sup>'],['pR1b','+ 2x'],['pR1c','+ 3 <span style="color:#8a94a0;font-size:12px">(내려옴)</span>']]},
+    {q:'4단계 · 몫의 둘째 항: <b>x<sup>2</sup> ÷ x<sup>2</sup> = ?</b>', hint:'같은 식끼리 나누면 1입니다.',
+     opts:[{h:'1',ok:true},{h:'x',ok:false},{h:'- 1',ok:false}],
+     fill:[['pQ2','+ 1']]},
+    {q:'5단계 · (x<sup>2</sup> - 3x - 1) × 1 = ?', hint:'그대로입니다.',
+     opts:[{h:'x<sup>2</sup> - 3x - 1',ok:true},{h:'x<sup>2</sup> + 3x + 1',ok:false},{h:'x<sup>2</sup> - 3x + 1',ok:false}],
+     fill:[['pM2a','x<sup>2</sup>'],['pM2b','- 3x'],['pM2c','- 1']]},
+    {q:'6단계 · 빼기: (x<sup>2</sup> + 2x + 3) - (x<sup>2</sup> - 3x - 1) = ? (1차 &lt; 2차이므로 여기서 멈춤)', hint:'2x-(-3x)=5x, 3-(-1)=4',
+     opts:[{h:'5x + 4 (나머지)',ok:true},{h:'- x + 2',ok:false},{h:'5x + 2',ok:false}],
+     fill:[['pRem1','5x'],['pRem2','+ 4']]}
+  ];
+  var idx=0;
+  function renderStep(){
+    stepCard.innerHTML='';
+    if(idx>=steps.length){
+      stepCard.innerHTML='<div class="fb ok" style="margin-top:0">완성! Q = <b>2x + 1</b>, R = <b>5x + 4</b> 입니다.</div>'+
+        '<div class="mathbox">2x<sup>3</sup> - 5x<sup>2</sup> + 3 = (x<sup>2</sup> - 3x - 1)(2x + 1) + (5x + 4)</div>'+
+        '<p class="muted">나누는 식이 이차식이므로 나머지는 일차식 이하가 됩니다.</p>';
+      complete('practice');
+      return;
+    }
+    var st=steps[idx];
+    var h=document.createElement('h3'); h.innerHTML=st.q; stepCard.appendChild(h);
+    var fb=fbEl(); stepCard.appendChild(fb);
+    var processing=false;
+    chipGroup(stepCard, st.opts.map(function(o){return {html:o.h, ok:o.ok};}), function(ok,btn,box){
+      if(processing) return; // 정답 처리 중 중복 입력 차단
+      if(ok){
+        processing=true;
+        Array.prototype.forEach.call(box.querySelectorAll('.chip'),function(x){x.disabled=true;});
+        fb.className='fb ok'; fb.innerHTML='맞았습니다.';
+        st.fill.forEach(function(f){
+          var cell=document.getElementById(f[0]);
+          cell.innerHTML=f[1]; cell.classList.remove('blank'); cell.classList.add('pop');
+        });
+        idx++; setTimeout(renderStep, 650);
+      } else {
+        fb.className='fb no'; fb.innerHTML='힌트: '+st.hint;
+      }
+    });
+  }
+  renderStep();
+}
+
+/* ============ 화면 5: 퀴즈 ============ */
+var QUIZ=[
+ {tag:'기본 · 교과서 예제',
+  q:'(3x<sup>2</sup> - 5x + 6) ÷ (x - 1) 의 몫과 나머지는? (교과서 18쪽)',
+  opts:[{h:'몫 3x - 2, 나머지 4',ok:true},{h:'몫 3x - 4, 나머지 2',ok:false},{h:'몫 3x + 2, 나머지 8',ok:false}],
+  ex:'세로나눗셈: 3x² ÷ x = 3x → (x-1)·3x = 3x² - 3x → 빼면 -2x + 6 → -2x ÷ x = -2 → (x-1)·(-2) = -2x + 2 → 빼면 4. 몫은 3x - 2, 나머지는 4. 3x² - 5x + 6 = (x - 1)(3x - 2) + 4.'},
+ {tag:'기본 · 나누어떨어짐',
+  q:'(6x<sup>2</sup> - 7x + 2) ÷ (2x - 1) 의 결과로 옳은 것은?',
+  opts:[{h:'몫 3x - 2, 나머지 0 (나누어떨어진다)',ok:true},{h:'몫 3x - 2, 나머지 4',ok:false},{h:'몫 3x + 2, 나머지 0',ok:false}],
+  ex:'6x² ÷ 2x = 3x → (2x-1)·3x = 6x² - 3x → 빼면 -4x + 2 → -4x ÷ 2x = -2 → (2x-1)·(-2) = -4x + 2 → 빼면 0. 나머지가 0이므로 6x² - 7x + 2는 2x - 1로 나누어떨어집니다.'},
+ {tag:'심화 · 미정계수',
+  q:'A = 2x<sup>3</sup> + 5x<sup>2</sup> - x + 3 을 B = x<sup>2</sup> + x - 2 로 나누어 A = BQ + R 꼴로 나타낼 때, 몫 Q의 최고차항의 계수는?',
+  opts:[{h:'2',ok:true},{h:'5',ok:false},{h:'1',ok:false}],
+  ex:'힌트 ① A는 삼차식, B는 이차식이므로 Q는 일차식입니다. 힌트 ② 최고차항끼리 비교하면 2x³ = (x²)·(Q의 최고차항)이어야 합니다. 힌트 ③ 2x³ ÷ x² = 2x이므로 최고차항의 계수는 2입니다.'}
+];
+function renderQuiz(){
+  var m=document.getElementById('screen');
+  m.innerHTML='';
+  var c=document.createElement('div'); c.className='card';
+  c.innerHTML='<span class="tag">확인 퀴즈</span><h2>3문제를 맞히면 개념카드가 열립니다</h2>'+
+    '<p class="muted">즉시 채점되며, 틀리면 해설을 보고 다시 풀 수 있습니다.</p>';
+  m.appendChild(c);
+  var box=document.createElement('div'); m.appendChild(box);
+  var qi=0;
+  function renderQ(){
+    box.innerHTML='';
+    if(qi>=QUIZ.length){
+      box.innerHTML='<div class="card"><div class="fb ok" style="margin-top:0">퀴즈 완료! 3문제를 모두 맞혔습니다.</div></div>';
+      complete('quiz'); return;
+    }
+    var qd=QUIZ[qi];
+    var qc=document.createElement('div'); qc.className='card soft';
+    qc.innerHTML='<span class="tag">'+qd.tag+'</span><h3>Q'+(qi+1)+'. '+qd.q+'</h3>';
+    var fb=fbEl(); qc.appendChild(fb);
+    box.appendChild(qc);
+    chipGroup(qc, qd.opts.map(function(o){return {html:o.h, ok:o.ok};}), function(ok){
+      if(ok){ fb.className='fb ok'; fb.innerHTML='<b>정답!</b> '+qd.ex;
+        Array.prototype.forEach.call(qc.querySelectorAll('.chip'),function(b){b.disabled=true;});
+        var nx=document.createElement('button'); nx.className='btn'; nx.style.marginTop='12px';
+        nx.textContent = qi<QUIZ.length-1 ? '다음 문제' : '퀴즈 완료';
+        nx.addEventListener('click',function(){ qi++; renderQ(); });
+        qc.appendChild(nx);
+      } else { fb.className='fb no'; fb.innerHTML='<b>오답 해설</b>: '+qd.ex; }
+    });
+  }
+  renderQ();
+}
+
+/* ============ 화면 6: 개념카드 ============ */
+function renderConcept(){
+  var m=document.getElementById('screen');
+  m.innerHTML='';
+  var c=document.createElement('div'); c.className='card concept';
+  c.innerHTML='<span class="tag">개념 정리 카드</span><h2>다항식의 나눗셈</h2>'+
+   '<h3>1. 계산 방법</h3><p>각 다항식을 <b>내림차순으로 정리</b>한 다음, <b>자연수의 나눗셈과 같은 방법</b>으로 계산한다.</p>'+
+   '<h3>2. 나눗셈의 등식</h3><div class="mathbox">A = BQ + R &nbsp;(단, B ≠ 0)</div>'+
+   '<p>Q는 몫(quotient), R은 나머지(remainder)의 첫 글자. <b>R의 차수는 B의 차수보다 낮다.</b></p>'+
+   '<h3>3. 나누어떨어진다</h3><p>R = 0, 즉 <b>A = BQ</b>일 때 "A는 B로 나누어떨어진다"고 한다.</p>'+
+   '<h3>4. (확장) 조립제법</h3><p>나누는 식이 일차식 x - c일 때, 계수만으로 몫과 나머지를 계산하는 방법. 세로나눗셈과 각 단계가 대응하며 결과는 같다. <span class="muted">(계획서 기반 확장, 교과서 본문 외)</span></p>'+
+   '<h3>오늘의 문제</h3><div class="mathbox">3x<sup>3</sup> - 5x<sup>2</sup> - 2x + 1 = (x - 2)(3x<sup>2</sup> + x) + 1</div>';
+  m.appendChild(c);
+  var b=document.createElement('button'); b.className='btn'; b.textContent='다 읽었어요';
+  b.addEventListener('click',function(){ complete('concept'); go(7); });
+  m.appendChild(b);
+}
+
+/* ============ 화면 7: 마치기 ============ */
+function renderFinish(){
+  var m=document.getElementById('screen');
+  m.innerHTML='';
+  var sec=Math.round((Date.now()-state.startedAt)/1000);
+  var mm=Math.floor(sec/60), ss=sec%60;
+  var c=document.createElement('div'); c.className='card';
+  c.innerHTML='<span class="tag">마치기</span><h2>학습 요약</h2>'+
+   '<ul class="done-list">'+
+   '<li><span class="check">✓</span>도입 미션: 예측 '+(state.prediction?'일치':'다름(세로나눗셈으로 확인)')+'</li>'+
+   '<li><span class="check">✓</span>활동 1 · 세로나눗셈: 몫 3x² + x, 나머지 1</li>'+
+   '<li><span class="check">✓</span>활동 2 · 그래프로 A = BQ + R 확인</li>'+
+   '<li><span class="check">✓</span>확장 · 조립제법과 세로나눗셈의 대응</li>'+
+   '<li><span class="check">✓</span>교과서 연습 문제 5 ⑵: Q = 2x + 1, R = 5x + 4</li>'+
+   '<li><span class="check">✓</span>확인 퀴즈 3문제</li>'+
+   '</ul>'+
+   '<p>소요 시간: 약 '+mm+'분 '+ss+'초</p>'+
+   '<p class="muted">이 앱은 학습 기록을 외부로 전송하지 않습니다.</p>';
+  m.appendChild(c);
+  var f=document.createElement('footer'); f.className='fin';
+  f.textContent='미래엔 공통수학1 3편 학습앱 · 공통수학1 학습관';
+  m.appendChild(f);
+  complete('finish');
+}
+
+var RENDER={intro:renderIntro, longdiv:renderLongdiv, graph:renderGraph,
+  synthetic:renderSynthetic, practice:renderPractice, quiz:renderQuiz,
+  concept:renderConcept, finish:renderFinish};
+
+document.getElementById('prevBtn').addEventListener('click',function(){ go(state.cur-1); });
+document.getElementById('nextBtn').addEventListener('click',function(){ go(state.cur+1); });
+go(0);
+</script>
+</body>
+</html>
