@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>공통수학1 · 05 항등식</title><style>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><script>window.MathJax={tex:{inlineMath:[['\\(','\\)']]}};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script><title>공통수학1 · 05 항등식</title><style>
 :root{--ink:#251f21;--muted:#585254;--teal:#377566;--pale:#edf5f2;--line:#eae9ea;--red:#b51f2b;--sand:#f4efec}
 *{box-sizing:border-box}
 html{overflow-x:hidden}
@@ -36,7 +36,7 @@ input[type=range]{width:100%;min-height:44px;accent-color:var(--teal);margin:0}
 select,input[type=number],input[type=text]{border:1px solid #a5ada9;border-radius:5px;padding:8px;min-height:44px;max-width:100%;background:white;color:var(--ink)}
 select{width:100%}
 .readout{background:var(--pale);padding:12px 14px;border-radius:6px;margin:12px 0;overflow-wrap:anywhere}
-.equation{font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1.8;overflow-wrap:anywhere}
+.equation{font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1.8;overflow-wrap:anywhere;overflow-x:auto}
 .choice{display:grid;gap:9px;margin:18px 0}
 .choice button{text-align:left}
 .notice{background:var(--sand);padding:12px 14px;border-radius:6px;font-size:15px}
@@ -82,8 +82,9 @@ h2{font-size:23px}
 nav{position:static}
 .term{padding:8px 10px}
 }
+mjx-container .hlj{background:#fff1a3;border-radius:3px;padding:0 2px;}
 </style></head>
-<body><main class="wrap"><header><div class="eyebrow">미래엔 공통수학1 · 48차시 계획 중 05</div><h1>항등식: 언제나 참인 등식</h1><span class="chip">학생용 실습 앱 · 공통수학1 학습관</span><div class="progress" aria-hidden="true" id="progress"></div><div id="stageLabel" class="muted"></div></header>
+<body><main class="wrap"><header><div class="eyebrow">공통수학1 · 48차시 계획 중 05</div><h1>항등식: 언제나 참인 등식</h1><span class="chip">학생용 실습 앱 · 공통수학1 학습관</span><div class="progress" aria-hidden="true" id="progress"></div><div id="stageLabel" class="muted"></div></header>
 <div class="layout"><section class="panel graph-panel" aria-label="조작 그래프"><div class="chartbox"><div id="legend"></div><svg id="graph" viewBox="0 0 520 340" role="img" aria-labelledby="chartTitle chartDesc"></svg><div id="graphText" class="muted"></div></div><div class="controls"><label for="xslider">관찰할 x: <strong id="xvalue">1</strong></label><input id="xslider" type="range" min="-3" max="3" value="1" step="0.1"><div class="muted">슬라이더를 움직이면 그래프 위의 점과 함숫값이 바로 바뀝니다.</div></div><div class="readout" id="equations"></div><div id="graphNote" class="notice"></div></section>
 <section class="panel activity-panel" aria-labelledby="activityTitle"><div id="activity"></div><div id="message" class="status" aria-live="polite"></div></section></div>
 <nav><button id="back">이전</button><button class="primary" id="next">다음</button></nav>
@@ -92,12 +93,13 @@ nav{position:static}
 
 'use strict';
 const $=id=>document.getElementById(id);
+let mjxN=0,mjxQ=Promise.resolve();function mjxAll(){if(window.MathJax&&MathJax.typesetPromise){mjxQ=mjxQ.then(function(){return MathJax.typesetPromise().catch(function(){});});}else if(mjxN<100){mjxN++;setTimeout(mjxAll,400);}}
 function nice(n){return Math.abs(n)<1e-9?'0':Number(n.toFixed(3)).toString()}
 function sup(s){return '<sup>'+s+'</sup>'}
 /* polynomial [c0,c1,c2,...] helpers */
 const ev=(a,x)=>a.reduceRight((r,c)=>r*x+c,0);
-function format(a){let s='';for(let i=a.length-1;i>=0;i--){let c=a[i];if(Math.abs(c)<1e-9)continue;let term=(i===0||Math.abs(c)!==1?nice(Math.abs(c)):'')+(i===0?'':i===1?'x':'x'+sup(i));s+=(s?(c<0?' − ':' + '):(c<0?'−':''))+term;}return s||'0'}
-function message(t,error=false){$('message').textContent=t;$('message').className='status'+(error?' error':'');}
+function format(a){let s='';for(let i=a.length-1;i>=0;i--){let c=a[i];if(Math.abs(c)<1e-9)continue;let term=(i===0||Math.abs(c)!==1?nice(Math.abs(c)):'')+(i===0?'':i===1?'x':'x^{'+i+'}');s+=(s?(c<0?'-':'+'):(c<0?'-':''))+term;}return s||'0'}
+function message(t,error=false){$('message').innerHTML=t;$('message').className='status'+(error?' error':'');mjxAll();}
 /* generic plot: lines=[{name,f(x),color,dash,width,hide}] */
 function plot(lines,note,xr){
  xr=xr||[-3,3];
@@ -112,10 +114,11 @@ function plot(lines,note,xr){
   s+=`<path d="${d}" fill="none" stroke="${l.color}" stroke-width="${l.width||2.5}" stroke-dasharray="${l.dash||''}"/><circle cx="${X(state.x)}" cy="${Y(l.f(state.x))}" r="5" fill="${l.color}" stroke="white"/>`;}
  s+=`<path d="M${X(state.x)} 22 V302" stroke="#938c8f" stroke-dasharray="3 5"/></g>`;
  $('graph').innerHTML=s;
- $('legend').innerHTML=lines.filter(l=>!l.hide).map(l=>`<b style="color:${l.color}"><i class="dot" style="border-color:${l.color}"></i>${l.name}</b>`).join('');
- $('graphText').textContent=`x=${nice(state.x)}일 때 `+lines.filter(l=>!l.hide).map(l=>l.name+' = '+nice(l.f(state.x))).join(' / ');
+ $('legend').innerHTML=lines.filter(l=>!l.hide).map(l=>`<b style="color:${l.color}"><i class="dot" style="border-color:${l.color}"></i>${l.legend||('\\('+l.name+'\\)')}</b>`).join('');
+ $('graphText').innerHTML=`\\(x=${nice(state.x)}\\)일 때 `+lines.filter(l=>!l.hide).map(l=>'\\('+l.name+'='+nice(l.f(state.x))+'\\)').join(' / ');
  $('xvalue').textContent=nice(state.x);
- $('graphNote').textContent=note||'';
+ $('graphNote').innerHTML=note||'';
+ mjxAll();
 }
 function frac(n){ /* 0.5 -> 1/2 for display */
  if(Math.abs(n-Math.round(n))<1e-9)return nice(Math.round(n));
@@ -129,51 +132,52 @@ const state={stage:0,ok:[false,false,false,false,false,false,false],x:1,start:Da
  cls:{e1:null,e2:null,e3:null,e4:null},clsTries:0,currentEq:'e2',
  hints:0,bookDone:null,challenge:{understood:false,hints:0,blanks:0,done:null},variation:null,
  chA:NaN,chB:NaN,chC:NaN};
-const lin=(a,b)=>{let s='';if(a===1)s='x';else if(a===-1)s='\u2212x';else if(a!==0)s=nice(a)+'x'; if(b>0)s+=(s?' + ':'')+nice(b);else if(b<0)s+=(s?' \u2212 ':'\u2212')+nice(Math.abs(b)); return s||'0';};
+const lin=(a,b)=>{let s='';if(a===1)s='x';else if(a===-1)s='-x';else if(a!==0)s=nice(a)+'x'; if(b>0)s+=(s?'+':'')+nice(b);else if(b<0)s+='-'+nice(Math.abs(b)); return s||'0';};
+const linhl=(a,b)=>{let s='';if(a!==0)s='\\class{hlj}{'+nice(a)+'}x'; if(b!==0)s+=(s?(b<0?'':'+'):'')+'\\class{hlj}{'+nice(b)+'}'; return s||'0';};
 const labels=['예측하기','직선 겹치기','항등식 분류','교과서 문제','도전과 변형','개념 정리','마치기'];
 const EQS={
- e1:{L:x=>2*x,R:x=>x-3,Lt:'2x',Rt:'x − 3',same:false,reason:'x = −3 에서만 성립합니다. → 방정식'},
- e2:{L:x=>5*x-3*x,R:x=>2*x,Lt:'5x − 3x',Rt:'2x',same:true,reason:'정리하면 2x = 2x. 모든 x에서 성립합니다. → 항등식'},
- e3:{L:x=>4-x,R:x=>2*x+6,Lt:'4 − x',Rt:'2x + 6',same:false,reason:'정리하면 −3x = 2, x = −2/3 에서만 성립합니다. → 방정식'},
- e4:{L:x=>x+1,R:x=>2*x-(x-1),Lt:'x + 1',Rt:'2x − (x − 1)',same:true,reason:'우변을 정리하면 x + 1. 모든 x에서 성립합니다. → 항등식'}};
+ e1:{L:x=>2*x,R:x=>x-3,Lt:'2x',Rt:'x-3',same:false,reason:'\\(x=-3\\)에서만 성립합니다. → 방정식'},
+ e2:{L:x=>5*x-3*x,R:x=>2*x,Lt:'5x-3x',Rt:'2x',same:true,reason:'정리하면 \\(2x=2x\\). 모든 \\(x\\)에서 성립합니다. → 항등식'},
+ e3:{L:x=>4-x,R:x=>2*x+6,Lt:'4-x',Rt:'2x+6',same:false,reason:'정리하면 \\(-3x=2\\), \\(x=-2/3\\)에서만 성립합니다. → 방정식'},
+ e4:{L:x=>x+1,R:x=>2*x-(x-1),Lt:'x+1',Rt:'2x-(x-1)',same:true,reason:'우변을 정리하면 \\(x+1\\). 모든 \\(x\\)에서 성립합니다. → 항등식'}};
 /* ---------- graph ---------- */
 function graph(){
  let lines=[],note='',eq='';
  const i=state.stage;
  if(i===0){
   lines=[{name:'y = 2x + 6',f:x=>2*x+6,color:'#585254'}];
-  eq='2x + 6 = 2(x + 3) ?';
+  eq='\\(2x+6=2(x+3)\\) ?';
   if(state.prediction!==null){lines.push({name:'y = 2(x + 3)',f:x=>2*(x+3),color:'#377566',width:3.5,dash:'7 4'});
-   eq='<b>2x + 6 = 2(x + 3) — 두 직선이 완전히 겹칩니다</b>';note='어느 x를 골라도 함숫값이 같습니다. 슬라이더를 움직여 확인해 보세요.';}
+   eq='<b>\\(2x+6=2(x+3)\\) — 두 직선이 완전히 겹칩니다</b>';note='어느 x를 골라도 함숫값이 같습니다. 슬라이더를 움직여 확인해 보세요.';}
   else note='우변의 직선은 예측 후에 보여 드립니다.';
  }
  else if(i===1){
   const a=state.a,b=state.b;
   lines=[{name:'y = '+lin(a,b),f:x=>a*x+b,color:'#377566',width:3.5},
    {name:'y = 2x + 6',f:x=>2*x+6,color:'#585254',dash:'7 4'}];
-  eq=`좌변: y = ${lin(a,b)}<br>우변: y = 2x + 6<br>차이: ${lin(a-2,b-6)}`;
+  eq=`좌변: \\(y=${lin(a,b)}\\)<br>우변: \\(y=2x+6\\)<br>차이: \\(${linhl(a-2,b-6)}\\)`;
   note=(a===2&&b===6)?'두 직선이 완전히 겹쳤습니다. 모든 x에서 같습니다 — 항등식!':'겹치려면 기울기와 y절편이 모두 같아야 합니다.';
  }
  else if(i===2){
   const e=EQS[state.currentEq];
   lines=[{name:'y = '+e.Lt,f:e.L,color:'#377566',width:3.5},{name:'y = '+e.Rt,f:e.R,color:'#585254',dash:'7 4'}];
-  eq=e.Lt+' = '+e.Rt;
+  eq='\\('+e.Lt+'='+e.Rt+'\\)';
   note=e.same?'두 직선이 완전히 겹칩니다 → 항등식':'두 직선이 한 점에서만 만납니다 → 그 x 값에서만 성립(방정식)';
  }
  else if(i===3){
-  lines=[{name:'y = (좌변) − (우변)',f:x=>0*x,color:'#377566',width:3.5}];
-  eq='(a − a′)x² + (b − b′)x + (c − c′) = 0';
+  lines=[{name:'y = 0',legend:'\\(y=(\\text{좌변})-(\\text{우변})\\)',f:x=>0*x,color:'#377566',width:3.5}];
+  eq=`\\(\\class{hlj}{(a-a')}x^{2}+\\class{hlj}{(b-b')}x+\\class{hlj}{(c-c')}=0\\)`;
   note='양변을 정리한 식이 항등식이면 그래프는 x축(y = 0)과 정확히 겹칩니다.';
  }
  else if(i>=4){
   const a=isNaN(state.chA)?0:state.chA,b=isNaN(state.chB)?0:state.chB,c=isNaN(state.chC)?0:state.chC;
   const f=x=>(a-2*b)*x*x+(a-3)*x+(c-1);
-  lines=[{name:'y = (a−2b)x² + (a−3)x + (c−1)',f:f,color:'#377566',width:3.5},{name:'y = 0 (x축)',f:x=>0*x,color:'#585254',dash:'7 4'}];
-  eq=`현재 입력: (${nice(a-2*b)})x² + (${nice(a-3)})x + (${nice(c-1)})`;
+  lines=[{name:'y = (a-2b)x^{2} + (a-3)x + (c-1)',f:f,color:'#377566',width:3.5},{name:'y = 0 (x축)',f:x=>0*x,color:'#585254',dash:'7 4'}];
+  eq=`현재 입력: \\(\\class{hlj}{(${nice(a-2*b)})}x^{2}+\\class{hlj}{(${nice(a-3)})}x+\\class{hlj}{(${nice(c-1)})}\\)`;
   note=(a===3&&Math.abs(b-1.5)<1e-9&&c===1)?'곡선이 x축과 완전히 겹칩니다. 모든 계수가 0 → 항등식!':'세 수를 맞히면 곡선이 x축과 겹칩니다. 입력을 바꿀 때마다 그래프가 바뀝니다.';
  }
- plot(lines,note);
  $('equations').innerHTML='<div class="equation">'+eq+'</div>';
+ plot(lines,note);
 }
 /* ---------- stages ---------- */
 function render(){let i=state.stage;
@@ -183,54 +187,54 @@ function render(){let i=state.stage;
  $('next').textContent=i===5?'학습 요약 보기':'다음';message('');let h='';
  if(i===0){h=`<h2 id="activityTitle">이 등식은 언제나 참일까요?</h2>
  <p>환경 동아리가 쓰레기 봉지를 2장씩 나누어 줍니다. 처음 x명, 나중에 3명이 더 왔습니다.</p>
- <div class="equation">2x + 6 = 2(x + 3)</div>
+ <div class="equation">\\(2x+6=2(x+3)\\)</div>
  <p>이 등식은 <strong>x에 어떤 값을 넣어도</strong> 성립할까요?</p>
  <div class="choice"><button data-pred="always">항상 성립한다</button><button data-pred="some">어떤 값에서만 성립한다</button><button data-pred="never">성립하지 않는 값이 있다</button></div>
  <p class="muted">예측을 고른 뒤 왼쪽 그래프로 확인합니다. 틀려도 괜찮습니다.</p>`;}
  if(i===1){h=`<h2 id="activityTitle">두 직선을 완전히 겹쳐 보세요</h2>
- <p>슬라이더로 y = ax + b 의 a와 b를 바꿔 y = 2x + 6 과 <strong>완전히</strong> 겹치게 만들어 보세요.</p>
+ <p>슬라이더로 \\(y=ax+b\\)의 \\(a\\)와 \\(b\\)를 바꿔 \\(y=2x+6\\)과 <strong>완전히</strong> 겹치게 만들어 보세요.</p>
  <div class="controls"><label for="asl">a (기울기): <b id="aval">${nice(state.a)}</b></label><input id="asl" type="range" min="-3" max="5" step="0.5" value="${state.a}">
  <label for="bsl">b (y절편): <b id="bval">${nice(state.b)}</b></label><input id="bsl" type="range" min="-6" max="8" step="0.5" value="${state.b}"></div>
  <p class="muted">두 직선이 완전히 겹치면 모든 x에서 함숫값이 같습니다. x 슬라이더로 여러 값을 찍어 확인해 보세요.</p>`;}
  if(i===2){h=`<h2 id="activityTitle">항등식과 방정식을 가려내세요</h2>
- <p class="muted">미래엔 공통수학1 · 23쪽 준비 학습 1</p>
+ <p class="muted">공통수학1 · 23쪽 준비 학습 1</p>
  <p>네 등식을 항등식 또는 방정식으로 분류하세요. 고르면 왼쪽 그래프로 바로 확인할 수 있습니다.</p>
  <div id="classList"></div>`;}
  if(i===3){h=`<h2 id="activityTitle">교과서 문제를 풀어 보세요</h2>
- <p class="muted">미래엔 공통수학1 · 24쪽 문제 1</p>
- <p>등식 ax² + bx + c = a′x² + b′x + c′ 이 x에 대한 항등식이면 a = a′, b = b′, c = c′ 임을 증명하시오.</p>
+ <p class="muted">공통수학1 · 24쪽 문제 1</p>
+ <p>등식 \\(\\class{hlj}{a}x^{2}+\\class{hlj}{b}x+\\class{hlj}{c}=\\class{hlj}{a'}x^{2}+\\class{hlj}{b'}x+\\class{hlj}{c'}\\)이 \\(x\\)에 대한 항등식이면 \\(a=a'\\), \\(b=b'\\), \\(c=c'\\)임을 증명하시오.</p>
  <div class="steps"><ol>
- <li>모든 항을 좌변으로 이항하면<br><span class="equation">(a − a′)x² + (b − b′)x + (c − c′) = <input id="z0" type="number" step="any" style="width:80px"></span></li>
+ <li>모든 항을 좌변으로 이항하면<br><span class="equation">\\(\\class{hlj}{(a-a')}x^{2}+\\class{hlj}{(b-b')}x+\\class{hlj}{(c-c')}=\\) <input id="z0" type="number" step="any" style="width:80px"></span></li>
  <li>이 등식은 x에 대한 <select id="kind"><option value="">선택</option><option value="id">항등식</option><option value="eq">방정식</option></select> 입니다.</li>
- <li>따라서 a − a′ = <input id="z1" type="number" step="any" style="width:70px">, b − b′ = <input id="z2" type="number" step="any" style="width:70px">, c − c′ = <input id="z3" type="number" step="any" style="width:70px"></li>
+ <li>따라서 \\(a-a'=\\) <input id="z1" type="number" step="any" style="width:70px">, \\(b-b'=\\) <input id="z2" type="number" step="any" style="width:70px">, \\(c-c'=\\) <input id="z3" type="number" step="any" style="width:70px"></li>
  </ol></div>
  <div class="tools"><button id="checkBook" class="primary">채점하기</button><button id="hintBtn">단계별 도움 (${state.hints}/3)</button><button id="workedBtn">전체 풀이 보기</button></div>
  <div id="hints"></div><div id="worked"></div>`;}
  if(i===4){h=`<h2 id="activityTitle">계수가 0이 되는 조건을 찾으세요</h2>
- <p class="muted">미래엔 공통수학1 · 36쪽 중단원 마무리 문제 01⑴ · 4단계 도움 제공</p>
- <p>(a − 2b)x² + (a − 3)x + (c − 1) = 0 이 x에 대한 항등식이 되도록 상수 a, b, c의 값을 정하시오.</p>
+ <p class="muted">공통수학1 · 36쪽 중단원 마무리 문제 01⑴ · 4단계 도움 제공</p>
+ <p>\\(\\class{hlj}{(a-2b)}x^{2}+\\class{hlj}{(a-3)}x+\\class{hlj}{(c-1)}=0\\)이 \\(x\\)에 대한 항등식이 되도록 상수 \\(a\\), \\(b\\), \\(c\\)의 값을 정하시오.</p>
  <h3>1단계 · 문제 이해</h3>
  <p>이 등식이 x에 대한 항등식이 되려면?</p>
- <div class="choice"><button data-u="all">모든 차수의 계수가 0이어야 한다</button><button data-u="x2">x²의 계수만 0이면 된다</button><button data-u="c">상수항만 0이면 된다</button></div>
+ <div class="choice"><button data-u="all">모든 차수의 계수가 0이어야 한다</button><button data-u="x2">\\(x^{2}\\)의 계수만 0이면 된다</button><button data-u="c">상수항만 0이면 된다</button></div>
  <h3>2단계 · 도움 카드</h3>
  <div class="tools"><button id="cHintBtn">도움 카드 열기 (${state.challenge.hints}/3)</button></div><div id="cHints"></div>
  <h3>3단계 · 부분 풀이</h3>
- <p class="steps">a − 3 = 0 → a = <input id="pa" type="number" step="any" style="width:80px"><br>
- a − 2b = 0 에 대입 → 3 − 2b = 0 → b = <input id="pb" type="text" inputmode="decimal" style="width:80px"> (분수 가능)<br>
- c − 1 = 0 → c = <input id="pc" type="number" step="any" style="width:80px">
+ <p class="steps">\\(a-3=0 \\rightarrow a=\\) <input id="pa" type="number" step="any" style="width:80px"><br>
+ \\(a-2b=0\\)에 대입 \\(\\rightarrow 3-2b=0 \\rightarrow b=\\) <input id="pb" type="text" inputmode="decimal" style="width:80px"> (분수 가능)<br>
+ \\(c-1=0 \\rightarrow c=\\) <input id="pc" type="number" step="any" style="width:80px">
  <button id="blankBtn">빈칸 확인</button></p>
  <h3>4단계 · 완성</h3>
  <div class="answer-grid three"><label>a<input id="ca" type="number" step="any" inputmode="decimal"></label><label>b<input id="cb" type="text" inputmode="decimal"></label><label>c<input id="cc" type="number" step="any" inputmode="decimal"></label></div>
  <div class="tools"><button id="checkCh" class="primary">채점하기</button><button id="cWorkedBtn">전체 풀이 보기</button></div><div id="cWorked"></div>
  <h3>수치를 바꾼 변형</h3>
- <p>(a − 2)x² + (a + b − 5)x + (c + 1) = 0 이 x에 대한 항등식이 되도록 a, b, c를 정하시오.</p>
+ <p>\\((a-2)x^{2}+(a+b-5)x+(c+1)=0\\)이 \\(x\\)에 대한 항등식이 되도록 \\(a\\), \\(b\\), \\(c\\)를 정하시오.</p>
  <div class="answer-grid three"><label>a<input id="va" type="number" step="any" inputmode="decimal"></label><label>b<input id="vb" type="number" step="any" inputmode="decimal"></label><label>c<input id="vc" type="number" step="any" inputmode="decimal"></label></div>
  <div class="tools"><button id="checkVar" class="primary">변형 채점</button></div>
  <p class="muted">입력한 a, b, c로 그려지는 왼쪽 곡선이 x축과 겹치는지 함께 확인해 보세요.</p>`;}
  if(i===5){h=`<h2 id="activityTitle">마지막으로 개념을 정리해요</h2>
  <div class="formula"><h3>항등식</h3><p>식의 문자에 어떤 값을 대입해도 항상 성립하는 등식. 그래프로는 두 식의 곡선이 <b>완전히 겹칩니다</b>.</p></div>
- <div class="formula"><h3>항등식의 성질</h3><div class="equation">① ax² + bx + c = 0 이 항등식이면 a = b = c = 0<br>② ax² + bx + c = a′x² + b′x + c′ 이 항등식이면 a = a′, b = b′, c = c′</div></div>
- <div class="formula"><h3>방정식과의 구별</h3><p>2x + 3 = 5 처럼 특정한 x 값에서만 성립하는 등식은 방정식입니다. 그래프는 한 점에서만 만납니다.</p></div>
+ <div class="formula"><h3>항등식의 성질</h3><div class="equation">① \\(ax^{2}+bx+c=0\\)이 항등식이면 \\(a=b=c=0\\)<br>② \\(ax^{2}+bx+c=a'x^{2}+b'x+c'\\)이 항등식이면 \\(a=a',\ b=b',\ c=c'\\)</div></div>
+ <div class="formula"><h3>방정식과의 구별</h3><p>\\(2x+3=5\\)처럼 특정한 \\(x\\) 값에서만 성립하는 등식은 방정식입니다. 그래프는 한 점에서만 만납니다.</p></div>
  <label><input type="checkbox" id="reflect"> 항등식과 방정식의 차이를 그래프로 설명할 수 있습니다.</label>`;}
  if(i===6){let mins=Math.max(1,Math.round((Date.now()-state.start)/60000));let cc=Object.values(state.cls).filter(v=>v==='ok').length;h=`<h2 id="activityTitle">오늘의 학습 요약</h2><div class="summary">
  <p>첫 예측 <b>${state.prediction==='always'?'항상 성립한다':state.prediction==='some'?'어떤 값에서만':state.prediction==='never'?'성립하지 않는 값이 있다':'-'}</b></p>
@@ -240,9 +244,9 @@ function render(){let i=state.stage;
  <p>심화 문제 <b>${state.challenge.done==='self'?'정답 확인':state.challenge.done==='help'?'풀이 도움 후 완료':'미완료'}</b> · 도움 카드 <b>${state.challenge.hints} / 3장</b></p>
  <p>변형 문제 <b>${state.variation==='self'?'정답 확인':'미완료'}</b></p>
  <p>이 화면을 연 시간 <b>약 ${mins}분</b></p></div>
- <div class="notice">이 요약은 현재 화면에만 표시됩니다. 교사나 외부 서비스로 전송하지 않습니다. 배포판에서는 학생 동의 후 학습 이력을 Sheet에 기록하도록 연결할 예정입니다.</div>
+ <div class="notice">이 요약은 현재 화면에만 표시됩니다. 교사나 외부 서비스로 전송하지 않습니다.</div>
  <button id="restart" style="margin-top:18px">처음부터 다시</button>`;}
- $('activity').innerHTML=h;bind();graph();}
+ $('activity').innerHTML=h;mjxAll();bind();graph();}
 /* ---------- bindings ---------- */
 function bind(){let i=state.stage;
  if(i===0){document.querySelectorAll('[data-pred]').forEach(b=>b.onclick=()=>{state.prediction=b.dataset.pred;state.ok[0]=true;
@@ -253,14 +257,15 @@ function bind(){let i=state.stage;
   a.oninput=b.oninput=e=>{state.a=Number(a.value);state.b=Number(b.value);state.moved.add(e.target.id);
    $('aval').textContent=nice(state.a);$('bval').textContent=nice(state.b);
    if(state.a===2&&state.b===6){state.matched=true;state.ok[1]=true;$('next').disabled=false;
-    message('완전히 겹쳤습니다! x에 어떤 값을 넣어도 ax + b = 2x + 6. 이런 등식을 항등식이라고 합니다.');}
+    message('완전히 겹쳤습니다! \\(x\\)에 어떤 값을 넣어도 \\(ax+b=2x+6\\). 이런 등식을 항등식이라고 합니다.');}
    else message('');
    graph();};}
  if(i===2){function draw(){$('classList').innerHTML=Object.keys(EQS).map((k,n)=>{
    const e=EQS[k],v=state.cls[k];
-   return `<div class="formula"><p class="equation">${n+1}. ${e.Lt} = ${e.Rt}</p>
+   return `<div class="formula"><p class="equation">${n+1}. \\(${e.Lt}=${e.Rt}\\)</p>
    <div class="tools"><button data-k="${k}" data-v="id" ${v?'disabled':''}>항등식</button><button data-k="${k}" data-v="eq" ${v?'disabled':''}>방정식</button><button data-k="${k}" data-v="see">그래프 보기</button></div>
    ${v?`<p class="${v==='ok'?'':'muted'}" style="color:${v==='ok'?'#377566':'#b51f2b'}">${v==='ok'?'정답: ':'오답: '}${e.reason}</p>`:''}</div>`;}).join('');
+  mjxAll();
   document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{
    const k=b.dataset.k,e=EQS[k];
    if(b.dataset.v==='see'){state.currentEq=k;graph();return;}
@@ -270,37 +275,37 @@ function bind(){let i=state.stage;
    if(done===4){state.ok[2]=true;$('next').disabled=false;message('4개 모두 분류했습니다!');}
    draw();graph();});}
   draw();}
- if(i===3){const hints=['우변의 모든 항을 좌변으로 이항해 한곳에 모읍니다.','ax² + bx + c = 0 이 x에 대한 항등식이면 a = b = c = 0 입니다 (성질 ①).','각 계수가 0이어야 하므로 a − a′ = 0, b − b′ = 0, c − c′ = 0 → a = a′, b = b′, c = c′.'];
-  $('hintBtn').onclick=()=>{if(state.hints<3){$('hints').innerHTML+=`<div class="hint">${hints[state.hints]}</div>`;state.hints++;$('hintBtn').textContent=`단계별 도움 (${state.hints}/3)`;}};
+ if(i===3){const hints=['우변의 모든 항을 좌변으로 이항해 한곳에 모읍니다.','\\(ax^{2}+bx+c=0\\)이 \\(x\\)에 대한 항등식이면 \\(a=b=c=0\\)입니다 (성질 ①).',`각 계수가 0이어야 하므로 \\(\\class{hlj}{a-a'}=0\\), \\(\\class{hlj}{b-b'}=0\\), \\(\\class{hlj}{c-c'}=0 \\rightarrow a=a'\\), \\(b=b'\\), \\(c=c'\\).`];
+  $('hintBtn').onclick=()=>{if(state.hints<3){$('hints').innerHTML+=`<div class="hint">${hints[state.hints]}</div>`;state.hints++;$('hintBtn').textContent=`단계별 도움 (${state.hints}/3)`;mjxAll();}};
   $('checkBook').onclick=()=>{let v=[numVal('z0'),numVal('z1'),numVal('z2'),numVal('z3')],k=$('kind').value;
    if(v.some(isNaN)||!k){message('빈칸과 선택을 모두 채워야 채점할 수 있습니다.',true);return;}
    if(v.every(x=>x===0)&&k==='id'){state.bookDone='self';state.ok[3]=true;$('next').disabled=false;
-    message('정답입니다! 항등식이면 모든 차수의 계수가 0이므로 a = a′, b = b′, c = c′.');graph();}
+    message(`정답입니다! 항등식이면 모든 차수의 계수가 0이므로 \\(a=a'\\), \\(b=b'\\), \\(c=c'\\).`);graph();}
    else message('다시 확인해 보세요. '+(k!=='id'?'정리한 등식이 항등식인지 방정식인지 생각해 보세요.':'각 계수는 모두 0이어야 합니다.'),true);};
-  $('workedBtn').onclick=()=>{$('worked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>① ax² + bx + c = a′x² + b′x + c′ 의 모든 항을 좌변으로 이항:<br>(a − a′)x² + (b − b′)x + (c − c′) = 0<br>② 이 등식은 x에 대한 항등식이므로 모든 차수의 계수가 0:<br>a − a′ = 0, b − b′ = 0, c − c′ = 0<br>③ 따라서 a = a′, b = b′, c = c′</div>`;
+  $('workedBtn').onclick=()=>{$('worked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>① \\(\\class{hlj}{a}x^{2}+\\class{hlj}{b}x+\\class{hlj}{c}=\\class{hlj}{a'}x^{2}+\\class{hlj}{b'}x+\\class{hlj}{c'}\\)의 모든 항을 좌변으로 이항:<br>\\(\\class{hlj}{(a-a')}x^{2}+\\class{hlj}{(b-b')}x+\\class{hlj}{(c-c')}=0\\)<br>② 이 등식은 \\(x\\)에 대한 항등식이므로 모든 차수의 계수가 0:<br>\\(\\class{hlj}{a-a'}=0\\), \\(\\class{hlj}{b-b'}=0\\), \\(\\class{hlj}{c-c'}=0\\)<br>③ 따라서 \\(a=a'\\), \\(b=b'\\), \\(c=c'\\)</div>`;mjxAll();
    state.bookDone='help';state.ok[3]=true;$('next').disabled=false;message('전체 풀이를 확인했습니다.');graph();};}
- if(i===4){const cHints=['x²의 계수: a − 2b = 0, x의 계수: a − 3 = 0, 상수항: c − 1 = 0.','a − 3 = 0 에서 a = 3 을 먼저 구합니다.','a = 3 을 a − 2b = 0 에 대입하면 b = 3/2, 그리고 c = 1.'];
+ if(i===4){const cHints=['\\(x^{2}\\)의 계수: \\(\\class{hlj}{a-2b}=0\\), \\(x\\)의 계수: \\(\\class{hlj}{a-3}=0\\), 상수항: \\(\\class{hlj}{c-1}=0\\).','\\(a-3=0\\)에서 \\(a=3\\)을 먼저 구합니다.','\\(a=3\\)을 \\(a-2b=0\\)에 대입하면 \\(b=3/2\\), 그리고 \\(c=1\\).'];
   document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{let ok=b.dataset.u==='all';state.challenge.understood=ok||state.challenge.understood;
    document.querySelectorAll('[data-u]').forEach(c=>c.style.background=c===b?(ok?'#edf5f2':'#f8e7e8'):'white');
-   message(ok?'맞습니다. 항등식이려면 모든 차수의 계수가 0이어야 합니다.':'성질 ①을 다시 보세요: ax² + bx + c = 0 이 항등식이면 계수 세 개가 모두 0입니다.',true);});
-  $('cHintBtn').onclick=()=>{if(state.challenge.hints<3){$('cHints').innerHTML+=`<div class="hint">${cHints[state.challenge.hints]}</div>`;state.challenge.hints++;$('cHintBtn').textContent=`도움 카드 열기 (${state.challenge.hints}/3)`;}};
+   message(ok?'맞습니다. 항등식이려면 모든 차수의 계수가 0이어야 합니다.':'성질 ①을 다시 보세요: \\(ax^{2}+bx+c=0\\)이 항등식이면 계수 세 개가 모두 0입니다.',true);});
+  $('cHintBtn').onclick=()=>{if(state.challenge.hints<3){$('cHints').innerHTML+=`<div class="hint">${cHints[state.challenge.hints]}</div>`;state.challenge.hints++;$('cHintBtn').textContent=`도움 카드 열기 (${state.challenge.hints}/3)`;mjxAll();}};
   $('blankBtn').onclick=()=>{let pa=numVal('pa'),pb=numVal('pb'),pc=numVal('pc');
    if(isNaN(pa)||isNaN(pb)||isNaN(pc)){message('세 빈칸을 모두 입력하세요.',true);return;}
    let got=0;if(pa===3)got++;if(Math.abs(pb-1.5)<1e-9)got++;if(pc===1)got++;state.challenge.blanks=got;
-   message(got===3?'맞습니다! a = 3, b = 3/2, c = 1. 아래 완성 단계에 그대로 입력해 보세요.':`빈칸 ${got}/3 정답. 다시 확인해 보세요.`,got!==3);};
+   message(got===3?'맞습니다! \\(a=3\\), \\(b=3/2\\), \\(c=1\\). 아래 완성 단계에 그대로 입력해 보세요.':`빈칸 ${got}/3 정답. 다시 확인해 보세요.`,got!==3);};
   function syncInputs(){state.chA=numVal('ca');state.chB=numVal('cb');state.chC=numVal('cc');graph();}
   ['ca','cb','cc'].forEach(id=>$(id).oninput=syncInputs);
   $('checkCh').onclick=()=>{let a=numVal('ca'),b=numVal('cb'),c=numVal('cc');
    if(isNaN(a)||isNaN(b)||isNaN(c)){message('세 칸을 모두 입력해야 채점할 수 있습니다.',true);return;}
-   if(a===3&&Math.abs(b-1.5)<1e-9&&c===1){state.challenge.done='self';message('정답입니다! a = 3, b = 3/2, c = 1. 왼쪽 곡선이 x축과 겹치는지 확인하세요.');}
-   else{message('다시 확인해 보세요. a − 3 = 0 → a부터 구하세요.',true);return;}
+   if(a===3&&Math.abs(b-1.5)<1e-9&&c===1){state.challenge.done='self';message('정답입니다! \\(a=3\\), \\(b=3/2\\), \\(c=1\\). 왼쪽 곡선이 \\(x\\)축과 겹치는지 확인하세요.');}
+   else{message('다시 확인해 보세요. \\(a-3=0 \\rightarrow a\\)부터 구하세요.',true);return;}
    maybeDone();};
-  $('cWorkedBtn').onclick=()=>{$('cWorked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>항등식이려면 모든 계수가 0:<br>a − 2b = 0, a − 3 = 0, c − 1 = 0<br>a = 3 → 3 − 2b = 0 → b = 3/2, c = 1<br>∴ a = 3, b = 3/2, c = 1</div>`;
+  $('cWorkedBtn').onclick=()=>{$('cWorked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>항등식이려면 모든 계수가 0:<br>\\(\\class{hlj}{a-2b}=0\\), \\(\\class{hlj}{a-3}=0\\), \\(\\class{hlj}{c-1}=0\\)<br>\\(a=3 \\rightarrow 3-2b=0 \\rightarrow b=3/2\\), \\(c=1\\)<br>∴ \\(a=3\\), \\(b=3/2\\), \\(c=1\\)</div>`;mjxAll();
    state.challenge.done='help';message('전체 풀이를 확인했습니다.');maybeDone();};
   $('checkVar').onclick=()=>{let a=numVal('va'),b=numVal('vb'),c=numVal('vc');
    if(isNaN(a)||isNaN(b)||isNaN(c)){message('세 칸을 모두 입력해야 채점할 수 있습니다.',true);return;}
-   if(a===2&&b===3&&c===-1){state.variation='self';message('정답입니다! a = 2, b = 3, c = −1.');}
-   else{message('다시: a − 2 = 0 → a = 2, 그다음 a + b − 5 = 0, c + 1 = 0 을 푸세요.',true);return;}
+   if(a===2&&b===3&&c===-1){state.variation='self';message('정답입니다! \\(a=2\\), \\(b=3\\), \\(c=-1\\).');}
+   else{message('다시: \\(a-2=0 \\rightarrow a=2\\), 그다음 \\(a+b-5=0\\), \\(c+1=0\\)을 푸세요.',true);return;}
    maybeDone();};
   function maybeDone(){if(state.challenge.done&&state.variation){state.ok[4]=true;$('next').disabled=false;graph();}}}
  if(i===5){$('reflect').onchange=e=>{state.ok[5]=e.target.checked;$('next').disabled=!state.ok[5];};}
@@ -317,5 +322,6 @@ $('xslider').oninput=e=>{state.x=Number(e.target.value);graph();};
  if(n>=5){state.challenge={understood:true,hints:3,blanks:3,done:'self'};state.variation='self';state.ok[4]=true;state.ok[5]=true;state.chA=3;state.chB=1.5;state.chC=1;}
  state.stage=Math.min(n,6);}})();
 render();
+
 
 </script></body></html>
