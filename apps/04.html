@@ -1,5 +1,7 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>공통수학1 · 04 다항식 연산 종합</title><style>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']]}};</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script><title>공통수학1 · 04 다항식 연산 종합</title><style>
 :root{--ink:#251f21;--muted:#585254;--teal:#377566;--pale:#edf5f2;--line:#eae9ea;--red:#b51f2b;--sand:#f4efec}
 *{box-sizing:border-box}
 html{overflow-x:hidden}
@@ -36,7 +38,7 @@ input[type=range]{width:100%;min-height:44px;accent-color:var(--teal);margin:0}
 select,input[type=number],input[type=text]{border:1px solid #a5ada9;border-radius:5px;padding:8px;min-height:44px;max-width:100%;background:white;color:var(--ink)}
 select{width:100%}
 .readout{background:var(--pale);padding:12px 14px;border-radius:6px;margin:12px 0;overflow-wrap:anywhere}
-.equation{font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1.8;overflow-wrap:anywhere}
+.equation{font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1.8;overflow-wrap:anywhere;overflow-x:auto;}
 .choice{display:grid;gap:9px;margin:18px 0}
 .choice button{text-align:left}
 .notice{background:var(--sand);padding:12px 14px;border-radius:6px;font-size:15px}
@@ -82,8 +84,9 @@ h2{font-size:23px}
 nav{position:static}
 .term{padding:8px 10px}
 }
+mjx-container .hlj{background:#fff1a3;border-radius:3px;padding:0 2px;}
 </style></head>
-<body><main class="wrap"><header><div class="eyebrow">미래엔 공통수학1 · 48차시 계획 중 04</div><h1>다항식 연산 종합</h1><span class="chip">학생용 실습 앱 · 공통수학1 학습관</span><div class="progress" aria-hidden="true" id="progress"></div><div id="stageLabel" class="muted"></div></header>
+<body><main class="wrap"><header><div class="eyebrow">공통수학1 · 48차시 계획 중 04</div><h1>다항식 연산 종합</h1><span class="chip">학생용 실습 앱 · 공통수학1 학습관</span><div class="progress" aria-hidden="true" id="progress"></div><div id="stageLabel" class="muted"></div></header>
 <div class="layout"><section class="panel graph-panel" aria-label="조작 그래프"><div class="chartbox"><div id="legend"></div><svg id="graph" viewBox="0 0 520 340" role="img" aria-labelledby="chartTitle chartDesc"></svg><div id="graphText" class="muted"></div></div><div class="controls"><label for="xslider">관찰할 x: <strong id="xvalue">1</strong></label><input id="xslider" type="range" min="-3" max="3" value="1" step="0.1"><div class="muted">슬라이더를 움직이면 그래프 위의 점과 함숫값이 바로 바뀝니다.</div></div><div class="readout" id="equations"></div><div id="graphNote" class="notice"></div></section>
 <section class="panel activity-panel" aria-labelledby="activityTitle"><div id="activity"></div><div id="message" class="status" aria-live="polite"></div></section></div>
 <nav><button id="back">이전</button><button class="primary" id="next">다음</button></nav>
@@ -92,12 +95,13 @@ nav{position:static}
 
 'use strict';
 const $=id=>document.getElementById(id);
+let mjxN=0,mjxQ=Promise.resolve();function mjxAll(){if(window.MathJax&&MathJax.typesetPromise){mjxQ=mjxQ.then(function(){return MathJax.typesetPromise().catch(function(){});});}else if(mjxN<100){mjxN++;setTimeout(mjxAll,400);}}
 function nice(n){return Math.abs(n)<1e-9?'0':Number(n.toFixed(3)).toString()}
 function sup(s){return '<sup>'+s+'</sup>'}
 /* polynomial [c0,c1,c2,...] helpers */
 const ev=(a,x)=>a.reduceRight((r,c)=>r*x+c,0);
-function format(a){let s='';for(let i=a.length-1;i>=0;i--){let c=a[i];if(Math.abs(c)<1e-9)continue;let term=(i===0||Math.abs(c)!==1?nice(Math.abs(c)):'')+(i===0?'':i===1?'x':'x'+sup(i));s+=(s?(c<0?' − ':' + '):(c<0?'−':''))+term;}return s||'0'}
-function message(t,error=false){$('message').textContent=t;$('message').className='status'+(error?' error':'');}
+function format(a){let s='';for(let i=a.length-1;i>=0;i--){let c=a[i];if(Math.abs(c)<1e-9)continue;let term=(i===0||Math.abs(c)!==1?nice(Math.abs(c)):'')+(i===0?'':i===1?'x':'x^{'+i+'}');s+=(s?(c<0?'-':'+'):(c<0?'-':''))+term;}return s||'0'}
+function message(t,error=false){$('message').innerHTML=t;$('message').className='status'+(error?' error':'');mjxAll();}
 /* generic plot: lines=[{name,f(x),color,dash,width,hide}] */
 function plot(lines,note,xr){
  xr=xr||[-3,3];
@@ -112,10 +116,11 @@ function plot(lines,note,xr){
   s+=`<path d="${d}" fill="none" stroke="${l.color}" stroke-width="${l.width||2.5}" stroke-dasharray="${l.dash||''}"/><circle cx="${X(state.x)}" cy="${Y(l.f(state.x))}" r="5" fill="${l.color}" stroke="white"/>`;}
  s+=`<path d="M${X(state.x)} 22 V302" stroke="#938c8f" stroke-dasharray="3 5"/></g>`;
  $('graph').innerHTML=s;
- $('legend').innerHTML=lines.filter(l=>!l.hide).map(l=>`<b style="color:${l.color}"><i class="dot" style="border-color:${l.color}"></i>${l.name}</b>`).join('');
- $('graphText').textContent=`x=${nice(state.x)}일 때 `+lines.filter(l=>!l.hide).map(l=>l.name+' = '+nice(l.f(state.x))).join(' / ');
+ $('legend').innerHTML=lines.filter(l=>!l.hide).map(l=>`<b style="color:${l.color}"><i class="dot" style="border-color:${l.color}"></i>${l.legend||('\\('+l.name+'\\)')}</b>`).join('');
+ $('graphText').innerHTML=`\\(x=${nice(state.x)}\\)일 때 `+lines.filter(l=>!l.hide).map(l=>'\\('+l.name+'='+nice(l.f(state.x))+'\\)').join(' / ');
  $('xvalue').textContent=nice(state.x);
- $('graphNote').textContent=note||'';
+ $('graphNote').innerHTML=note||'';
+ mjxAll();
 }
 function frac(n){ /* 0.5 -> 1/2 for display */
  if(Math.abs(n-Math.round(n))<1e-9)return nice(Math.round(n));
@@ -124,17 +129,18 @@ function frac(n){ /* 0.5 -> 1/2 for display */
 }
 function numVal(id){let v=$(id).value.trim();if(v==='')return NaN;v=v.replace('−','-');if(v.includes('/')){let p=v.split('/');return Number(p[0])/Number(p[1]);}return Number(v);}
 
-function sgn(v){return (v<0?' − '+Math.abs(v):' + '+v);}
+function sgn(v){return (v<0?'-'+Math.abs(v):'+'+v);}
 function termX(c){ /* coefficient of x with 1 suppressed */
  let a=Math.abs(c);let coef=(a===1?'':nice(a));
- return (c<0?' − ':' + ')+coef+'x';}
+ return (c<0?'-':'+')+coef+'x';}
+function termXhl(c){return (c<0?'':'+')+'\\class{hlj}{'+(c<0?'-':'')+nice(Math.abs(c))+'}x';}
 const state={stage:0,ok:[false,false,false,false,false,false,false],x:1,start:Date.now(),
  prediction:null,p:-1,q:2,moved:new Set(),observed:false,
  round:0,selected:[],combo:null,comboLabel:'',
  hints:0,bookDone:null,challenge:{understood:false,hints:0,blanks:false,done:null},variation:null};
 const labels=['예측하기','곱셈 조립','목표 식 만들기','교과서 문제','도전과 변형','개념 정리','마치기'];
-const CARDS=[{id:'m1',label:'(x − 1)',a:[-1,1]},{id:'p1',label:'(x + 1)',a:[1,1]},{id:'q1',label:'(x² + x + 1)',a:[1,1,1]},{id:'q2',label:'(x² − x + 1)',a:[1,-1,1]}];
-const TARGETS=[{name:'x³ − 1',a:[-1,0,0,1]},{name:'x³ + 1',a:[1,0,0,1]}];
+const CARDS=[{id:'m1',label:'(x-1)',a:[-1,1]},{id:'p1',label:'(x+1)',a:[1,1]},{id:'q1',label:'(x^{2}+x+1)',a:[1,1,1]},{id:'q2',label:'(x^{2}-x+1)',a:[1,-1,1]}];
+const TARGETS=[{name:'x^{3}-1',a:[-1,0,0,1]},{name:'x^{3}+1',a:[1,0,0,1]}];
 function mul(a,b){let r=Array(a.length+b.length-1).fill(0);for(let i=0;i<a.length;i++)for(let j=0;j<b.length;j++)r[i+j]+=a[i]*b[j];return r;}
 function sameP(a,b){return a.length===b.length&&a.every((v,i)=>Math.abs(v-b[i])<1e-9);}
 /* ---------- graph ---------- */
@@ -142,45 +148,46 @@ function graph(){
  let lines=[],note='',eq='';
  const i=state.stage;
  if(i===0){
-  lines=[{name:'y = x − 1',f:x=>x-1,color:'#86705c',dash:'7 4'},{name:'y = x² + x + 1',f:x=>x*x+x+1,color:'#585254'}];
-  if(state.prediction!==null){lines.push({name:'y = (x−1)(x²+x+1)',f:x=>(x-1)*(x*x+x+1),color:'#377566',width:3.5});eq='<b>(x−1)(x²+x+1) = x³ − 1</b>';}
-  else eq='(x−1)(x²+x+1) 의 곡선은 예측 후에 보여 드립니다.';
+  lines=[{name:'y=x-1',f:x=>x-1,color:'#86705c',dash:'7 4'},{name:'y=x^{2}+x+1',f:x=>x*x+x+1,color:'#585254'}];
+  if(state.prediction!==null){lines.push({name:'y=(x-1)(x^{2}+x+1)',f:x=>(x-1)*(x*x+x+1),color:'#377566',width:3.5});eq='<b>\\((x-1)(x^{2}+x+1)=x^{3}-1\\)</b>';}
+  else eq='\\((x-1)(x^{2}+x+1)\\)의 곡선은 예측 후에 보여 드립니다.';
   note='두 식의 곡선이 바뀌는 모양을 보고 곱의 개형을 예측해 보세요. 정확한 계수는 식의 전개로 확인합니다.';
  }
  else if(i===1){
   const p=state.p,q=state.q;
-  const sp=(p<0?' − '+Math.abs(p):' + '+p),sq=(q<0?' − '+Math.abs(q):' + '+q);
-  lines=[{name:'y = x'+sp,f:x=>x+p,color:'#86705c',dash:'7 4'},
-   {name:'y = x'+sq,f:x=>x+q,color:'#585254',dash:'7 4'},
-   {name:'y = (x'+sp+')(x'+sq+')',f:x=>(x+p)*(x+q),color:'#377566',width:3.5}];
-  eq='<b>(x'+sp+')(x'+sq+') = x²'+termX(p+q)+sgn(p*q)+'</b>';
-  note='p+q가 0이면 x의 항이 사라집니다: (x−a)(x+a) = x²−a².';
+  const sp=(p<0?'-'+Math.abs(p):'+'+p),sq=(q<0?'-'+Math.abs(q):'+'+q);
+  lines=[{name:'y=x'+sp,f:x=>x+p,color:'#86705c',dash:'7 4'},
+   {name:'y=x'+sq,f:x=>x+q,color:'#585254',dash:'7 4'},
+   {name:'y=(x'+sp+')(x'+sq+')',f:x=>(x+p)*(x+q),color:'#377566',width:3.5}];
+  eq='<b>\\((x'+sp+')(x'+sq+')=x^{2}'+termXhl(p+q)+sgn(p*q)+'\\)</b>';
+  note='\\(p+q\\)가 0이면 \\(x\\)의 항이 사라집니다: \\((x-a)(x+a)=x^{2}-a^{2}\\).';
  }
  else if(i===2){
   const t=TARGETS[state.round]||TARGETS[1];
-  lines=[{name:'목표: y = '+t.name,f:x=>ev(t.a,x),color:'#377566',width:3.5}];
-  if(state.combo)lines.push({name:'현재 조합: y = '+state.comboLabel,f:x=>ev(state.combo,x),color:'#b51f2b',dash:'7 4'});
-  eq='목표 식: <b>'+t.name+'</b>';
+  lines=[{name:'y='+t.name,legend:'목표: \\(y='+t.name+'\\)',f:x=>ev(t.a,x),color:'#377566',width:3.5}];
+  if(state.combo)lines.push({name:'y='+state.comboLabel,legend:'현재 조합: \\(y='+state.comboLabel+'\\)',f:x=>ev(state.combo,x),color:'#b51f2b',dash:'7 4'});
+  eq='목표 식: <b>\\('+t.name+'\\)</b>';
   note='조합한 곡선이 목표 곡선과 정확히 겹치면 성공입니다.';
  }
  else if(i===3){
   const A=[1,-3,-3,2],B=[1,-1,2];
-  lines=[{name:'y = 2x³ − 3x² − 3x + 1',f:x=>ev(A,x),color:'#585254'}];
-  eq='<b>A = 2x³ − 3x² − 3x + 1</b><br>B = 2x² − x + 1';
-  if(state.ok[3]){lines.push({name:'y = B·Q + R',f:x=>ev(B,x)*(x-1)+(-5*x+2),color:'#377566',width:3.5,dash:'7 4'});
-   eq+='<br><b>확인: A = (2x² − x + 1)(x − 1) + (−5x + 2)</b>';note='두 곡선이 정확히 겹칩니다. 나눗셈의 검산은 A = BQ + R입니다.';}
-  else note='몫과 나머지를 구한 뒤 B·Q + R 곡선이 A와 겹치는지 확인합니다.';
+  lines=[{name:'y=2x^{3}-3x^{2}-3x+1',legend:'\\(A\\): \\(y=2x^{3}-3x^{2}-3x+1\\)',f:x=>ev(A,x),color:'#585254'}];
+  eq='<b>\\(A=2x^{3}-3x^{2}-3x+1\\)</b><br>\\(B=2x^{2}-x+1\\)';
+  if(state.ok[3]){lines.push({name:'y=B \\cdot Q+R',legend:'검산: \\(y=B \\cdot Q+R\\)',f:x=>ev(B,x)*(x-1)+(-5*x+2),color:'#377566',width:3.5,dash:'7 4'});
+   eq+='<br><b>확인: \\(A=(2x^{2}-x+1)(x-1)+(-5x+2)\\)</b>';note='두 곡선이 정확히 겹칩니다. 나눗셈의 검산은 \\(A=BQ+R\\)입니다.';}
+  else note='몫과 나머지를 구한 뒤 \\(B \\cdot Q+R\\) 곡선이 \\(A\\)와 겹치는지 확인합니다.';
  }
  else{
   const D=[2,3,-1,1];
-  lines=[{name:'y = x³ − x² + 3x + 2',f:x=>ev(D,x),color:'#585254'}];
-  eq='<b>x³ − x² + 3x + 2</b> 를 A로 나누면 몫 x − 1, 나머지 2x + 3';
-  if(state.ok[4]){lines.push({name:'y = (x² + 1)(x − 1) + (2x + 3)',f:x=>(x*x+1)*(x-1)+(2*x+3),color:'#377566',width:3.5,dash:'7 4'});
-   eq+='<br><b>확인: (x² + 1)(x − 1) + (2x + 3) = x³ − x² + 3x + 2</b>';note='A = x² + 1 을 대입한 식의 곡선이 원래 곡선과 정확히 겹칩니다.';}
-  else note='A를 구한 뒤 곡선이 겹치는지 확인합니다.';
+  lines=[{name:'y=x^{3}-x^{2}+3x+2',f:x=>ev(D,x),color:'#585254'}];
+  eq='<b>\\(x^{3}-x^{2}+3x+2\\)</b>를 \\(A\\)로 나누면 몫 \\(x-1\\), 나머지 \\(2x+3\\)';
+  if(state.ok[4]){lines.push({name:'y=(x^{2}+1)(x-1)+(2x+3)',f:x=>(x*x+1)*(x-1)+(2*x+3),color:'#377566',width:3.5,dash:'7 4'});
+   eq+='<br><b>확인: \\((x^{2}+1)(x-1)+(2x+3)=x^{3}-x^{2}+3x+2\\)</b>';note='\\(A=x^{2}+1\\)을 대입한 식의 곡선이 원래 곡선과 정확히 겹칩니다.';}
+  else note='\\(A\\)를 구한 뒤 곡선이 겹치는지 확인합니다.';
  }
  plot(lines,note);
  $('equations').innerHTML='<div class="equation">'+eq+'</div>';
+ mjxAll();
 }
 /* ---------- stages ---------- */
 function render(){let i=state.stage;
@@ -190,17 +197,17 @@ function render(){let i=state.stage;
  $('next').textContent=i===5?'학습 요약 보기':'다음';message('');let h='';
  if(i===0){h=`<h2 id="activityTitle">전개하기 전에 예측해 보세요</h2>
  <p>덧셈·뺄셈·곱셈·나눗셈이 섞인 식을 다루기 전에, 곱셈 하나를 직접 전개해 봅니다.</p>
- <div class="equation">(x − 1)(x² + x + 1) = x³ + ☐x² + ☐x + ☐</div>
- <p><strong>전개 결과에서 x²의 계수</strong>는 무엇일까요?</p>
+ <div class="equation">\\((x-1)(x^{2}+x+1)=\\)<br>\\(x^{3}+\\boxed{\\phantom{0}}\\, x^{2}+\\boxed{\\phantom{0}}\\, x+\\boxed{\\phantom{0}}\\)</div>
+ <p><strong>전개 결과에서 \\(x^{2}\\)의 계수</strong>는 무엇일까요?</p>
  <div class="choice"><button data-pred="-1">−1</button><button data-pred="0">0</button><button data-pred="1">1</button></div>
  <p class="muted">예측을 고른 뒤 왼쪽 그래프와 다음 활동으로 확인합니다. 틀려도 괜찮습니다.</p>`;}
  if(i===1){h=`<h2 id="activityTitle">슬라이더로 곱셈을 조립해 보세요</h2>
- <p>p와 q를 바꾸면 (x + p)(x + q)의 전개식과 그래프가 바로 바뀝니다.</p>
+ <p>\\(p\\)와 \\(q\\)를 바꾸면 \\((x+p)(x+q)\\)의 전개식과 그래프가 바로 바뀝니다.</p>
  <div class="controls"><label for="psl">p: <b id="pval">${state.p}</b></label><input id="psl" type="range" min="-4" max="4" step="1" value="${state.p}">
  <label for="qsl">q: <b id="qval">${state.q}</b></label><input id="qsl" type="range" min="-4" max="4" step="1" value="${state.q}"></div>
  <div class="readout" id="expandOut"></div>
- <p><strong>관찰 미션:</strong> p + q = 0 이 되도록 맞춰 보세요. 전개식에서 사라지는 항은 무엇인가요?</p>
- <div class="choice"><button data-obs="x2">x²의 항</button><button data-obs="x">x의 항</button><button data-obs="c">상수항</button></div>
+ <p><strong>관찰 미션:</strong> \\(p+q=0\\)이 되도록 맞춰 보세요. 전개식에서 사라지는 항은 무엇인가요?</p>
+ <div class="choice"><button data-obs="x2">\\(x^{2}\\)의 항</button><button data-obs="x">\\(x\\)의 항</button><button data-obs="c">상수항</button></div>
  <p class="muted">두 슬라이더를 각각 한 번 이상 움직이고 관찰 미션에 답하면 다음으로 갈 수 있습니다.</p>`;}
  if(i===2){h=`<h2 id="activityTitle">목표 식을 만들어 보세요</h2>
  <p>식 카드 두 장을 곱해서 목표 식을 만들어 보세요. <strong id="roundLabel"></strong></p>
@@ -209,41 +216,39 @@ function render(){let i=state.stage;
  <div id="comboOut" class="readout" style="display:none"></div>
  <p class="muted">곱한 결과가 목표와 다르면 왼쪽 그래프에서 두 곡선이 어떻게 다른지 비교해 보세요.</p>`;}
  if(i===3){h=`<h2 id="activityTitle">교과서 문제를 풀어 보세요</h2>
- <p class="muted">미래엔 공통수학1 · 20쪽 중단원 마무리 문제 04</p>
- <p>다항식 2x³ − 3x² − 3x + 1 을 2x² − x + 1 로 나누었을 때의 몫과 나머지를 구하시오.</p>
- <h3>몫 Q 입력</h3><div class="answer-grid"><label>x의 계수<input id="q1c" type="number" step="any" inputmode="decimal"></label><label>상수항<input id="q0c" type="number" step="any" inputmode="decimal"></label></div>
- <h3>나머지 R 입력</h3><div class="answer-grid"><label>x의 계수<input id="r1c" type="number" step="any" inputmode="decimal"></label><label>상수항<input id="r0c" type="number" step="any" inputmode="decimal"></label></div>
+ <p class="muted">공통수학1 · 20쪽 중단원 마무리 문제 04</p>
+ <p>다항식 \\(2x^{3}-3x^{2}-3x+1\\)을 \\(2x^{2}-x+1\\)로 나누었을 때의 몫과 나머지를 구하시오.</p>
+ <h3>몫 \\(Q\\) 입력</h3><div class="answer-grid"><label>\\(x\\)의 계수<input id="q1c" type="number" step="any" inputmode="decimal"></label><label>상수항<input id="q0c" type="number" step="any" inputmode="decimal"></label></div>
+ <h3>나머지 \\(R\\) 입력</h3><div class="answer-grid"><label>\\(x\\)의 계수<input id="r1c" type="number" step="any" inputmode="decimal"></label><label>상수항<input id="r0c" type="number" step="any" inputmode="decimal"></label></div>
  <div class="tools"><button id="checkBook" class="primary">채점하기</button><button id="hintBtn">단계별 도움 (${state.hints}/3)</button><button id="workedBtn">전체 풀이 보기</button></div>
  <div id="hints"></div><div id="worked"></div>
  <p class="muted">나머지의 차수는 나누는 식의 차수보다 낮아야 합니다. 빈 칸은 채점할 수 없습니다.</p>`;}
  if(i===4){h=`<h2 id="activityTitle">나눗셈을 거꾸로 되짚어 보세요</h2>
- <p class="muted">미래엔 공통수학1 · 21쪽 중단원 마무리 문제 09 (서술형) · 4단계 도움 제공</p>
- <p>다항식 x³ − x² + 3x + 2 를 다항식 A로 나누었을 때의 몫이 x − 1 이고 나머지는 2x + 3 입니다. 다항식 A를 구하시오.</p>
+ <p class="muted">공통수학1 · 21쪽 중단원 마무리 문제 09 (서술형) · 4단계 도움 제공</p>
+ <p>다항식 \\(x^{3}-x^{2}+3x+2\\)를 다항식 \\(A\\)로 나누었을 때의 몫이 \\(x-1\\)이고 나머지는 \\(2x+3\\)입니다. 다항식 \\(A\\)를 구하시오.</p>
  <h3>1단계 · 문제 이해</h3>
- <p>x³ − x² + 3x + 2 = A × ☐ + (2x + 3) 에서 ☐에 들어갈 식을 고르세요.</p>
- <div class="choice"><button data-u="q">x − 1</button><button data-u="a">A</button><button data-u="r">2x + 3</button></div>
+ <p>\\(x^{3}-x^{2}+3x+2=A \\times \\boxed{\\phantom{0}}+(2x+3)\\)에서 \\(\\boxed{\\phantom{0}}\\)에 들어갈 식을 고르세요.</p>
+ <div class="choice"><button data-u="q">\\(x-1\\)</button><button data-u="a">\\(A\\)</button><button data-u="r">\\(2x+3\\)</button></div>
  <h3>2단계 · 도움 카드</h3>
  <div class="tools"><button id="cHintBtn">도움 카드 열기 (${state.challenge.hints}/3)</button></div><div id="cHints"></div>
  <h3>3단계 · 부분 풀이</h3>
- <p class="steps">x³ − x² + 3x + 2 − (2x + 3) = x³ − x² +
- <input id="b1" type="number" step="any" style="width:80px"> x +
- <input id="b0" type="number" step="any" style="width:80px">
+ <p class="steps">\\(x^{3}-x^{2}+3x+2-(2x+3)=x^{3}-x^{2}+\\) <input id="b1" type="number" step="any" style="width:80px"> \\(x+\\) <input id="b0" type="number" step="any" style="width:80px">
  <button id="blankBtn">빈칸 확인</button></p>
  <h3>4단계 · 완성</h3>
- <p>A의 계수를 입력하세요.</p>
- <div class="answer-grid three"><label>x²의 계수<input id="a2" type="number" step="any" inputmode="decimal"></label><label>x의 계수<input id="a1" type="number" step="any" inputmode="decimal"></label><label>상수항<input id="a0" type="number" step="any" inputmode="decimal"></label></div>
+ <p>\\(A\\)의 계수를 입력하세요.</p>
+ <div class="answer-grid three"><label>\\(x^{2}\\)의 계수<input id="a2" type="number" step="any" inputmode="decimal"></label><label>\\(x\\)의 계수<input id="a1" type="number" step="any" inputmode="decimal"></label><label>상수항<input id="a0" type="number" step="any" inputmode="decimal"></label></div>
  <div class="tools"><button id="checkCh" class="primary">채점하기</button><button id="cWorkedBtn">전체 풀이 보기</button></div><div id="cWorked"></div>
  <h3>수치를 바꾼 변형</h3>
- <p>x³ + x² − 2x + 8 을 B로 나누었을 때 몫이 x + 3, 나머지가 2x + 2 일 때 B를 구하시오.</p>
- <div class="answer-grid three"><label>x²의 계수<input id="v2" type="number" step="any" inputmode="decimal"></label><label>x의 계수<input id="v1" type="number" step="any" inputmode="decimal"></label><label>상수항<input id="v0" type="number" step="any" inputmode="decimal"></label></div>
+ <p>\\(x^{3}+x^{2}-2x+8\\)을 \\(B\\)로 나누었을 때 몫이 \\(x+3\\), 나머지가 \\(2x+2\\)일 때 \\(B\\)를 구하시오.</p>
+ <div class="answer-grid three"><label>\\(x^{2}\\)의 계수<input id="v2" type="number" step="any" inputmode="decimal"></label><label>\\(x\\)의 계수<input id="v1" type="number" step="any" inputmode="decimal"></label><label>상수항<input id="v0" type="number" step="any" inputmode="decimal"></label></div>
  <div class="tools"><button id="checkVar" class="primary">변형 채점</button></div>`;}
  if(i===5){h=`<h2 id="activityTitle">마지막으로 개념을 정리해요</h2>
  <div class="formula"><h3>다항식의 정리</h3><p>계산하기 전에 한 문자에 대해 차수가 높은 항부터 나열(내림차순)합니다.</p></div>
- <div class="formula"><h3>곱셈은 분배법칙으로</h3><div class="equation">(x + p)(x + q) = x² + (p + q)x + pq</div><p>특히 (x − a)(x + a) = x² − a² 처럼 항이 사라지는 경우를 눈여겨봅니다.</p></div>
- <div class="formula"><h3>나눗셈의 검산: A = BQ + R</h3><p>나누는 식 × 몫 + 나머지 = 원래 식 (단, R의 차수는 B의 차수보다 낮다). R = 0이면 '나누어떨어진다'고 합니다.</p></div>
- <label><input type="checkbox" id="reflect"> A = BQ + R 로 나눗셈을 검산할 수 있다고 설명할 수 있습니다.</label>`;}
+ <div class="formula"><h3>곱셈은 분배법칙으로</h3><div class="equation">\\((x+p)(x+q)=x^{2}+\\class{hlj}{(p+q)}x+pq\\)</div><p>특히 \\((x-a)(x+a)=x^{2}-a^{2}\\)처럼 항이 사라지는 경우를 눈여겨봅니다.</p></div>
+ <div class="formula"><h3>나눗셈의 검산: \\(A=BQ+R\\)</h3><p>(나누는 식)\\(\\times\\)(몫)\\(+\\)(나머지)\\(=\\)(원래 식) (단, \\(R\\)의 차수는 \\(B\\)의 차수보다 낮다). \\(R=0\\)이면 '나누어떨어진다'고 합니다.</p></div>
+ <label><input type="checkbox" id="reflect"> \\(A=BQ+R\\)로 나눗셈을 검산할 수 있다고 설명할 수 있습니다.</label>`;}
  if(i===6){let mins=Math.max(1,Math.round((Date.now()-state.start)/60000));h=`<h2 id="activityTitle">오늘의 학습 요약</h2><div class="summary">
- <p>예측한 x²의 계수 <b>${state.prediction}</b></p>
+ <p>예측한 \\(x^{2}\\)의 계수 <b>${state.prediction}</b></p>
  <p>직접 움직인 슬라이더 <b>${state.moved.size}개</b></p>
  <p>목표 식 만들기 <b>${state.round>=2?'2 / 2 성공':state.round+' / 2 진행'}</b></p>
  <p>교과서 문제 <b>${state.bookDone==='self'?'정답 확인':state.bookDone==='help'?'풀이 도움 후 완료':'미완료'}</b></p>
@@ -251,28 +256,29 @@ function render(){let i=state.stage;
  <p>심화 문제 <b>${state.challenge.done==='self'?'정답 확인':state.challenge.done==='help'?'풀이 도움 후 완료':'미완료'}</b> · 도움 카드 <b>${state.challenge.hints} / 3장</b></p>
  <p>변형 문제 <b>${state.variation==='self'?'정답 확인':'미완료'}</b></p>
  <p>이 화면을 연 시간 <b>약 ${mins}분</b></p></div>
- <div class="notice">이 요약은 현재 화면에만 표시됩니다. 교사나 외부 서비스로 전송하지 않습니다. 배포판에서는 학생 동의 후 학습 이력을 Sheet에 기록하도록 연결할 예정입니다.</div>
+ <div class="notice">이 요약은 현재 화면에만 표시됩니다. 교사나 외부 서비스로 전송하지 않습니다.</div>
  <button id="restart" style="margin-top:18px">처음부터 다시</button>`;}
- $('activity').innerHTML=h;bind();graph();}
+ $('activity').innerHTML=h;mjxAll();bind();graph();}
 /* ---------- bindings ---------- */
 function bind(){let i=state.stage;
  if(i===0){document.querySelectorAll('[data-pred]').forEach(b=>b.onclick=()=>{state.prediction=Number(b.dataset.pred);state.ok[0]=true;
   document.querySelectorAll('[data-pred]').forEach(c=>c.style.background=c===b?'#edf5f2':'white');
-  message(state.prediction===0?'예측을 기록했어요. x²의 항이 정말 사라지는지 그래프와 전개로 확인하세요.':'예측을 기록했어요. x²의 계수가 왜 0이 되는지 확인해 보세요.');
+  message(state.prediction===0?'예측을 기록했어요. \\(x^{2}\\)의 항이 정말 사라지는지 그래프와 전개로 확인하세요.':'예측을 기록했어요. \\(x^{2}\\)의 계수가 왜 0이 되는지 확인해 보세요.');
   $('next').disabled=false;graph();});}
  if(i===1){let p=$('psl'),q=$('qsl');
   function expand(){$('pval').textContent=state.p;$('qval').textContent=state.q;
-   let s='(x'+(state.p<0?' − '+Math.abs(state.p):' + '+state.p)+')(x'+(state.q<0?' − '+Math.abs(state.q):' + '+state.q)+') = x²'+termX(state.p+state.q)+sgn(state.p*state.q);
-   if(state.p+state.q===0)s+='<br><b>x의 항이 사라졌습니다: (x − a)(x + a) = x² − a²</b>';
-   $('expandOut').innerHTML=s;}
+   let s='\\((x'+(state.p<0?'-'+Math.abs(state.p):'+'+state.p)+')(x'+(state.q<0?'-'+Math.abs(state.q):'+'+state.q)+')=x^{2}'+termXhl(state.p+state.q)+sgn(state.p*state.q)+'\\)';
+   if(state.p+state.q===0)s+='<br><b>\\(x\\)의 항이 사라졌습니다: \\((x-a)(x+a)=x^{2}-a^{2}\\)</b>';
+   $('expandOut').innerHTML=s;mjxAll();}
   p.oninput=q.oninput=e=>{state.p=Number(p.value);state.q=Number(q.value);state.moved.add(e.target.id);state.ok[1]=state.moved.has('psl')&&state.moved.has('qsl')&&state.observed;$('next').disabled=!state.ok[1];expand();graph();};
   document.querySelectorAll('[data-obs]').forEach(b=>b.onclick=()=>{let ok=b.dataset.obs==='x';state.observed=ok||state.observed;
    document.querySelectorAll('[data-obs]').forEach(c=>c.style.background=c===b?(ok?'#edf5f2':'#f8e7e8'):'white');
-   if(ok){message('맞습니다. p + q = 0 이면 x의 항이 사라져 (x−a)(x+a) = x²−a²가 됩니다.');}else{message('아닙니다. 전개식의 (p+q)x 부분을 보세요. p+q=0이면 어떤 항이 0이 되나요?',true);}
+   if(ok){message('맞습니다. \\(p+q=0\\)이면 \\(x\\)의 항이 사라져 \\((x-a)(x+a)=x^{2}-a^{2}\\)가 됩니다.');}else{message('아닙니다. 전개식의 \\((p+q)x\\) 부분을 보세요. \\(p+q=0\\)이면 어떤 항이 0이 되나요?',true);}
    state.ok[1]=state.moved.has('psl')&&state.moved.has('qsl')&&state.observed;$('next').disabled=!state.ok[1];});
   expand();}
  if(i===2){function draw(){$('roundLabel').textContent=`미션 ${state.round+1} / 2`;
-  $('pool').innerHTML=CARDS.map(c=>`<button class="term ${state.selected.includes(c.id)?'selected':''}" data-card="${c.id}">${c.label}</button>`).join('');
+  $('pool').innerHTML=CARDS.map(c=>`<button class="term ${state.selected.includes(c.id)?'selected':''}" data-card="${c.id}">\\(${c.label}\\)</button>`).join('');
+  mjxAll();
   document.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>{let id=b.dataset.card;
    if(state.selected.includes(id))state.selected=state.selected.filter(s=>s!==id);
    else{if(state.selected.length>=2)state.selected.shift();state.selected.push(id);}draw();});}
@@ -280,43 +286,43 @@ function bind(){let i=state.stage;
    let c1=CARDS.find(c=>c.id===state.selected[0]),c2=CARDS.find(c=>c.id===state.selected[1]);
    let prod=mul(c1.a,c2.a),t=TARGETS[state.round];state.combo=prod;state.comboLabel=format(prod);
    $('comboOut').style.display='block';
-   $('comboOut').innerHTML=`${c1.label} × ${c2.label} = <b>${format(prod)}</b>`;
-   if(sameP(prod,t.a)){message(`정확합니다! ${format(prod)} = ${t.name}. 곡선이 정확히 겹칩니다.`);
+   $('comboOut').innerHTML=`\\(${c1.label} \\times ${c2.label}=${format(prod)}\\)`;mjxAll();
+   if(sameP(prod,t.a)){message(`정확합니다! \\(${format(prod)}=${t.name}\\). 곡선이 정확히 겹칩니다.`);
     state.combo=null;state.selected=[];state.round++;
-    if(state.round>=2){state.ok[2]=true;$('next').disabled=false;message('두 미션 모두 성공! 곱셈 공식 (x±a)(x²∓ax+a²) = x³±a³ 을 확인했습니다.');}
+    if(state.round>=2){state.ok[2]=true;$('next').disabled=false;message('두 미션 모두 성공! 곱셈 공식 \\((x \\pm a)(x^{2} \\mp ax+a^{2})=x^{3} \\pm a^{3}\\)을 확인했습니다.');}
     draw();graph();}
-   else{message(`목표와 다릅니다. ${format(prod)} ≠ ${t.name}. 왼쪽에서 두 곡선을 비교하고 다시 조합해 보세요.`,true);graph();}};
+   else{message(`목표와 다릅니다. \\(${format(prod)} \\neq ${t.name}\\). 왼쪽에서 두 곡선을 비교하고 다시 조합해 보세요.`,true);graph();}};
   $('clearSel').onclick=()=>{state.selected=[];state.combo=null;$('comboOut').style.display='none';draw();graph();};
   draw();}
- if(i===3){const hints=['몫의 첫 항: (2x³) ÷ (2x²) = x 입니다.','x(2x² − x + 1) = 2x³ − x² + x 를 빼면 −2x² − 4x + 1 이 남습니다.','(−2x²) ÷ (2x²) = −1 이므로 몫은 x − 1, 나머지는 −5x + 2 입니다.'];
-  $('hintBtn').onclick=()=>{if(state.hints<3){$('hints').innerHTML+=`<div class="hint">${hints[state.hints]}</div>`;state.hints++;$('hintBtn').textContent=`단계별 도움 (${state.hints}/3)`;}};
+ if(i===3){const hints=['몫의 첫 항: \\((\\class{hlj}{2}x^{3}) \\div (\\class{hlj}{2}x^{2})=x\\)입니다.','\\(x(2x^{2}-x+1)=2x^{3}-x^{2}+x\\)를 빼면 \\(-2x^{2}-4x+1\\)이 남습니다.','\\((-2x^{2}) \\div (2x^{2})=-1\\)이므로 몫은 \\(x-1\\), 나머지는 \\(-5x+2\\)입니다.'];
+  $('hintBtn').onclick=()=>{if(state.hints<3){$('hints').innerHTML+=`<div class="hint">${hints[state.hints]}</div>`;state.hints++;$('hintBtn').textContent=`단계별 도움 (${state.hints}/3)`;mjxAll();}};
   $('checkBook').onclick=()=>{let v=[numVal('q1c'),numVal('q0c'),numVal('r1c'),numVal('r0c')];
    if(v.some(isNaN)){message('네 칸을 모두 입력해야 채점할 수 있습니다.',true);return;}
    if(v[0]===1&&v[1]===-1&&v[2]===-5&&v[3]===2){state.bookDone='self';state.ok[3]=true;$('next').disabled=false;
-    message('정답입니다! 몫 Q = x − 1, 나머지 R = −5x + 2. 왼쪽에서 B·Q + R 곡선이 A와 겹치는지 확인하세요.');graph();}
-   else message('다시 계산해 보세요. '+(v[0]!==1?'몫의 x 계수부터 확인: (2x³) ÷ (2x²) = ?':v[1]!==-1?'몫의 상수항을 확인하세요.':'나머지를 확인하세요. A − B·(몫의 일부)를 단계별로 빼 보세요.'),true);};
-  $('workedBtn').onclick=()=>{$('worked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>① (2x³) ÷ (2x²) = x → x(2x² − x + 1) = 2x³ − x² + x<br>② (2x³ − 3x² − 3x + 1) − (2x³ − x² + x) = −2x² − 4x + 1<br>③ (−2x²) ÷ (2x²) = −1 → −1·(2x² − x + 1) = −2x² + x − 1<br>④ (−2x² − 4x + 1) − (−2x² + x − 1) = −5x + 2<br>∴ 몫 Q = x − 1, 나머지 R = −5x + 2<br>검산: (2x² − x + 1)(x − 1) + (−5x + 2) = 2x³ − 3x² − 3x + 1</div>`;
+    message('정답입니다! 몫 \\(Q=x-1\\), 나머지 \\(R=-5x+2\\). 왼쪽에서 \\(B \\cdot Q+R\\) 곡선이 \\(A\\)와 겹치는지 확인하세요.');graph();}
+   else message('다시 계산해 보세요. '+(v[0]!==1?'몫의 \\(x\\) 계수부터 확인: \\((2x^{3}) \\div (2x^{2})=?\\)':v[1]!==-1?'몫의 상수항을 확인하세요.':'나머지를 확인하세요. \\(A-B \\cdot\\)(몫의 일부)를 단계별로 빼 보세요.'),true);};
+  $('workedBtn').onclick=()=>{$('worked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>① \\((2x^{3}) \\div (2x^{2})=x \\rightarrow x(2x^{2}-x+1)=2x^{3}-x^{2}+x\\)<br>② \\((2x^{3}-3x^{2}-3x+1)-(2x^{3}-x^{2}+x)=-2x^{2}-4x+1\\)<br>③ \\((-2x^{2}) \\div (2x^{2})=-1 \\rightarrow -1 \\cdot (2x^{2}-x+1)=-2x^{2}+x-1\\)<br>④ \\((-2x^{2}-4x+1)-(-2x^{2}+x-1)=-5x+2\\)<br>∴ 몫 \\(Q=x-1\\), 나머지 \\(R=-5x+2\\)<br>검산: \\((2x^{2}-x+1)(x-1)+(-5x+2)=2x^{3}-3x^{2}-3x+1\\)</div>`;mjxAll();
    state.bookDone='help';state.ok[3]=true;$('next').disabled=false;message('전체 풀이를 확인했습니다. 왼쪽 그래프에서 검산 곡선이 겹치는지 보세요.');graph();};}
- if(i===4){const cHints=['나머지를 먼저 뺍니다: x³ − x² + 3x + 2 − (2x + 3) = x³ − x² + x − 1.','A = (x³ − x² + x − 1) ÷ (x − 1) 입니다.','나눗셈을 하면 x³ − x² + x − 1 = (x − 1)(x² + 1) 이므로 A = x² + 1 입니다.'];
+ if(i===4){const cHints=['나머지를 먼저 뺍니다: \\(x^{3}-x^{2}+3x+2-(2x+3)=x^{3}-x^{2}+x-1\\).','\\(A=(x^{3}-x^{2}+x-1) \\div (x-1)\\)입니다.','나눗셈을 하면 \\(x^{3}-x^{2}+x-1=(x-1)(x^{2}+1)\\)이므로 \\(A=x^{2}+1\\)입니다.'];
   document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{let ok=b.dataset.u==='q';state.challenge.understood=ok||state.challenge.understood;
    document.querySelectorAll('[data-u]').forEach(c=>c.style.background=c===b?(ok?'#edf5f2':'#f8e7e8'):'white');
-   message(ok?'맞습니다. (피제수) = (나누는 식) × (몫) + (나머지)에서 몫이 x − 1입니다.':'A = BQ + R 에서 Q(몫)의 자리를 다시 보세요. 나머지는 항상 마지막에 더합니다.',true);});
-  $('cHintBtn').onclick=()=>{if(state.challenge.hints<3){$('cHints').innerHTML+=`<div class="hint">${cHints[state.challenge.hints]}</div>`;state.challenge.hints++;$('cHintBtn').textContent=`도움 카드 열기 (${state.challenge.hints}/3)`;}};
+   message(ok?'맞습니다. (피제수) \\(=\\) (나누는 식) \\(\\times\\) (몫) \\(+\\) (나머지)에서 몫이 \\(x-1\\)입니다.':'\\(A=BQ+R\\)에서 \\(Q\\)(몫)의 자리를 다시 보세요. 나머지는 항상 마지막에 더합니다.',true);});
+  $('cHintBtn').onclick=()=>{if(state.challenge.hints<3){$('cHints').innerHTML+=`<div class="hint">${cHints[state.challenge.hints]}</div>`;state.challenge.hints++;$('cHintBtn').textContent=`도움 카드 열기 (${state.challenge.hints}/3)`;mjxAll();}};
   $('blankBtn').onclick=()=>{let b1=numVal('b1'),b0=numVal('b0');
    if(isNaN(b1)||isNaN(b0)){message('두 빈칸을 모두 입력하세요.',true);return;}
-   if(b1===1&&b0===-1){state.challenge.blanks=true;message('맞습니다. x³ − x² + 3x + 2 − (2x + 3) = x³ − x² + x − 1. 이제 (x − 1)로 나누세요.');}
-   else message('3x − 2x = [ ]x, 2 − 3 = [ ]. 부호를 다시 확인하세요.',true);};
+   if(b1===1&&b0===-1){state.challenge.blanks=true;message('맞습니다. \\(x^{3}-x^{2}+3x+2-(2x+3)=x^{3}-x^{2}+x-1\\). 이제 \\((x-1)\\)로 나누세요.');}
+   else message('\\(3x-2x=\\) [ ]\\(x\\), \\(2-3=\\) [ ]. 부호를 다시 확인하세요.',true);};
   $('checkCh').onclick=()=>{let v=[numVal('a2'),numVal('a1'),numVal('a0')];
    if(v.some(isNaN)){message('세 칸을 모두 입력해야 채점할 수 있습니다.',true);return;}
-   if(v[0]===1&&v[1]===0&&v[2]===1){state.challenge.done='self';message('정답입니다! A = x² + 1. 왼쪽 그래프가 겹치는지 확인하세요.');}
-   else{message('다시 계산해 보세요. (x³ − x² + x − 1) ÷ (x − 1)의 몫에서 x의 계수가 0임을 잊지 마세요.',true);return;}
+   if(v[0]===1&&v[1]===0&&v[2]===1){state.challenge.done='self';message('정답입니다! \\(A=x^{2}+1\\). 왼쪽 그래프가 겹치는지 확인하세요.');}
+   else{message('다시 계산해 보세요. \\((x^{3}-x^{2}+x-1) \\div (x-1)\\)의 몫에서 \\(x\\)의 계수가 \\(0\\)임을 잊지 마세요.',true);return;}
    maybeDone();};
-  $('cWorkedBtn').onclick=()=>{$('cWorked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>① x³ − x² + 3x + 2 = A(x − 1) + (2x + 3)<br>② A(x − 1) = x³ − x² + x − 1<br>③ A = (x³ − x² + x − 1) ÷ (x − 1) = x² + 1<br>검산: (x² + 1)(x − 1) + (2x + 3) = x³ − x² + x − 1 + 2x + 3 = x³ − x² + 3x + 2</div>`;
+  $('cWorkedBtn').onclick=()=>{$('cWorked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>① \\(x^{3}-x^{2}+3x+2=A(x-1)+(2x+3)\\)<br>② \\(A(x-1)=x^{3}-x^{2}+x-1\\)<br>③ \\(A=(x^{3}-x^{2}+x-1) \\div (x-1)=x^{2}+1\\)<br>검산: \\((x^{2}+1)(x-1)+(2x+3)=x^{3}-x^{2}+x-1+2x+3=x^{3}-x^{2}+3x+2\\)</div>`;mjxAll();
    state.challenge.done='help';message('전체 풀이를 확인했습니다.');maybeDone();};
   $('checkVar').onclick=()=>{let v=[numVal('v2'),numVal('v1'),numVal('v0')];
    if(v.some(isNaN)){message('세 칸을 모두 입력해야 채점할 수 있습니다.',true);return;}
-   if(v[0]===1&&v[1]===-2&&v[2]===2){state.variation='self';message('정답입니다! B = x² − 2x + 2.');}
-   else{message('다시: x³ + x² − 2x + 8 − (2x + 2) = x³ + x² − 4x + 6 을 (x + 3)으로 나누어 보세요.',true);return;}
+   if(v[0]===1&&v[1]===-2&&v[2]===2){state.variation='self';message('정답입니다! \\(B=x^{2}-2x+2\\).');}
+   else{message('다시: \\(x^{3}+x^{2}-2x+8-(2x+2)=x^{3}+x^{2}-4x+6\\)을 \\((x+3)\\)으로 나누어 보세요.',true);return;}
    maybeDone();};
   function maybeDone(){if(state.challenge.done&&state.variation){state.ok[4]=true;$('next').disabled=false;graph();}}}
  if(i===5){$('reflect').onchange=e=>{state.ok[5]=e.target.checked;$('next').disabled=!state.ok[5];};}
