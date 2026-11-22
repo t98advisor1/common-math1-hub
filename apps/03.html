@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']]}};</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 <title>공통수학1 · 03 다항식의 나눗셈</title>
 <style>
   :root{
@@ -92,12 +94,13 @@
   .check{display:inline-block;width:20px;height:20px;border-radius:50%;background:var(--ok);color:#fff;text-align:center;
     font-size:13px;line-height:20px;margin-right:8px;font-weight:700;}
   footer.fin{font-size:13px;color:var(--sub);text-align:center;padding:6px 0 2px;}
+mjx-container .hlj{background:#fff1a3;border-radius:3px;padding:0 2px;}
 </style>
 </head>
 <body>
 <div id="app">
   <header class="top">
-    <div class="crumb">미래엔 공통수학1 · Ⅰ. 다항식 · 3편</div>
+    <div class="crumb">공통수학1 · Ⅰ. 다항식 · 3편</div>
     <div class="sc-title" id="scTitle">다항식의 나눗셈</div>
     <div class="dots" id="dots"></div>
   </header>
@@ -110,6 +113,7 @@
 
 <script>
 "use strict";
+let mjxN=0,mjxQ=Promise.resolve();function mjxAll(){if(window.MathJax&&MathJax.typesetPromise){mjxQ=mjxQ.then(function(){return MathJax.typesetPromise().catch(function(){});});}else if(mjxN<100){mjxN++;setTimeout(mjxAll,400);}}
 /* ============ 상태 ============ */
 var SCREENS = [
   {id:'intro',     name:'도입'},
@@ -167,6 +171,7 @@ function go(i){
     return;
   }
   state.cur=i; RENDER[SCREENS[i].id](); renderDots(); updateNav();
+  mjxAll();
   window.scrollTo(0,0);
 }
 
@@ -183,6 +188,7 @@ function chipGroup(el, options, onPick){
     box.appendChild(b);
   });
   el.appendChild(box);
+  mjxAll();
   return box;
 }
 function fbEl(){ var d=document.createElement('div'); d.className='fb'; return d; }
@@ -195,9 +201,9 @@ function renderIntro(){
   var c=document.createElement('div'); c.className='card';
   c.innerHTML=
     '<span class="tag">도입 미션</span>'+
-    '<h2>A를 B로 나누면 몫과 나머지는?</h2>'+
-    '<p>다항식 <b>A = 3x<sup>3</sup> - 5x<sup>2</sup> - 2x + 1</b>을 다항식 <b>B = x - 2</b>로 나눕니다.</p>'+
-    '<p>계산하기 전에, 몫 Q와 나머지 R이 어떤 식일지 <span class="kwd">먼저 예측</span>해 봅시다. 나눗셈의 결과는 <span class="kwd">A = BQ + R</span> 꼴로 나타낼 수 있고, R의 차수는 B의 차수보다 낮습니다.</p>'+
+    '<h2>\\(A\\)를 \\(B\\)로 나누면 몫과 나머지는?</h2>'+
+    '<p>다항식 <b>\\(A=3x^{3}-5x^{2}-2x+1\\)</b>을 다항식 <b>\\(B=x-2\\)</b>로 나눕니다.</p>'+
+    '<p>계산하기 전에, 몫 \\(Q\\)와 나머지 \\(R\\)이 어떤 식일지 <span class="kwd">먼저 예측</span>해 봅시다. 나눗셈의 결과는 <span class="kwd">\\(A=BQ+R\\)</span> 꼴로 나타낼 수 있고, \\(R\\)의 차수는 \\(B\\)의 차수보다 낮습니다.</p>'+
     '<p class="muted">정답을 바로 알려 주지 않습니다. 예측을 고른 뒤 다음 활동에서 세로나눗셈으로 직접 확인합니다.</p>';
   m.appendChild(c);
   var q=document.createElement('div'); q.className='card soft';
@@ -205,10 +211,10 @@ function renderIntro(){
   var fb=fbEl(); q.appendChild(fb);
   m.appendChild(q);
   var opts=[
-    {html:'Q = 3x<sup>2</sup> + x, R = 0', ok:false},
-    {html:'Q = 3x<sup>2</sup> + x, R = 1', ok:true},
-    {html:'Q = 3x<sup>2</sup> - 5x - 2, R = 1', ok:false},
-    {html:'Q = 3x<sup>2</sup> + x, R = x + 1', ok:false}
+    {html:'\\(Q=3x^{2}+x,\\ R=0\\)', ok:false},
+    {html:'\\(Q=3x^{2}+x,\\ R=1\\)', ok:true},
+    {html:'\\(Q=3x^{2}-5x-2,\\ R=1\\)', ok:false},
+    {html:'\\(Q=3x^{2}+x,\\ R=x+1\\)', ok:false}
   ];
   var box=document.createElement('div'); box.className='chips';
   opts.forEach(function(op){
@@ -217,6 +223,7 @@ function renderIntro(){
       b.style.borderColor='var(--brand, #3b6fd8)'; b.style.fontWeight='700';
       fb.className='fb info';
       fb.innerHTML='예측을 기록했습니다. 다음 화면의 <b>세로나눗셈</b>으로 직접 나눠 보고, 예측과 같은지 비교해 봅시다.';
+      mjxAll();
       state.prediction=op.ok;
       complete('intro');
       Array.prototype.forEach.call(box.querySelectorAll('.chip'),function(x){ if(x!==b) x.disabled=true; });
@@ -226,7 +233,7 @@ function renderIntro(){
   });
   q.appendChild(box);
   var note=document.createElement('p'); note.className='muted';
-  note.textContent='출처: 미래엔 공통수학1 교과서 18쪽 문제 5 ⑴ (A=3x³-5x²-2x+1, B=x-2)';
+  note.innerHTML='공통수학1 · 18쪽 문제 5 ⑴ (\\(A=3x^{3}-5x^{2}-2x+1\\), \\(B=x-2\\))';
   m.appendChild(note);
 }
 
@@ -238,7 +245,7 @@ function renderLongdiv(){
   c.innerHTML='<span class="tag">활동 1 · 필수</span>'+
     '<h2>세로나눗셈(장제법)으로 나누기</h2>'+
     '<p>다항식의 나눗셈은 각 다항식을 <b>내림차순으로 정리</b>한 다음, <b>자연수의 나눗셈과 같은 방법</b>으로 계산합니다(교과서 18쪽).</p>'+
-    '<div class="mathbox">(3x<sup>3</sup> - 5x<sup>2</sup> - 2x + 1) ÷ (x - 2)</div>'+
+    '<div class="mathbox">\\((3x^{3}-5x^{2}-2x+1) \\div (x-2)\\)</div>'+
     '<p class="muted">빈칸을 순서대로 채우며 몫과 나머지를 완성하세요. 틀리면 힌트가 나옵니다.</p>';
   m.appendChild(c);
 
@@ -246,8 +253,8 @@ function renderLongdiv(){
   ld.innerHTML=
     '<div class="ld-row ld-q"><div class="ld-cell div"></div>'+
       '<div class="ld-cell blank" id="cQ1"></div><div class="ld-cell blank" id="cQ2"></div><div class="ld-cell"></div></div>'+
-    '<div class="ld-row"><div class="ld-cell div">x - 2</div>'+
-      '<div class="ld-cell">3x<sup>3</sup></div><div class="ld-cell">- 5x<sup>2</sup></div><div class="ld-cell">- 2x</div><div class="ld-cell">+ 1</div></div>'+
+    '<div class="ld-row"><div class="ld-cell div">\\(x-2\\)</div>'+
+      '<div class="ld-cell">\\(3x^{3}\\)</div><div class="ld-cell">\\(-5x^{2}\\)</div><div class="ld-cell">\\(-2x\\)</div><div class="ld-cell">\\(+1\\)</div></div>'+
     '<div class="ld-row"><div class="ld-cell"></div>'+
       '<div class="ld-cell blank" id="cM1a"></div><div class="ld-cell blank" id="cM1b"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
     '<div class="ld-row rule"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
@@ -264,32 +271,32 @@ function renderLongdiv(){
   m.appendChild(stepCard);
 
   var steps=[
-    {q:'1단계 · 몫의 첫째 항: <b>3x<sup>3</sup> ÷ x = ?</b>', hint:'최고차항끼리 나눕니다. 3x³ ÷ x = 3x²',
-     opts:[{h:'3x<sup>2</sup>',ok:true},{h:'3x<sup>3</sup>',ok:false},{h:'x<sup>2</sup>',ok:false}],
-     fill:[['cQ1','3x<sup>2</sup>']]},
-    {q:'2단계 · (x - 2) × 3x<sup>2</sup> = ?', hint:'분배법칙: 3x²·x = 3x³, 3x²·(-2) = -6x²',
-     opts:[{h:'3x<sup>3</sup> - 6x<sup>2</sup>',ok:true},{h:'3x<sup>3</sup> - 5x<sup>2</sup>',ok:false},{h:'3x<sup>3</sup> + 6x<sup>2</sup>',ok:false}],
-     fill:[['cM1a','3x<sup>3</sup>'],['cM1b','- 6x<sup>2</sup>']]},
-    {q:'3단계 · 빼기: (3x<sup>3</sup> - 5x<sup>2</sup>) - (3x<sup>3</sup> - 6x<sup>2</sup>) = ?', hint:'-5x² - (-6x²) = -5x² + 6x²',
-     opts:[{h:'x<sup>2</sup>',ok:true},{h:'- 11x<sup>2</sup>',ok:false},{h:'- x<sup>2</sup>',ok:false}],
-     fill:[['cR1a','x<sup>2</sup>'],['cR1b','- 2x <span style="color:#8a94a0;font-size:13px">(내려옴)</span>']]},
-    {q:'4단계 · 몫의 둘째 항: <b>x<sup>2</sup> ÷ x = ?</b>', hint:'다시 최고차항끼리 나눕니다.',
-     opts:[{h:'x',ok:true},{h:'- 2x',ok:false},{h:'2x',ok:false}],
-     fill:[['cQ2','+ x']]},
-    {q:'5단계 · (x - 2) × x = ?', hint:'x·x = x², x·(-2) = -2x',
-     opts:[{h:'x<sup>2</sup> - 2x',ok:true},{h:'x<sup>2</sup> + 2x',ok:false},{h:'x<sup>2</sup> - 2',ok:false}],
-     fill:[['cM2a','x<sup>2</sup>'],['cM2b','- 2x']]},
-    {q:'6단계 · 빼면 0. 남은 상수항 +1을 내리면? (차수 비교: 1은 0차, x - 2는 1차)', hint:'나머지의 차수는 나누는 식의 차수보다 낮아야 하므로 여기서 멈춥니다.',
-     opts:[{h:'1 (나머지)',ok:true},{h:'0 (나누어떨어짐)',ok:false},{h:'- 2x + 1',ok:false}],
-     fill:[['cRem','1']]}
+    {q:'1단계 · 몫의 첫째 항: <b>\\(3x^{3} \\div x=?\\)</b>', hint:'최고차항끼리 나눕니다. \\(3x^{3} \\div x=3x^{2}\\)',
+     opts:[{h:'\\(3x^{2}\\)',ok:true},{h:'\\(3x^{3}\\)',ok:false},{h:'\\(x^{2}\\)',ok:false}],
+     fill:[['cQ1','\\(3x^{2}\\)']]},
+    {q:'2단계 · \\((x-2) \\times 3x^{2}=?\\)', hint:'분배법칙: \\(3x^{2} \\cdot x=3x^{3}\\), \\(3x^{2} \\cdot (-2)=-6x^{2}\\)',
+     opts:[{h:'\\(3x^{3}-6x^{2}\\)',ok:true},{h:'\\(3x^{3}-5x^{2}\\)',ok:false},{h:'\\(3x^{3}+6x^{2}\\)',ok:false}],
+     fill:[['cM1a','\\(3x^{3}\\)'],['cM1b','\\(-6x^{2}\\)']]},
+    {q:'3단계 · 빼기: \\((3x^{3}-5x^{2})-(3x^{3}-6x^{2})=?\\)', hint:'\\(-5x^{2}-(-6x^{2})=-5x^{2}+6x^{2}\\)',
+     opts:[{h:'\\(x^{2}\\)',ok:true},{h:'\\(-11x^{2}\\)',ok:false},{h:'\\(-x^{2}\\)',ok:false}],
+     fill:[['cR1a','\\(x^{2}\\)'],['cR1b','\\(-2x\\) <span style="color:#8a94a0;font-size:13px">(내려옴)</span>']]},
+    {q:'4단계 · 몫의 둘째 항: <b>\\(x^{2} \\div x=?\\)</b>', hint:'다시 최고차항끼리 나눕니다.',
+     opts:[{h:'\\(x\\)',ok:true},{h:'\\(-2x\\)',ok:false},{h:'\\(2x\\)',ok:false}],
+     fill:[['cQ2','\\(+x\\)']]},
+    {q:'5단계 · \\((x-2) \\times x=?\\)', hint:'\\(x \\cdot x=x^{2}\\), \\(x \\cdot (-2)=-2x\\)',
+     opts:[{h:'\\(x^{2}-2x\\)',ok:true},{h:'\\(x^{2}+2x\\)',ok:false},{h:'\\(x^{2}-2\\)',ok:false}],
+     fill:[['cM2a','\\(x^{2}\\)'],['cM2b','\\(-2x\\)']]},
+    {q:'6단계 · 빼면 0. 남은 상수항 \\(+1\\)을 내리면? (차수 비교: \\(1\\)은 0차, \\(x-2\\)는 1차)', hint:'나머지의 차수는 나누는 식의 차수보다 낮아야 하므로 여기서 멈춥니다.',
+     opts:[{h:'\\(1\\) (나머지)',ok:true},{h:'\\(0\\) (나누어떨어짐)',ok:false},{h:'\\(-2x+1\\)',ok:false}],
+     fill:[['cRem','\\(1\\)']]}
   ];
   var idx=0;
   function renderStep(){
     stepCard.innerHTML='';
     if(idx>=steps.length){
-      stepCard.innerHTML='<div class="fb ok" style="margin-top:0">완성! 몫 Q = <b>3x<sup>2</sup> + x</b>, 나머지 R = <b>1</b> 입니다.</div>'+
-        '<div class="mathbox">3x<sup>3</sup> - 5x<sup>2</sup> - 2x + 1 = (x - 2)(3x<sup>2</sup> + x) + 1</div>'+
-        '<p class="muted">A = BQ + R 꼴로 나타냈습니다. 도입의 예측과 비교해 보세요.</p>';
+      stepCard.innerHTML='<div class="fb ok" style="margin-top:0">완성! 몫 <b>\\(Q=3x^{2}+x\\)</b>, 나머지 <b>\\(R=1\\)</b>입니다.</div>'+
+        '<div class="mathbox">\\(3x^{3}-5x^{2}-2x+1=(x-2)(3x^{2}+x)+1\\)</div>'+
+        '<p class="muted">\\(A=BQ+R\\) 꼴로 나타냈습니다. 도입의 예측과 비교해 보세요.</p>';
       complete('longdiv');
       return;
     }
@@ -307,9 +314,9 @@ function renderLongdiv(){
           var cell=document.getElementById(f[0]);
           cell.innerHTML=f[1]; cell.classList.remove('blank'); cell.classList.add('pop');
         });
-        idx++; setTimeout(renderStep, 650);
+        idx++; mjxAll(); setTimeout(renderStep, 650);
       } else {
-        fb.className='fb no'; fb.innerHTML='힌트: '+st.hint;
+        fb.className='fb no'; fb.innerHTML='힌트: '+st.hint; mjxAll();
       }
     });
   }
@@ -325,12 +332,15 @@ function renderGraph(){
   m.innerHTML='';
   var c=document.createElement('div'); c.className='card';
   c.innerHTML='<span class="tag">활동 2 · 조작</span>'+
-    '<h2>A = BQ + R을 그래프로 확인</h2>'+
-    '<p>슬라이더로 x 값을 바꾸면, <b>y = A(x)</b>(실선)와 <b>y = (x - 2)(3x<sup>2</sup> + x)</b>(파선) 사이의 세로 간격을 확인할 수 있습니다.</p>';
+    '<h2>\\(A=BQ+R\\)을 그래프로 확인</h2>'+
+    '<p>슬라이더로 \\(x\\) 값을 바꾸면, <b>\\(y=A(x)\\)</b>(실선)와 <b>\\(y=(x-2)(3x^{2}+x)\\)</b>(파선) 사이의 세로 간격을 확인할 수 있습니다.</p>';
   m.appendChild(c);
 
   var cv=document.createElement('canvas'); cv.className='graph'; cv.width=672; cv.height=520;
   m.appendChild(cv);
+  var lg=document.createElement('div'); lg.className='muted'; lg.style.textAlign='center';
+  lg.innerHTML='파란 실선: \\(y=A(x)\\) · 빨간 파선: \\(y=(x-2)(3x^{2}+x)\\)';
+  m.appendChild(lg);
   var rng=document.createElement('input'); rng.type='range'; rng.min='-20'; rng.max='40'; rng.value='30';
   m.appendChild(rng);
   var lab=document.createElement('div'); lab.className='muted'; lab.style.textAlign='center';
@@ -339,7 +349,7 @@ function renderGraph(){
 
   function draw(){
     var x=Number(rng.value)/10;
-    lab.innerHTML='x = '+x.toFixed(1);
+    lab.innerHTML='\\(x='+x.toFixed(1)+'\\)';
     var ctx=cv.getContext('2d');
     var W=cv.width,H=cv.height, x0=-2.5,x1=4.8, y0=-80,y1=180;
     function px(x){return (x-x0)/(x1-x0)*W;}
@@ -365,26 +375,25 @@ function renderGraph(){
     ctx.fillStyle='#b3261e'; ctx.beginPath(); ctx.arc(px(x),py(yb),7,0,7); ctx.fill();
     ctx.fillStyle='#14804a'; ctx.font='bold 24px "Noto Sans CJK KR",sans-serif';
     ctx.fillText('차이 = 1', px(x)+12, py((ya+yb)/2)+8);
-    ctx.fillStyle='#2557d6'; ctx.font='22px "Noto Sans CJK KR",sans-serif';
-    ctx.fillText('y = A(x)', 16, 30);
-    ctx.fillStyle='#b3261e'; ctx.fillText('y = (x-2)(3x²+x)', 16, 58);
-    ro.innerHTML='<span>A('+x.toFixed(1)+')</span><span>= '+ya.toFixed(1)+'</span>'+
-      '<span>(x-2)·(3x²+x)</span><span>= '+B(x).toFixed(1)+' × '+Qf(x).toFixed(1)+' = '+yb.toFixed(1)+'</span>'+
-      '<span>나머지 R</span><span>= A(x) - (x-2)(3x²+x) = <b>1</b></span>';
+    function apx(v){var r=Number(v.toFixed(2));return Math.abs(v-r)<1e-9?'='+r:'\\approx '+r;}
+    ro.innerHTML='<span>\\(A('+x.toFixed(1)+')\\)</span><span>\\('+apx(ya)+'\\)</span>'+
+      '<span>\\((x-2)(3x^{2}+x)\\)</span><span>\\(B'+apx(B(x))+',\\ Q'+apx(Qf(x))+',\\ BQ'+apx(yb)+'\\)</span>'+
+      '<span>나머지 \\(R\\)</span><span>\\(=A(x)-(x-2)(3x^{2}+x)=\\) <b>\\(1\\)</b></span>';
+    mjxAll();
   }
   rng.addEventListener('input',draw); draw();
 
   var q=document.createElement('div'); q.className='card soft';
-  q.innerHTML='<h3>관찰 질문: x를 움직여도 두 그래프의 세로 간격은?</h3>';
+  q.innerHTML='<h3>관찰 질문: \\(x\\)를 움직여도 두 그래프의 세로 간격은?</h3>';
   var fb=fbEl(); q.appendChild(fb); m.appendChild(q);
   chipGroup(q,[
     {html:'항상 1이다', ok:true},
     {html:'x 값에 따라 달라진다', ok:false},
     {html:'항상 0이다', ok:false}
   ],function(ok){
-    if(ok){ fb.className='fb ok'; fb.innerHTML='맞았습니다. <b>A = BQ + R</b>에서 R = 1은 상수이므로, 모든 x에서 두 값의 차가 1입니다.'; complete('graph');
+    if(ok){ fb.className='fb ok'; fb.innerHTML='맞았습니다. <b>\\(A=BQ+R\\)</b>에서 \\(R=1\\)은 상수이므로, 모든 \\(x\\)에서 두 값의 차가 1입니다.'; mjxAll(); complete('graph');
       Array.prototype.forEach.call(q.querySelectorAll('.chip'),function(b){b.disabled=true;}); }
-    else { fb.className='fb no'; fb.innerHTML='힌트: 아래 수치 패널에서 R 값이 x에 따라 변하는지 확인해 보세요.'; }
+    else { fb.className='fb no'; fb.innerHTML='힌트: 아래 수치 패널에서 \\(R\\) 값이 \\(x\\)에 따라 변하는지 확인해 보세요.'; mjxAll(); }
   });
 }
 
@@ -395,7 +404,7 @@ function renderSynthetic(){
   var c=document.createElement('div'); c.className='card';
   c.innerHTML='<span class="tag ext">확장 학습 · 계획서 기반(교과서 본문 외)</span>'+
     '<h2>조립제법: 세로나눗셈의 계수만 추리면</h2>'+
-    '<p>나누는 식이 <b>일차식 x - c</b>일 때는 계수만으로 같은 계산을 할 수 있습니다. 이를 <b>조립제법</b>이라 하며, 세로나눗셈을 대신하는 것이 아니라 <b>세로나눗셈의 각 단계와 정확히 대응</b>합니다.</p>'+
+    '<p>나누는 식이 <b>일차식 \\(x-c\\)</b>일 때는 계수만으로 같은 계산을 할 수 있습니다. 이를 <b>조립제법</b>이라 하며, 세로나눗셈을 대신하는 것이 아니라 <b>세로나눗셈의 각 단계와 정확히 대응</b>합니다.</p>'+
     '<p class="muted">아래 [다음 단계]를 눌러 두 방법의 대응을 한 단계씩 확인하세요.</p>';
   m.appendChild(c);
 
@@ -403,16 +412,16 @@ function renderSynthetic(){
   v.innerHTML=
    '<h3 style="margin-top:0">세로나눗셈</h3>'+
    '<div class="ld" style="font-size:15px">'+
-   '<div class="ld-row ld-q"><div class="ld-cell div"></div><div class="ld-cell" id="sLq1">3x<sup>2</sup></div><div class="ld-cell" id="sLq2">+ x</div><div class="ld-cell"></div></div>'+
-   '<div class="ld-row"><div class="ld-cell div">x - 2</div><div class="ld-cell" id="sLa">3x<sup>3</sup></div><div class="ld-cell" id="sLb">- 5x<sup>2</sup></div><div class="ld-cell" id="sLc">- 2x</div><div class="ld-cell" id="sLd">+ 1</div></div>'+
-   '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell" id="sLm1a">3x<sup>3</sup></div><div class="ld-cell" id="sLm1b">- 6x<sup>2</sup></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
+   '<div class="ld-row ld-q"><div class="ld-cell div"></div><div class="ld-cell" id="sLq1">\\(3x^{2}\\)</div><div class="ld-cell" id="sLq2">\\(+x\\)</div><div class="ld-cell"></div></div>'+
+   '<div class="ld-row"><div class="ld-cell div">\\(x-2\\)</div><div class="ld-cell" id="sLa">\\(3x^{3}\\)</div><div class="ld-cell" id="sLb">\\(-5x^{2}\\)</div><div class="ld-cell" id="sLc">\\(-2x\\)</div><div class="ld-cell" id="sLd">\\(+1\\)</div></div>'+
+   '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell" id="sLm1a">\\(3x^{3}\\)</div><div class="ld-cell" id="sLm1b">\\(-6x^{2}\\)</div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
    '<div class="ld-row rule"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
-   '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell" id="sLr1">x<sup>2</sup></div><div class="ld-cell" id="sLr2">- 2x</div><div class="ld-cell"></div></div>'+
-   '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell" id="sLm2a">x<sup>2</sup></div><div class="ld-cell" id="sLm2b">- 2x</div><div class="ld-cell"></div></div>'+
+   '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell" id="sLr1">\\(x^{2}\\)</div><div class="ld-cell" id="sLr2">\\(-2x\\)</div><div class="ld-cell"></div></div>'+
+   '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell" id="sLm2a">\\(x^{2}\\)</div><div class="ld-cell" id="sLm2b">\\(-2x\\)</div><div class="ld-cell"></div></div>'+
    '<div class="ld-row rule"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
-   '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell" id="sLrem">1</div></div>'+
+   '<div class="ld-row"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell" id="sLrem">\\(1\\)</div></div>'+
    '</div>'+
-   '<h3>조립제법 (x - 2 = 0 → x = 2 이용)</h3>'+
+   '<h3>조립제법 (\\(x-2=0 \\rightarrow x=2\\) 이용)</h3>'+
    '<div class="syn"><div class="syn-grid">'+
      '<div class="syn-cell" id="sC0">2</div>'+
      '<div class="syn-cell" id="sA3">3</div><div class="syn-cell" id="sA5">-5</div><div class="syn-cell" id="sA2">-2</div><div class="syn-cell" id="sA1">1</div>'+
@@ -421,16 +430,16 @@ function renderSynthetic(){
      '<div class="syn-cell"></div>'+
      '<div class="syn-cell base" id="sQ0">3</div><div class="syn-cell base synrow synrow-hidden" id="sQ1">1</div><div class="syn-cell base synrow synrow-hidden" id="sQ2">0</div><div class="syn-cell base edge synrow synrow-hidden" id="sR">1</div>'+
    '</div></div>'+
-   '<div class="mathbox" id="synResult" style="visibility:hidden">결과줄 3, 1, 0, <b>1</b> → 몫 Q = 3x<sup>2</sup> + x, 나머지 R = 1 (세로나눗셈과 동일)</div>';
+   '<div class="mathbox" id="synResult" style="visibility:hidden">결과줄 3, 1, 0, <b>1</b> → 몫 \\(Q=3x^{2}+x\\), 나머지 \\(R=1\\) (세로나눗셈과 동일)</div>';
   m.appendChild(v);
 
   var stepText=[
-    '0단계: 계수만 나열합니다. 3x³ - 5x² - 2x + 1 → 3, -5, -2, 1. x - 2 = 0을 만족하는 x = 2를 왼쪽에 씁니다.',
-    '1단계: 3을 그대로 내립니다. ↔ 세로나눗셈에서 몫의 첫째 항 3x²의 계수 3에 대응합니다.',
-    '2단계: 2 × 3 = 6을 -5 아래에 쓰고 더하면 1. ↔ (3x³ - 5x²) - (3x³ - 6x²) = x²의 계수 1에 대응합니다.',
-    '3단계: 2 × 1 = 2를 -2 아래에 쓰고 더하면 0. ↔ (x² - 2x) - (x² - 2x) = 0에 대응합니다.',
-    '4단계: 2 × 0 = 0을 1 아래에 쓰고 더하면 1. ↔ 마지막에 남은 나머지 1에 대응합니다.',
-    '완성: 결과줄 3, 1, 0은 몫 3x² + x의 계수, 마지막 1은 나머지입니다. 세로나눗셈과 같은 답입니다.'
+    '0단계: 계수만 나열합니다. \\(3x^{3}-5x^{2}-2x+1 \\rightarrow 3,\\ -5,\\ -2,\\ 1\\). \\(x-2=0\\)을 만족하는 \\(x=2\\)를 왼쪽에 씁니다.',
+    '1단계: 3을 그대로 내립니다. ↔ 세로나눗셈에서 몫의 첫째 항 \\(3x^{2}\\)의 계수 3에 대응합니다.',
+    '2단계: \\(2 \\times 3=6\\)을 \\(-5\\) 아래에 쓰고 더하면 1. ↔ \\((3x^{3}-5x^{2})-(3x^{3}-6x^{2})=x^{2}\\)의 계수 1에 대응합니다.',
+    '3단계: \\(2 \\times 1=2\\)를 \\(-2\\) 아래에 쓰고 더하면 0. ↔ \\((x^{2}-2x)-(x^{2}-2x)=0\\)에 대응합니다.',
+    '4단계: \\(2 \\times 0=0\\)을 \\(1\\) 아래에 쓰고 더하면 1. ↔ 마지막에 남은 나머지 1에 대응합니다.',
+    '완성: 결과줄 3, 1, 0은 몫 \\(3x^{2}+x\\)의 계수, 마지막 1은 나머지입니다. 세로나눗셈과 같은 답입니다.'
   ];
   var hlSteps=[
     [['sC0','hl'],['sA3','hl'],['sA5','hl'],['sA2','hl'],['sA1','hl'],['sLa','hl'],['sLb','hl'],['sLc','hl'],['sLd','hl']],
@@ -462,6 +471,7 @@ function renderSynthetic(){
     (revSteps[step]||[]).forEach(function(id){var e=document.getElementById(id); if(e) e.classList.remove('synrow-hidden');});
     applyHL(step);
     st.innerHTML=stepText[step];
+    mjxAll();
     if(step===5){
       document.getElementById('synResult').style.visibility='visible';
       nb.disabled=true;
@@ -471,14 +481,14 @@ function renderSynthetic(){
 
   function askCheck(){
     var q=document.createElement('div'); q.className='card soft';
-    q.innerHTML='<h3>확인: 조립제법 결과줄 3, 1, 0, 1에서 마지막 수 1은?</h3>';
+    q.innerHTML='<h3>확인: 조립제법 결과줄 \\(3,\\ 1,\\ 0,\\ 1\\)에서 마지막 수 \\(1\\)은?</h3>';
     var fb=fbEl(); q.appendChild(fb); m.appendChild(q);
     chipGroup(q,[
-      {html:'나머지 R', ok:true},
+      {html:'나머지 \\(R\\)', ok:true},
       {html:'몫의 상수항', ok:false},
       {html:'나누는 수', ok:false}
     ],function(ok){
-      if(ok){ fb.className='fb ok'; fb.innerHTML='맞았습니다. 마지막 수는 나머지, 앞의 수들은 몫의 계수입니다. <b>어떤 방법으로 계산해도 몫과 나머지는 같습니다.</b>'; complete('synthetic');
+      if(ok){ fb.className='fb ok'; fb.innerHTML='맞았습니다. 마지막 수는 나머지, 앞의 수들은 몫의 계수입니다. <b>어떤 방법으로 계산해도 몫과 나머지는 같습니다.</b>'; mjxAll(); complete('synthetic');
         Array.prototype.forEach.call(q.querySelectorAll('.chip'),function(b){b.disabled=true;}); }
       else { fb.className='fb no'; fb.innerHTML='힌트: 세로나눗셈에서 마지막 줄에 남는 수를 떠올려 보세요.'; }
     });
@@ -493,16 +503,16 @@ function renderPractice(){
   var c=document.createElement('div'); c.className='card';
   c.innerHTML='<span class="tag">교과서 연습</span>'+
     '<h2>문제 5 ⑵ (교과서 18쪽)</h2>'+
-    '<p>다항식 A = <b>2x<sup>3</sup> - 5x<sup>2</sup> + 3</b> 을 B = <b>x<sup>2</sup> - 3x - 1</b> 로 나누었을 때의 몫 Q와 나머지 R을 구하고, A = BQ + R 꼴로 나타내 봅시다.</p>'+
-    '<p class="muted">이번에는 나누는 식이 이차식입니다. 방법은 같습니다. x 항이 없으므로 자리를 비워 두세요.</p>';
+    '<p>다항식 \\(A=\\)<b>\\(2x^{3}-5x^{2}+3\\)</b>을 \\(B=\\)<b>\\(x^{2}-3x-1\\)</b>로 나누었을 때의 몫 \\(Q\\)와 나머지 \\(R\\)을 구하고, \\(A=BQ+R\\) 꼴로 나타내 봅시다.</p>'+
+    '<p class="muted">이번에는 나누는 식이 이차식입니다. 방법은 같습니다. \\(x\\) 항이 없으므로 자리를 비워 두세요.</p>';
   m.appendChild(c);
 
   var ld=document.createElement('div'); ld.className='ld card'; ld.style.fontSize='14px';
   ld.innerHTML=
     '<div class="ld-row ld-q" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell div"></div>'+
       '<div class="ld-cell blank" id="pQ1"></div><div class="ld-cell blank" id="pQ2"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
-    '<div class="ld-row" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell div">x<sup>2</sup>-3x-1</div>'+
-      '<div class="ld-cell">2x<sup>3</sup></div><div class="ld-cell">- 5x<sup>2</sup></div><div class="ld-cell"></div><div class="ld-cell">+ 3</div></div>'+
+    '<div class="ld-row" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell div">\\(x^{2}-3x-1\\)</div>'+
+      '<div class="ld-cell">\\(2x^{3}\\)</div><div class="ld-cell">\\(-5x^{2}\\)</div><div class="ld-cell"></div><div class="ld-cell">\\(+3\\)</div></div>'+
     '<div class="ld-row" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell"></div>'+
       '<div class="ld-cell blank" id="pM1a"></div><div class="ld-cell blank" id="pM1b"></div><div class="ld-cell blank" id="pM1c"></div><div class="ld-cell"></div></div>'+
     '<div class="ld-row rule" style="grid-template-columns:76px repeat(4,1fr)"><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div><div class="ld-cell"></div></div>'+
@@ -518,31 +528,31 @@ function renderPractice(){
   var stepCard=document.createElement('div'); stepCard.className='card soft';
   m.appendChild(stepCard);
   var steps=[
-    {q:'1단계 · 몫의 첫째 항: <b>2x<sup>3</sup> ÷ x<sup>2</sup> = ?</b>', hint:'최고차항끼리 나눕니다.',
-     opts:[{h:'2x',ok:true},{h:'2x<sup>2</sup>',ok:false},{h:'x',ok:false}],
-     fill:[['pQ1','2x']]},
-    {q:'2단계 · (x<sup>2</sup> - 3x - 1) × 2x = ?', hint:'각 항에 2x를 곱합니다.',
-     opts:[{h:'2x<sup>3</sup> - 6x<sup>2</sup> - 2x',ok:true},{h:'2x<sup>3</sup> - 6x<sup>2</sup> + 2x',ok:false},{h:'2x<sup>3</sup> - 5x<sup>2</sup> - 2x',ok:false}],
-     fill:[['pM1a','2x<sup>3</sup>'],['pM1b','- 6x<sup>2</sup>'],['pM1c','- 2x']]},
-    {q:'3단계 · 빼고 +3을 내리면?', hint:'(-5x²)-(-6x²)=x², 0x-(-2x)=+2x',
-     opts:[{h:'x<sup>2</sup> + 2x + 3',ok:true},{h:'x<sup>2</sup> - 8x + 3',ok:false},{h:'- 11x<sup>2</sup> + 2x + 3',ok:false}],
-     fill:[['pR1a','x<sup>2</sup>'],['pR1b','+ 2x'],['pR1c','+ 3 <span style="color:#8a94a0;font-size:12px">(내려옴)</span>']]},
-    {q:'4단계 · 몫의 둘째 항: <b>x<sup>2</sup> ÷ x<sup>2</sup> = ?</b>', hint:'같은 식끼리 나누면 1입니다.',
-     opts:[{h:'1',ok:true},{h:'x',ok:false},{h:'- 1',ok:false}],
-     fill:[['pQ2','+ 1']]},
-    {q:'5단계 · (x<sup>2</sup> - 3x - 1) × 1 = ?', hint:'그대로입니다.',
-     opts:[{h:'x<sup>2</sup> - 3x - 1',ok:true},{h:'x<sup>2</sup> + 3x + 1',ok:false},{h:'x<sup>2</sup> - 3x + 1',ok:false}],
-     fill:[['pM2a','x<sup>2</sup>'],['pM2b','- 3x'],['pM2c','- 1']]},
-    {q:'6단계 · 빼기: (x<sup>2</sup> + 2x + 3) - (x<sup>2</sup> - 3x - 1) = ? (1차 &lt; 2차이므로 여기서 멈춤)', hint:'2x-(-3x)=5x, 3-(-1)=4',
-     opts:[{h:'5x + 4 (나머지)',ok:true},{h:'- x + 2',ok:false},{h:'5x + 2',ok:false}],
-     fill:[['pRem1','5x'],['pRem2','+ 4']]}
+    {q:'1단계 · 몫의 첫째 항: <b>\\(2x^{3} \\div x^{2}=?\\)</b>', hint:'최고차항끼리 나눕니다.',
+     opts:[{h:'\\(2x\\)',ok:true},{h:'\\(2x^{2}\\)',ok:false},{h:'\\(x\\)',ok:false}],
+     fill:[['pQ1','\\(2x\\)']]},
+    {q:'2단계 · \\((x^{2}-3x-1) \\times 2x=?\\)', hint:'각 항에 \\(2x\\)를 곱합니다.',
+     opts:[{h:'\\(2x^{3}-6x^{2}-2x\\)',ok:true},{h:'\\(2x^{3}-6x^{2}+2x\\)',ok:false},{h:'\\(2x^{3}-5x^{2}-2x\\)',ok:false}],
+     fill:[['pM1a','\\(2x^{3}\\)'],['pM1b','\\(-6x^{2}\\)'],['pM1c','\\(-2x\\)']]},
+    {q:'3단계 · 빼고 \\(+3\\)을 내리면?', hint:'\\((-5x^{2})-(-6x^{2})=x^{2}\\), \\(0x-(-2x)=+2x\\)',
+     opts:[{h:'\\(x^{2}+2x+3\\)',ok:true},{h:'\\(x^{2}-8x+3\\)',ok:false},{h:'\\(-11x^{2}+2x+3\\)',ok:false}],
+     fill:[['pR1a','\\(x^{2}\\)'],['pR1b','\\(+2x\\)'],['pR1c','\\(+3\\) <span style="color:#8a94a0;font-size:12px">(내려옴)</span>']]},
+    {q:'4단계 · 몫의 둘째 항: <b>\\(x^{2} \\div x^{2}=?\\)</b>', hint:'같은 식끼리 나누면 \\(1\\)입니다.',
+     opts:[{h:'\\(1\\)',ok:true},{h:'\\(x\\)',ok:false},{h:'\\(-1\\)',ok:false}],
+     fill:[['pQ2','\\(+1\\)']]},
+    {q:'5단계 · \\((x^{2}-3x-1) \\times 1=?\\)', hint:'그대로입니다.',
+     opts:[{h:'\\(x^{2}-3x-1\\)',ok:true},{h:'\\(x^{2}+3x+1\\)',ok:false},{h:'\\(x^{2}-3x+1\\)',ok:false}],
+     fill:[['pM2a','\\(x^{2}\\)'],['pM2b','\\(-3x\\)'],['pM2c','\\(-1\\)']]},
+    {q:'6단계 · 빼기: \\((x^{2}+2x+3)-(x^{2}-3x-1)=?\\) (1차 &lt; 2차이므로 여기서 멈춤)', hint:'\\(2x-(-3x)=5x\\), \\(3-(-1)=4\\)',
+     opts:[{h:'\\(5x+4\\) (나머지)',ok:true},{h:'\\(-x+2\\)',ok:false},{h:'\\(5x+2\\)',ok:false}],
+     fill:[['pRem1','\\(5x\\)'],['pRem2','\\(+4\\)']]}
   ];
   var idx=0;
   function renderStep(){
     stepCard.innerHTML='';
     if(idx>=steps.length){
-      stepCard.innerHTML='<div class="fb ok" style="margin-top:0">완성! Q = <b>2x + 1</b>, R = <b>5x + 4</b> 입니다.</div>'+
-        '<div class="mathbox">2x<sup>3</sup> - 5x<sup>2</sup> + 3 = (x<sup>2</sup> - 3x - 1)(2x + 1) + (5x + 4)</div>'+
+      stepCard.innerHTML='<div class="fb ok" style="margin-top:0">완성! <b>\\(Q=2x+1\\)</b>, <b>\\(R=5x+4\\)</b>입니다.</div>'+
+        '<div class="mathbox">\\(2x^{3}-5x^{2}+3=(x^{2}-3x-1)(2x+1)+(5x+4)\\)</div>'+
         '<p class="muted">나누는 식이 이차식이므로 나머지는 일차식 이하가 됩니다.</p>';
       complete('practice');
       return;
@@ -561,9 +571,9 @@ function renderPractice(){
           var cell=document.getElementById(f[0]);
           cell.innerHTML=f[1]; cell.classList.remove('blank'); cell.classList.add('pop');
         });
-        idx++; setTimeout(renderStep, 650);
+        idx++; mjxAll(); setTimeout(renderStep, 650);
       } else {
-        fb.className='fb no'; fb.innerHTML='힌트: '+st.hint;
+        fb.className='fb no'; fb.innerHTML='힌트: '+st.hint; mjxAll();
       }
     });
   }
@@ -573,17 +583,17 @@ function renderPractice(){
 /* ============ 화면 5: 퀴즈 ============ */
 var QUIZ=[
  {tag:'기본 · 교과서 예제',
-  q:'(3x<sup>2</sup> - 5x + 6) ÷ (x - 1) 의 몫과 나머지는? (교과서 18쪽)',
-  opts:[{h:'몫 3x - 2, 나머지 4',ok:true},{h:'몫 3x - 4, 나머지 2',ok:false},{h:'몫 3x + 2, 나머지 8',ok:false}],
-  ex:'세로나눗셈: 3x² ÷ x = 3x → (x-1)·3x = 3x² - 3x → 빼면 -2x + 6 → -2x ÷ x = -2 → (x-1)·(-2) = -2x + 2 → 빼면 4. 몫은 3x - 2, 나머지는 4. 3x² - 5x + 6 = (x - 1)(3x - 2) + 4.'},
+  q:'\\((3x^{2}-5x+6) \\div (x-1)\\)의 몫과 나머지는? (교과서 18쪽)',
+  opts:[{h:'몫 \\(3x-2\\), 나머지 \\(4\\)',ok:true},{h:'몫 \\(3x-4\\), 나머지 \\(2\\)',ok:false},{h:'몫 \\(3x+2\\), 나머지 \\(8\\)',ok:false}],
+  ex:'세로나눗셈: \\(3x^{2} \\div x=3x\\) → \\((x-1) \\cdot 3x=3x^{2}-3x\\) → 빼면 \\(-2x+6\\) → \\(-2x \\div x=-2\\) → \\((x-1) \\cdot (-2)=-2x+2\\) → 빼면 \\(4\\). 몫은 \\(3x-2\\), 나머지는 \\(4\\). \\(3x^{2}-5x+6=(x-1)(3x-2)+4\\).'},
  {tag:'기본 · 나누어떨어짐',
-  q:'(6x<sup>2</sup> - 7x + 2) ÷ (2x - 1) 의 결과로 옳은 것은?',
-  opts:[{h:'몫 3x - 2, 나머지 0 (나누어떨어진다)',ok:true},{h:'몫 3x - 2, 나머지 4',ok:false},{h:'몫 3x + 2, 나머지 0',ok:false}],
-  ex:'6x² ÷ 2x = 3x → (2x-1)·3x = 6x² - 3x → 빼면 -4x + 2 → -4x ÷ 2x = -2 → (2x-1)·(-2) = -4x + 2 → 빼면 0. 나머지가 0이므로 6x² - 7x + 2는 2x - 1로 나누어떨어집니다.'},
+  q:'\\((6x^{2}-7x+2) \\div (2x-1)\\)의 결과로 옳은 것은?',
+  opts:[{h:'몫 \\(3x-2\\), 나머지 \\(0\\) (나누어떨어진다)',ok:true},{h:'몫 \\(3x-2\\), 나머지 \\(4\\)',ok:false},{h:'몫 \\(3x+2\\), 나머지 \\(0\\)',ok:false}],
+  ex:'\\(6x^{2} \\div 2x=3x\\) → \\((2x-1) \\cdot 3x=6x^{2}-3x\\) → 빼면 \\(-4x+2\\) → \\(-4x \\div 2x=-2\\) → \\((2x-1) \\cdot (-2)=-4x+2\\) → 빼면 \\(0\\). 나머지가 \\(0\\)이므로 \\(6x^{2}-7x+2\\)는 \\(2x-1\\)로 나누어떨어집니다.'},
  {tag:'심화 · 미정계수',
-  q:'A = 2x<sup>3</sup> + 5x<sup>2</sup> - x + 3 을 B = x<sup>2</sup> + x - 2 로 나누어 A = BQ + R 꼴로 나타낼 때, 몫 Q의 최고차항의 계수는?',
-  opts:[{h:'2',ok:true},{h:'5',ok:false},{h:'1',ok:false}],
-  ex:'힌트 ① A는 삼차식, B는 이차식이므로 Q는 일차식입니다. 힌트 ② 최고차항끼리 비교하면 2x³ = (x²)·(Q의 최고차항)이어야 합니다. 힌트 ③ 2x³ ÷ x² = 2x이므로 최고차항의 계수는 2입니다.'}
+  q:'\\(A=2x^{3}+5x^{2}-x+3\\)을 \\(B=x^{2}+x-2\\)로 나누어 \\(A=BQ+R\\) 꼴로 나타낼 때, 몫 \\(Q\\)의 최고차항의 계수는?',
+  opts:[{h:'\\(2\\)',ok:true},{h:'\\(5\\)',ok:false},{h:'\\(1\\)',ok:false}],
+  ex:'힌트 ① \\(A\\)는 삼차식, \\(B\\)는 이차식이므로 \\(Q\\)는 일차식입니다. 힌트 ② 최고차항끼리 비교하면 \\(\\class{hlj}{2}x^{3}=(\\class{hlj}{1}x^{2}) \\cdot\\)(\\(Q\\)의 최고차항)이어야 합니다. 힌트 ③ \\(2x^{3} \\div x^{2}=2x\\)이므로 최고차항의 계수는 \\(2\\)입니다.'}
 ];
 function renderQuiz(){
   var m=document.getElementById('screen');
@@ -603,16 +613,17 @@ function renderQuiz(){
     var qd=QUIZ[qi];
     var qc=document.createElement('div'); qc.className='card soft';
     qc.innerHTML='<span class="tag">'+qd.tag+'</span><h3>Q'+(qi+1)+'. '+qd.q+'</h3>';
+    mjxAll();
     var fb=fbEl(); qc.appendChild(fb);
     box.appendChild(qc);
     chipGroup(qc, qd.opts.map(function(o){return {html:o.h, ok:o.ok};}), function(ok){
-      if(ok){ fb.className='fb ok'; fb.innerHTML='<b>정답!</b> '+qd.ex;
+      if(ok){ fb.className='fb ok'; fb.innerHTML='<b>정답!</b> '+qd.ex; mjxAll();
         Array.prototype.forEach.call(qc.querySelectorAll('.chip'),function(b){b.disabled=true;});
         var nx=document.createElement('button'); nx.className='btn'; nx.style.marginTop='12px';
         nx.textContent = qi<QUIZ.length-1 ? '다음 문제' : '퀴즈 완료';
         nx.addEventListener('click',function(){ qi++; renderQ(); });
         qc.appendChild(nx);
-      } else { fb.className='fb no'; fb.innerHTML='<b>오답 해설</b>: '+qd.ex; }
+      } else { fb.className='fb no'; fb.innerHTML='<b>오답 해설</b>: '+qd.ex; mjxAll(); }
     });
   }
   renderQ();
@@ -625,11 +636,11 @@ function renderConcept(){
   var c=document.createElement('div'); c.className='card concept';
   c.innerHTML='<span class="tag">개념 정리 카드</span><h2>다항식의 나눗셈</h2>'+
    '<h3>1. 계산 방법</h3><p>각 다항식을 <b>내림차순으로 정리</b>한 다음, <b>자연수의 나눗셈과 같은 방법</b>으로 계산한다.</p>'+
-   '<h3>2. 나눗셈의 등식</h3><div class="mathbox">A = BQ + R &nbsp;(단, B ≠ 0)</div>'+
-   '<p>Q는 몫(quotient), R은 나머지(remainder)의 첫 글자. <b>R의 차수는 B의 차수보다 낮다.</b></p>'+
-   '<h3>3. 나누어떨어진다</h3><p>R = 0, 즉 <b>A = BQ</b>일 때 "A는 B로 나누어떨어진다"고 한다.</p>'+
-   '<h3>4. (확장) 조립제법</h3><p>나누는 식이 일차식 x - c일 때, 계수만으로 몫과 나머지를 계산하는 방법. 세로나눗셈과 각 단계가 대응하며 결과는 같다. <span class="muted">(계획서 기반 확장, 교과서 본문 외)</span></p>'+
-   '<h3>오늘의 문제</h3><div class="mathbox">3x<sup>3</sup> - 5x<sup>2</sup> - 2x + 1 = (x - 2)(3x<sup>2</sup> + x) + 1</div>';
+   '<h3>2. 나눗셈의 등식</h3><div class="mathbox">\\(A=BQ+R\\) &nbsp;(단, \\(B \\neq 0\\))</div>'+
+   '<p>\\(Q\\)는 몫(quotient), \\(R\\)은 나머지(remainder)의 첫 글자. <b>\\(R\\)의 차수는 \\(B\\)의 차수보다 낮다.</b></p>'+
+   '<h3>3. 나누어떨어진다</h3><p>\\(R=0\\), 즉 <b>\\(A=BQ\\)</b>일 때 "\\(A\\)는 \\(B\\)로 나누어떨어진다"고 한다.</p>'+
+   '<h3>4. (확장) 조립제법</h3><p>나누는 식이 일차식 \\(x-c\\)일 때, 계수만으로 몫과 나머지를 계산하는 방법. 세로나눗셈과 각 단계가 대응하며 결과는 같다. <span class="muted">(계획서 기반 확장, 교과서 본문 외)</span></p>'+
+   '<h3>오늘의 문제</h3><div class="mathbox">\\(3x^{3}-5x^{2}-2x+1=(x-2)(3x^{2}+x)+1\\)</div>';
   m.appendChild(c);
   var b=document.createElement('button'); b.className='btn'; b.textContent='다 읽었어요';
   b.addEventListener('click',function(){ complete('concept'); go(7); });
@@ -646,17 +657,17 @@ function renderFinish(){
   c.innerHTML='<span class="tag">마치기</span><h2>학습 요약</h2>'+
    '<ul class="done-list">'+
    '<li><span class="check">✓</span>도입 미션: 예측 '+(state.prediction?'일치':'다름(세로나눗셈으로 확인)')+'</li>'+
-   '<li><span class="check">✓</span>활동 1 · 세로나눗셈: 몫 3x² + x, 나머지 1</li>'+
-   '<li><span class="check">✓</span>활동 2 · 그래프로 A = BQ + R 확인</li>'+
+   '<li><span class="check">✓</span>활동 1 · 세로나눗셈: 몫 \\(3x^{2}+x\\), 나머지 \\(1\\)</li>'+
+   '<li><span class="check">✓</span>활동 2 · 그래프로 \\(A=BQ+R\\) 확인</li>'+
    '<li><span class="check">✓</span>확장 · 조립제법과 세로나눗셈의 대응</li>'+
-   '<li><span class="check">✓</span>교과서 연습 문제 5 ⑵: Q = 2x + 1, R = 5x + 4</li>'+
+   '<li><span class="check">✓</span>교과서 연습 문제 5 ⑵: \\(Q=2x+1\\), \\(R=5x+4\\)</li>'+
    '<li><span class="check">✓</span>확인 퀴즈 3문제</li>'+
    '</ul>'+
    '<p>소요 시간: 약 '+mm+'분 '+ss+'초</p>'+
    '<p class="muted">이 앱은 학습 기록을 외부로 전송하지 않습니다.</p>';
   m.appendChild(c);
   var f=document.createElement('footer'); f.className='fin';
-  f.textContent='미래엔 공통수학1 3편 학습앱 · 공통수학1 학습관';
+  f.textContent='공통수학1 3편 학습앱 · 공통수학1 학습관';
   m.appendChild(f);
   complete('finish');
 }
