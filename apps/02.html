@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']]}};</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 <title>공통수학1 · 02 다항식의 곱셈</title>
 <style>
 :root{--blue:#2563eb;--green:#16a34a;--red:#dc2626;--bg:#f8fafc;--card:#ffffff;--ink:#1e293b;}
@@ -60,35 +62,35 @@ canvas{width:100%;display:block;background:#fff;border:1px solid #e2e8f0;border-
 .carnav .pos{flex:none;font-size:.9rem;color:#64748b;padding:0 6px;}
 .step-label{display:inline-block;background:var(--blue);color:#fff;border-radius:8px;padding:4px 12px;font-size:.8rem;font-weight:700;margin-bottom:8px;}
 .blankline{font-size:1.05rem;margin:14px 0;padding:14px;background:#f8fafc;border-radius:10px;text-align:center;font-weight:700;}
+mjx-container .hlj{background:#fff1a3;border-radius:3px;padding:0 2px;}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
-  <div class="ep">미래엔 공통수학1 · 48차시 계획 중 02</div>
+  <div class="ep">공통수학1 · 48차시 계획 중 02</div>
   <h1>다항식의 곱셈</h1>
-  <span class="badge">학생용 실습 앱 · 공통수학1 학습관</span><br>
-  <span class="nolink">이 차시 웹툰 주소 확인 중(미확인)</span>
+  <span class="badge">학생용 실습 앱 · 공통수학1 학습관</span>
 </header>
 <div class="progress" id="prog"><div class="done"></div><div></div><div></div><div></div><div></div><div></div></div>
 
 <!-- 1단계: 도입 미션 + 활동 1 (면적 모형) -->
 <section id="s1" class="on">
 <h2>1단계 · 넓이로 펼쳐 보는 곱셈</h2>
-<p>가로가 <b>(x+a)</b>, 세로가 <b>(x+b)</b>인 직사각형이 있습니다. 이 직사각형의 넓이를 x에 대한 식으로 쓰면 어떻게 될까요? 먼저 예측해 보세요.</p>
-<p class="note">a = 2, b = 3이라면? 아래 슬라이더가 바로 그 값에서 시작합니다. 직접 움직여 확인해 보세요.</p>
-<button class="choice pred" data-p="0">① x² + 5x + 6</button>
-<button class="choice pred" data-p="1">② x² + 6x + 5</button>
-<button class="choice pred" data-p="2">③ 2x + 5</button>
+<p>가로가 \((x+a)\), 세로가 \((x+b)\)인 직사각형이 있습니다. 이 직사각형의 넓이를 \(x\)에 대한 식으로 쓰면 어떻게 될까요? 먼저 예측해 보세요.</p>
+<p class="note">\(a=2\), \(b=3\)이라면? 아래 슬라이더가 바로 그 값에서 시작합니다. 직접 움직여 확인해 보세요.</p>
+<button class="choice pred" data-p="0">① \(x^{2}+5x+6\)</button>
+<button class="choice pred" data-p="1">② \(x^{2}+6x+5\)</button>
+<button class="choice pred" data-p="2">③ \(2x+5\)</button>
 <div class="feedback info" id="predfb"></div>
 
 <h3>직접 조작: a, b를 바꿔 보세요</h3>
 <div class="slider-row">
-  <label>a 의 값 <span id="aval">2</span></label>
+  <label><span>\(a\)의 값</span><span id="aval">2</span></label>
   <input type="range" id="ra" min="-3" max="3" step="1" value="2">
 </div>
 <div class="slider-row">
-  <label>b 의 값 <span id="bval">3</span></label>
+  <label><span>\(b\)의 값</span><span id="bval">3</span></label>
   <input type="range" id="rb" min="-3" max="3" step="1" value="3">
 </div>
 <div id="areabox"></div>
@@ -100,17 +102,17 @@ canvas{width:100%;display:block;background:#fff;border:1px solid #e2e8f0;border-
 <!-- 2단계: 활동 2 (그래프) -->
 <section id="s2">
 <h2>2단계 · 두 식은 정말 같은 식일까?</h2>
-<p><b>(x+a)(x+b)</b>와 전개식 <b>x²+(a+b)x+ab</b>를 각각 그래프로 그려 비교합니다. 슬라이더를 바꾸며 두 곡선을 관찰해 보세요.</p>
+<p>\((x+a)(x+b)\)와 전개식 \(x^{2}+(a+b)x+ab\)를 각각 그래프로 그려 비교합니다. 슬라이더를 바꾸며 두 곡선을 관찰해 보세요.</p>
 <div class="slider-row">
-  <label>a 의 값 <span id="gaval">1</span></label>
+  <label><span>\(a\)의 값</span><span id="gaval">1</span></label>
   <input type="range" id="ga" min="-3" max="3" step="1" value="1">
 </div>
 <div class="slider-row">
-  <label>b 의 값 <span id="gbval">-1</span></label>
+  <label><span>\(b\)의 값</span><span id="gbval">-1</span></label>
   <input type="range" id="gb" min="-3" max="3" step="1" value="-1">
 </div>
 <canvas id="graph" width="640" height="460"></canvas>
-<p class="note">파란 실선: y=(x+a)(x+b) · 빨간 점선: y=x²+(a+b)x+ab</p>
+<p class="note">파란 실선: \(y=(x+a)(x+b)\) · 빨간 점선: \(y=x^{2}+(a+b)x+ab\)</p>
 <div class="formula" id="gform"></div>
 <h3>관찰 질문</h3>
 <p>슬라이더를 아무리 바꿔도 두 곡선은 항상 정확히 겹칩니다. 그 이유는 무엇일까요?</p>
@@ -126,25 +128,25 @@ canvas{width:100%;display:block;background:#fff;border:1px solid #e2e8f0;border-
 <h2>3단계 · 확인 문제</h2>
 <p>세 문제를 모두 맞히면 마지막 개념 정리 카드가 열립니다. 틀려도 다시 도전할 수 있습니다.</p>
 
-<h3>문제 1. (교과서 p.16 문제 1(1)) (x−1)(x²−x+1)을 전개하시오.</h3>
-<button class="choice q" data-q="q1" data-c="0">① x³−x²+x−1</button>
-<button class="choice q" data-q="q1" data-c="1">② x³−2x²+2x−1</button>
-<button class="choice q" data-q="q1" data-c="2">③ x³−2x²−1</button>
-<button class="choice q" data-q="q1" data-c="3">④ x³−1</button>
+<h3>문제 1. (교과서 p.16 문제 1(1)) \((x-1)(x^{2}-x+1)\)을 전개하시오.</h3>
+<button class="choice q" data-q="q1" data-c="0">① \(x^{3}-x^{2}+x-1\)</button>
+<button class="choice q" data-q="q1" data-c="1">② \(x^{3}-2x^{2}+2x-1\)</button>
+<button class="choice q" data-q="q1" data-c="2">③ \(x^{3}-2x^{2}-1\)</button>
+<button class="choice q" data-q="q1" data-c="3">④ \(x^{3}-1\)</button>
 <div class="feedback" id="fbq1"></div>
 
-<h3>문제 2. (x+2)(x+5)의 전개식에서 x의 계수는?</h3>
+<h3>문제 2. \((x+2)(x+5)\)의 전개식에서 \(x\)의 계수는?</h3>
 <button class="choice q" data-q="q2" data-c="0">① 2</button>
 <button class="choice q" data-q="q2" data-c="1">② 5</button>
 <button class="choice q" data-q="q2" data-c="2">③ 7</button>
 <button class="choice q" data-q="q2" data-c="3">④ 10</button>
 <div class="feedback" id="fbq2"></div>
 
-<h3>문제 3. (a+b)(a−b)를 전개하면?</h3>
-<button class="choice q" data-q="q3" data-c="0">① a²−2ab+b²</button>
-<button class="choice q" data-q="q3" data-c="1">② a²+b²</button>
-<button class="choice q" data-q="q3" data-c="2">③ a²+2ab+b²</button>
-<button class="choice q" data-q="q3" data-c="3">④ a²−b²</button>
+<h3>문제 3. \((a+b)(a-b)\)를 전개하면?</h3>
+<button class="choice q" data-q="q3" data-c="0">① \(a^{2}-2ab+b^{2}\)</button>
+<button class="choice q" data-q="q3" data-c="1">② \(a^{2}+b^{2}\)</button>
+<button class="choice q" data-q="q3" data-c="2">③ \(a^{2}+2ab+b^{2}\)</button>
+<button class="choice q" data-q="q3" data-c="3">④ \(a^{2}-b^{2}\)</button>
 <div class="feedback" id="fbq3"></div>
 
 <button class="btn" id="s3next" disabled>다음: 심화 문제</button>
@@ -153,14 +155,14 @@ canvas{width:100%;display:block;background:#fff;border:1px solid #e2e8f0;border-
 <!-- 4단계: 심화 문제 (4단계 도움) -->
 <section id="s4">
 <h2>4단계 · 심화: 세 항의 제곱</h2>
-<p class="big"><b>(a+b+c)²</b>을 전개하시오.</p>
+<p class="big">\((a+b+c)^{2}\)을 전개하시오.</p>
 
 <div id="step1">
 <span class="step-label">1단계 · 문제 이해</span>
 <p>이 문제를 풀 때 어떤 곱셈 공식을 이용하면 좋을까요?</p>
-<button class="choice adv" data-a="0">① (x+a)(x+b)=x²+(a+b)x+ab</button>
-<button class="choice adv" data-a="1">② (a+b)²=a²+2ab+b²</button>
-<button class="choice adv" data-a="2">③ (a+b)(a−b)=a²−b²</button>
+<button class="choice adv" data-a="0">① \((x+a)(x+b)=x^{2}+(a+b)x+ab\)</button>
+<button class="choice adv" data-a="1">② \((a+b)^{2}=a^{2}+2ab+b^{2}\)</button>
+<button class="choice adv" data-a="2">③ \((a+b)(a-b)=a^{2}-b^{2}\)</button>
 <div class="feedback" id="fbadv"></div>
 </div>
 
@@ -173,7 +175,7 @@ canvas{width:100%;display:block;background:#fff;border:1px solid #e2e8f0;border-
 <div id="step3" style="display:none">
 <span class="step-label">3단계 · 부분 풀이 (빈칸 채우기)</span>
 <p>전개를 거의 완성했습니다. 빈칸에 들어갈 수를 입력하세요.</p>
-<div class="blankline">(a+b+c)² = a²+b²+c²+2ab + <input type="number" id="bl1" inputmode="numeric"> bc + <input type="number" id="bl2" inputmode="numeric"> ca</div>
+<div class="blankline">\((a+b+c)^{2}=a^{2}+b^{2}+c^{2}+2ab+\) <input type="number" id="bl1" inputmode="numeric"> \(bc+\) <input type="number" id="bl2" inputmode="numeric"> \(ca\)</div>
 <button class="btn" id="blankcheck">빈칸 채점</button>
 <div class="feedback" id="fbblank"></div>
 </div>
@@ -181,8 +183,8 @@ canvas{width:100%;display:block;background:#fff;border:1px solid #e2e8f0;border-
 <div id="step4" style="display:none">
 <span class="step-label">4단계 · 완성과 변형</span>
 <p>완성! 이제 수치를 바꾼 변형 문제입니다.</p>
-<div class="formula">(a+b+c)² = a² + b² + c² + 2ab + 2bc + 2ca</div>
-<p><b>변형:</b> (a+b−c)²을 전개했을 때, bc 항의 계수는?</p>
+<div class="formula">\((a+b+c)^{2}=a^{2}+b^{2}+c^{2}+2ab+2bc+2ca\)</div>
+<p><b>변형:</b> \((a+b-c)^{2}\)을 전개했을 때, \(bc\) 항의 계수는?</p>
 <button class="choice var" data-v="0">① 2</button>
 <button class="choice var" data-v="1">② −2</button>
 <button class="choice var" data-v="2">③ 0</button>
@@ -223,6 +225,7 @@ canvas{width:100%;display:block;background:#fff;border:1px solid #e2e8f0;border-
 <script>
 "use strict";
 const $=id=>document.getElementById(id);
+let mjxN=0,mjxQ=Promise.resolve();function mjxAll(){if(window.MathJax&&MathJax.typesetPromise){mjxQ=mjxQ.then(function(){return MathJax.typesetPromise().catch(function(){});});}else if(mjxN<100){mjxN++;setTimeout(mjxAll,400);}}
 const LOG=[]; const t0=Date.now();
 const state={pred:-1,slider1:false,timer:null, obs:-1, q:{q1:false,q2:false,q3:false}, adv:false, hints:0, blank:false, variant:false, cardIdx:0};
 function log(m){LOG.push({t:Math.round((Date.now()-t0)/1000),m});}
@@ -248,17 +251,17 @@ document.querySelectorAll('.pred').forEach(b=>b.onclick=()=>{
   log('도입 예측 선택: '+(state.pred+1)+'번');
   updateS1Next();
 });
-function term(coef,v){ // 계수·문자 항 문자열
+function term(coef,v){ // 계수·문자 항 문자열(TeX)
   if(coef===0)return null;
-  const s=coef>0?'+':'−';
+  const s=coef>0?'+':'-';
   const a=Math.abs(coef);
   return {sign:s,text:(a===1&&v?'':a)+v};
 }
 function expandStr(a,b){
   const t1=term(a+b,'x'), t2=term(a*b,'');
-  let s='x²';
-  if(t1)s+=' '+t1.sign+' '+t1.text;
-  if(t2)s+=' '+t2.sign+' '+t2.text;
+  let s='x^{2}';
+  if(t1)s+=t1.sign+t1.text;
+  if(t2)s+=t2.sign+t2.text;
   return s;
 }
 function renderArea(){
@@ -276,18 +279,14 @@ function renderArea(){
     if(a>0)svg+=`<rect x="${x0+X}" y="${y0}" width="${a*U}" height="${X}" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>`;
     if(b>0)svg+=`<rect x="${x0}" y="${y0+X}" width="${X}" height="${b*U}" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>`;
     if(a>0&&b>0)svg+=`<rect x="${x0+X}" y="${y0+X}" width="${a*U}" height="${b*U}" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/>`;
-    const fs1=Math.min(24,Math.max(17,X/4));
-    svg+=`<text x="${x0+X/2}" y="${y0+X/2}" text-anchor="middle" dominant-baseline="middle" font-size="${fs1}" font-weight="bold" fill="#1e3a8a">x²</text>`;
-    if(a>0)svg+=`<text x="${x0+X+a*U/2}" y="${y0+X/2}" text-anchor="middle" dominant-baseline="middle" font-size="17" font-weight="bold" fill="#14532d">${a===1?'':a}x</text>`;
-    if(b>0)svg+=`<text x="${x0+X/2}" y="${y0+X+b*U/2}" text-anchor="middle" dominant-baseline="middle" font-size="17" font-weight="bold" fill="#14532d">${b===1?'':b}x</text>`;
-    if(a>0&&b>0)svg+=`<text x="${x0+X+a*U/2}" y="${y0+X+b*U/2}" text-anchor="middle" dominant-baseline="middle" font-size="17" font-weight="bold" fill="#713f12">${a*b}</text>`;
-    // 축 라벨 (0인 항은 표시하지 않음)
-    svg+=`<text x="${x0+X/2}" y="${y0+vh-26}" text-anchor="middle" font-size="17" font-weight="bold" fill="#334155">x</text>`;
-    if(a>0)svg+=`<text x="${x0+X+a*U/2}" y="${y0+vh-26}" text-anchor="middle" font-size="17" font-weight="bold" fill="#334155">${a}</text>`;
-    svg+=`<text x="${x0-24}" y="${y0+X/2}" text-anchor="middle" font-size="17" font-weight="bold" fill="#334155">x</text>`;
-    if(b>0)svg+=`<text x="${x0-24}" y="${y0+X+b*U/2}" text-anchor="middle" font-size="17" font-weight="bold" fill="#334155">${b}</text>`;
     svg+='</svg>';
-    box.innerHTML=svg;
+    let lg='타일: 파랑 \\(x^{2}\\)';
+    if(a>0)lg+=', 초록 \\('+(a===1?'':a)+'x\\)';
+    if(b>0)lg+=', 초록 \\('+(b===1?'':b)+'x\\)';
+    if(a>0&&b>0)lg+=', 노랑 \\('+a*b+'\\)';
+    lg+=' · 가로 \\(x'+(a?'+'+a:'')+'\\), 세로 \\(x'+(b?'+'+b:'')+'\\)';
+    box.innerHTML=svg+'<div class="muted" style="margin-top:6px">'+lg+'</div>';
+    mjxAll();
     // 표시 크기 환산으로 SVG 글자 17px 이상 보장
     const svgEl=box.querySelector('svg');
     const sc=svgEl.clientWidth/(svgEl.viewBox.baseVal.width||1);
@@ -296,18 +295,19 @@ function renderArea(){
   }else{
     // 부호 있는 타일
     const items=[
-      {t:'x²',v:1,e:'x·x'},
-      {t:(a===1?'':a===-1?'−':String(a).replace('-','−'))+'x',v:a,e:String(a).replace('-','−')+'·x (a·x)'},
-      {t:(b===1?'':b===-1?'−':String(b).replace('-','−'))+'x',v:b,e:String(b).replace('-','−')+'·x (b·x)'},
-      {t:String(a*b).replace('-','−'),v:a*b,e:'('+String(a).replace('-','−')+')·('+String(b).replace('-','−')+')'}
+      {t:'x^{2}',v:1,e:'x\\cdot x'},
+      {t:(a===1?'':String(a))+'x',v:a,e:String(a)+'\\cdot x\\ (a\\cdot x)'},
+      {t:(b===1?'':String(b))+'x',v:b,e:String(b)+'\\cdot x\\ (b\\cdot x)'},
+      {t:String(a*b),v:a*b,e:'('+String(a)+')\\cdot('+String(b)+')'}
     ];
     box.innerHTML='<div class="tilewrap">'+items.map(it=>
-      `<div class="tile ${it.v>=0?'pos':'neg'}">${it.t}<br><span style="font-size:.8rem;font-weight:400">${it.e}</span></div>`
+      `<div class="tile ${it.v>=0?'pos':'neg'}">\\(${it.t}\\)<br><span style="font-size:.8rem;font-weight:400">\\(${it.e}\\)</span></div>`
     ).join('')+'</div><p class="note">음수 항이 있어 부호 있는 타일로 표시합니다. 빨간 타일은 빼는 양입니다.</p>';
   }
-  const fac=v=>v===0?'x':`(x${v>=0?'+':'−'}${Math.abs(v)})`;
-  const join=(u,v)=>(u==='x'||v==='x')?u+'·'+v:u+v;
-  $('expform').innerHTML=`${join(fac(a),fac(b))} = ${expandStr(a,b)}`;
+  const fac=v=>v===0?'x':`(x${v>=0?'+':'-'}${Math.abs(v)})`;
+  const join=(u,v)=>u+v;
+  $('expform').innerHTML=`\\(${join(fac(a),fac(b))}=${expandStr(a,b)}\\)`;
+  mjxAll();
   log('면적 모형 조작: a='+a+', b='+b);
 }
 function updateS1Next(){$('s1next').disabled=!(state.pred>=0&&state.slider1);}
@@ -348,9 +348,10 @@ function drawGraph(){
   first=true;
   for(let X=-6;X<=6;X+=0.02){const Y=f2(X);if(Y<yr[0]-1||Y>yr[1]+1){first=true;continue;}if(first){ctx.moveTo(px(X),py(Y));first=false;}else ctx.lineTo(px(X),py(Y));}
   ctx.stroke();ctx.setLineDash([]);
-  const fac=v=>v===0?'x':`(x${v>=0?'+':'−'}${Math.abs(v)})`;
-  const join=(u,v)=>(u==='x'||v==='x')?u+'·'+v:u+v;
-  $('gform').innerHTML=`y=${join(fac(a),fac(b))}  와  y=${expandStr(a,b)}`;
+  const fac=v=>v===0?'x':`(x${v>=0?'+':'-'}${Math.abs(v)})`;
+  const join=(u,v)=>u+v;
+  $('gform').innerHTML=`\\(y=${join(fac(a),fac(b))}\\) 와 \\(y=${expandStr(a,b)}\\)`;
+  mjxAll();
   log('그래프 조작: a='+a+', b='+b);
 }
 $('ga').oninput=drawGraph;$('gb').oninput=drawGraph;
@@ -365,9 +366,9 @@ $('s2next').onclick=()=>show('s3');
 /* ---- 3단계: 확인 문제 ---- */
 const ANS={q1:1,q2:2,q3:3};
 const WHY={
- q1:'(x−1)(x²−x+1) = x³ − x² + x − x² + x − 1 = x³−2x²+2x−1 입니다. 항을 하나씩 곱한 뒤 동류항을 모으세요.',
- q2:'(x+2)(x+5)=x²+7x+10 이므로 x의 계수는 2+5=7 입니다.',
- q3:'(a+b)(a−b)=a²−ab+ab−b²=a²−b² 입니다. 중간항이 서로 없어집니다.'
+ q1:'\\((x-1)(x^{2}-x+1)=x^{3}-x^{2}+x-x^{2}+x-1=x^{3}-2x^{2}+2x-1\\)입니다. 항을 하나씩 곱한 뒤 동류항을 모으세요.',
+ q2:'\\((x+2)(x+5)=x^{2}+7x+10\\)이므로 \\(x\\)의 계수는 \\(2+5=7\\)입니다.',
+ q3:'\\((a+b)(a-b)=a^{2}-ab+ab-b^{2}=a^{2}-b^{2}\\)입니다. 중간항이 서로 없어집니다.'
 };
 document.querySelectorAll('.choice.q').forEach(b=>b.onclick=()=>{
   const q=b.dataset.q, c=+b.dataset.c;
@@ -377,7 +378,7 @@ document.querySelectorAll('.choice.q').forEach(b=>b.onclick=()=>{
     state.q[q]=true;
     document.querySelectorAll(`.choice.q[data-q="${q}"]`).forEach(x=>x.classList.remove('wrong'));
     b.classList.add('correct');
-    f.className='feedback ok';f.textContent='정답입니다. '+WHY[q];
+    f.className='feedback ok';f.innerHTML='정답입니다. '+WHY[q];mjxAll();
     log(q+' 정답');
     if(state.q.q1&&state.q.q2&&state.q.q3){
       $('s3next').disabled=false;
@@ -393,9 +394,9 @@ $('s3next').onclick=()=>show('s4');
 
 /* ---- 4단계: 심화 ---- */
 const HINTS=[
- '힌트 1: (a+b+c)²을 {(a+b)+c}²으로 바꿔 쓰면, (a+b)를 한 덩어리로 보고 제곱 공식을 쓸 수 있습니다.',
- '힌트 2: {(a+b)+c}² = (a+b)² + 2(a+b)c + c² 입니다.',
- '힌트 3: (a+b)² = a²+2ab+b²를 대입하고 2(a+b)c = 2bc+2ca를 펼치면 끝납니다.'
+ '힌트 1: \\((a+b+c)^{2}\\)을 \\(\\{(a+b)+c\\}^{2}\\)으로 바꿔 쓰면, \\((a+b)\\)를 한 덩어리로 보고 제곱 공식을 쓸 수 있습니다.',
+ '힌트 2: \\(\\{(a+b)+c\\}^{2}=(a+b)^{2}+2(a+b)c+c^{2}\\)입니다.',
+ '힌트 3: \\((a+b)^{2}=a^{2}+2ab+b^{2}\\)을 대입하고 \\(2(a+b)c=2bc+2ca\\)를 펼치면 끝납니다.'
 ];
 document.querySelectorAll('.choice.adv').forEach(b=>b.onclick=()=>{
   if(state.adv)return;
@@ -403,7 +404,7 @@ document.querySelectorAll('.choice.adv').forEach(b=>b.onclick=()=>{
   if(+b.dataset.a===1){
     clearTimeout(state.timer);
     state.adv=true;b.classList.add('correct');
-    f.className='feedback ok';f.textContent='맞았습니다. (a+b)를 한 문자처럼 보고 (a+b)² 공식을 두 번 적용합니다.';
+    f.className='feedback ok';f.innerHTML='맞았습니다. \\((a+b)\\)를 한 문자처럼 보고 \\((a+b)^{2}\\) 공식을 두 번 적용합니다.';mjxAll();
     $('step2').style.display='block';$('step3').style.display='block';
     log('심화 1단계 통과');
   }else{
@@ -415,8 +416,8 @@ document.querySelectorAll('.choice.adv').forEach(b=>b.onclick=()=>{
 });
 $('hintbtn').onclick=()=>{
   if(state.hints>=3)return;
-  const d=document.createElement('div');d.className='hintcard';d.textContent=HINTS[state.hints];
-  $('hints').appendChild(d);state.hints++;
+  const d=document.createElement('div');d.className='hintcard';d.innerHTML=HINTS[state.hints];
+  $('hints').appendChild(d);state.hints++;mjxAll();
   $('hintbtn').textContent=state.hints>=3?'힌트 카드를 모두 열었습니다':'힌트 카드 '+(state.hints+1)+'장 열기';
   if(state.hints>=3)$('hintbtn').disabled=true;
   log('힌트 카드 '+state.hints+'장 사용');
@@ -426,12 +427,12 @@ $('blankcheck').onclick=()=>{
   const f=$('fbblank');
   if(v1==='2'&&v2==='2'){
     state.blank=true;f.className='feedback ok';
-    f.textContent='정답입니다. 2(a+b)c = 2bc+2ca 이므로 두 빈칸 모두 2입니다.';
+    f.innerHTML='정답입니다. \\(2(a+b)c=2bc+2ca\\)이므로 두 빈칸 모두 2입니다.';mjxAll();
     $('step4').style.display='block';
     log('심화 3단계 빈칸 정답 (2, 2)');
   }else{
     state.blank=false;
-    f.className='feedback no';f.textContent='아직 아닙니다. 2(a+b)c를 분배법칙으로 펼치면 bc와 ca의 계수가 보입니다.';
+    f.className='feedback no';f.innerHTML='아직 아닙니다. \\(2(a+b)c\\)를 분배법칙으로 펼치면 \\(bc\\)와 \\(ca\\)의 계수가 보입니다.';mjxAll();
     log('심화 3단계 빈칸 오답 ('+v1+', '+v2+')');
   }
 };
@@ -441,12 +442,12 @@ document.querySelectorAll('.choice.var').forEach(b=>b.onclick=()=>{
   if(+b.dataset.v===1){
     clearTimeout(state.timer);
     state.variant=true;b.classList.add('correct');
-    f.className='feedback ok';f.textContent='정답입니다. (a+b−c)² = a²+b²+c²+2ab−2bc−2ca 이므로 bc 항의 계수는 −2입니다.';
+    f.className='feedback ok';f.innerHTML='정답입니다. \\((a+b-c)^{2}=a^{2}+b^{2}+c^{2}+2ab-2bc-2ca\\)이므로 \\(bc\\) 항의 계수는 \\(-2\\)입니다.';mjxAll();
     $('s4next').disabled=false;
     log('심화 4단계 변형 정답');
   }else{
     b.classList.add('wrong');
-    f.className='feedback no';f.textContent='c 대신 −c를 대입해 보세요. 2·b·(−c) = ?';
+    f.className='feedback no';f.innerHTML='\\(c\\) 대신 \\(-c\\)를 대입해 보세요. \\(2\\cdot b\\cdot(-c)=\\,?\\)';mjxAll();
     clearTimeout(state.timer);state.timer=setTimeout(()=>{if(!state.variant){b.classList.remove('wrong');f.className='feedback';f.textContent='';}},1800);
     log('심화 4단계 변형 오답 재시도');
   }
@@ -455,11 +456,11 @@ $('s4next').onclick=()=>show('s5');
 
 /* ---- 5단계: 개념 카드 ---- */
 const CARDS=[
- {h:'분배법칙',b:'A(B+C) = AB + AC, (A+B)C = AC + BC<br><br>다항식의 곱셈은 분배법칙을 반복해서 적용하는 것입니다. 활동 1의 넓이 모형에서 직사각형 4조각이 바로 분배의 결과입니다.'},
- {h:'(x+a)(x+b) 의 전개',b:'(x+a)(x+b) = x² + (a+b)x + ab<br><br>x의 계수는 a+b, 상수항은 ab입니다. 활동 1에서 a, b를 바꿀 때 중간항과 상수항이 함께 변한 이유입니다.'},
- {h:'제곱 공식',b:'(a+b)² = a²+2ab+b²<br>(a−b)² = a²−2ab+b²<br><br>같은 식끼리의 곱입니다. 중간항 ±2ab를 빠뜨리는 오류가 가장 흔합니다.'},
- {h:'합차 공식',b:'(a+b)(a−b) = a²−b²<br><br>중간항 −ab와 +ab가 서로 없어져 두 항만 남습니다. 확인 문제 3번이 바로 이 공식입니다.'},
- {h:'세 항의 제곱',b:'(a+b+c)² = a² + b² + c² + 2ab + 2bc + 2ca<br><br>심화 문제처럼 (a+b)를 한 덩어리로 보고 제곱 공식을 두 번 적용하면 얻습니다.'}
+ {h:'분배법칙',b:'\\(A(B+C)=AB+AC\\), \\((A+B)C=AC+BC\\)<br><br>다항식의 곱셈은 분배법칙을 반복해서 적용하는 것입니다. 활동 1의 넓이 모형에서 직사각형 4조각이 바로 분배의 결과입니다.'},
+ {h:'\\((x+a)(x+b)\\)의 전개',b:'\\((x+a)(x+b)=x^{2}+\\class{hlj}{(a+b)}x+\\class{hlj}{ab}\\)<br><br>\\(x\\)의 계수는 \\(\\class{hlj}{a+b}\\), 상수항은 \\(\\class{hlj}{ab}\\)입니다. 활동 1에서 \\(a\\), \\(b\\)를 바꿀 때 중간항과 상수항이 함께 변한 이유입니다.'},
+ {h:'제곱 공식',b:'\\((a+b)^{2}=a^{2}+2ab+b^{2}\\)<br>\\((a-b)^{2}=a^{2}-2ab+b^{2}\\)<br><br>같은 식끼리의 곱입니다. 중간항 \\(\\pm 2ab\\)를 빠뜨리는 오류가 가장 흔합니다.'},
+ {h:'합차 공식',b:'\\((a+b)(a-b)=a^{2}-b^{2}\\)<br><br>중간항 \\(-ab\\)와 \\(+ab\\)가 서로 없어져 두 항만 남습니다. 확인 문제 3번이 바로 이 공식입니다.'},
+ {h:'세 항의 제곱',b:'\\((a+b+c)^{2}=a^{2}+b^{2}+c^{2}+2ab+2bc+2ca\\)<br><br>심화 문제처럼 \\((a+b)\\)를 한 덩어리로 보고 제곱 공식을 두 번 적용하면 얻습니다.'}
 ];
 function renderCardGate(){
   const ok=state.q.q1&&state.q.q2&&state.q.q3;
@@ -472,6 +473,7 @@ function renderCard(){
   const c=CARDS[state.cardIdx];
   $('cardbody').innerHTML='<h3>'+c.h+'</h3><p class="big">'+c.b+'</p>';
   $('cpos').textContent=(state.cardIdx+1)+' / '+CARDS.length;
+  mjxAll();
 }
 $('cprev').onclick=()=>{state.cardIdx=(state.cardIdx+CARDS.length-1)%CARDS.length;renderCard();};
 $('cnext').onclick=()=>{state.cardIdx=(state.cardIdx+1)%CARDS.length;renderCard();};
