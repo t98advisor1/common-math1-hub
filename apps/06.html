@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>공통수학1 · 06 미정계수법</title><style>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><script>window.MathJax={tex:{inlineMath:[['\\(','\\)']]}};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script><title>공통수학1 · 06 미정계수법</title><style>
 :root{--ink:#251f21;--muted:#585254;--teal:#377566;--pale:#edf5f2;--line:#eae9ea;--red:#b51f2b;--sand:#f4efec}
 *{box-sizing:border-box}
 html{overflow-x:hidden}
@@ -36,7 +36,7 @@ input[type=range]{width:100%;min-height:44px;accent-color:var(--teal);margin:0}
 select,input[type=number],input[type=text]{border:1px solid #a5ada9;border-radius:5px;padding:8px;min-height:44px;max-width:100%;background:white;color:var(--ink)}
 select{width:100%}
 .readout{background:var(--pale);padding:12px 14px;border-radius:6px;margin:12px 0;overflow-wrap:anywhere}
-.equation{font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1.8;overflow-wrap:anywhere}
+.equation{font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1.8;overflow-wrap:anywhere;overflow-x:auto}
 .choice{display:grid;gap:9px;margin:18px 0}
 .choice button{text-align:left}
 .notice{background:var(--sand);padding:12px 14px;border-radius:6px;font-size:15px}
@@ -82,8 +82,9 @@ h2{font-size:23px}
 nav{position:static}
 .term{padding:8px 10px}
 }
+mjx-container .hlj{background:#fff1a3;border-radius:3px;padding:0 2px;}
 </style></head>
-<body><main class="wrap"><header><div class="eyebrow">미래엔 공통수학1 · 48차시 계획 중 06</div><h1>미정계수법: 계수 비교와 수치 대입</h1><span class="chip">학생용 실습 앱 · 공통수학1 학습관</span><div class="progress" aria-hidden="true" id="progress"></div><div id="stageLabel" class="muted"></div></header>
+<body><main class="wrap"><header><div class="eyebrow">공통수학1 · 48차시 계획 중 06</div><h1>미정계수법: 계수 비교와 수치 대입</h1><span class="chip">학생용 실습 앱 · 공통수학1 학습관</span><div class="progress" aria-hidden="true" id="progress"></div><div id="stageLabel" class="muted"></div></header>
 <div class="layout"><section class="panel graph-panel" aria-label="조작 그래프"><div class="chartbox"><div id="legend"></div><svg id="graph" viewBox="0 0 520 340" role="img" aria-labelledby="chartTitle chartDesc"></svg><div id="graphText" class="muted"></div></div><div class="controls"><label for="xslider">관찰할 x: <strong id="xvalue">1</strong></label><input id="xslider" type="range" min="-3" max="3" value="1" step="0.1"><div class="muted">슬라이더를 움직이면 그래프 위의 점과 함숫값이 바로 바뀝니다.</div></div><div class="readout" id="equations"></div><div id="graphNote" class="notice"></div></section>
 <section class="panel activity-panel" aria-labelledby="activityTitle"><div id="activity"></div><div id="message" class="status" aria-live="polite"></div></section></div>
 <nav><button id="back">이전</button><button class="primary" id="next">다음</button></nav>
@@ -92,12 +93,13 @@ nav{position:static}
 
 'use strict';
 const $=id=>document.getElementById(id);
+let mjxN=0,mjxQ=Promise.resolve();function mjxAll(){if(window.MathJax&&MathJax.typesetPromise){mjxQ=mjxQ.then(function(){return MathJax.typesetPromise().catch(function(){});});}else if(mjxN<100){mjxN++;setTimeout(mjxAll,400);}}
 function nice(n){return Math.abs(n)<1e-9?'0':Number(n.toFixed(3)).toString()}
 function sup(s){return '<sup>'+s+'</sup>'}
 /* polynomial [c0,c1,c2,...] helpers */
 const ev=(a,x)=>a.reduceRight((r,c)=>r*x+c,0);
-function format(a){let s='';for(let i=a.length-1;i>=0;i--){let c=a[i];if(Math.abs(c)<1e-9)continue;let term=(i===0||Math.abs(c)!==1?nice(Math.abs(c)):'')+(i===0?'':i===1?'x':'x'+sup(i));s+=(s?(c<0?' − ':' + '):(c<0?'−':''))+term;}return s||'0'}
-function message(t,error=false){$('message').textContent=t;$('message').className='status'+(error?' error':'');}
+function format(a){let s='';for(let i=a.length-1;i>=0;i--){let c=a[i];if(Math.abs(c)<1e-9)continue;let term=(i===0||Math.abs(c)!==1?nice(Math.abs(c)):'')+(i===0?'':i===1?'x':'x^{'+i+'}');s+=(s?(c<0?'-':'+'):(c<0?'-':''))+term;}return s||'0'}
+function message(t,error=false){$('message').innerHTML=t;$('message').className='status'+(error?' error':'');mjxAll();}
 /* generic plot: lines=[{name,f(x),color,dash,width,hide}] */
 function plot(lines,note,xr){
  xr=xr||[-3,3];
@@ -112,10 +114,11 @@ function plot(lines,note,xr){
   s+=`<path d="${d}" fill="none" stroke="${l.color}" stroke-width="${l.width||2.5}" stroke-dasharray="${l.dash||''}"/><circle cx="${X(state.x)}" cy="${Y(l.f(state.x))}" r="5" fill="${l.color}" stroke="white"/>`;}
  s+=`<path d="M${X(state.x)} 22 V302" stroke="#938c8f" stroke-dasharray="3 5"/></g>`;
  $('graph').innerHTML=s;
- $('legend').innerHTML=lines.filter(l=>!l.hide).map(l=>`<b style="color:${l.color}"><i class="dot" style="border-color:${l.color}"></i>${l.name}</b>`).join('');
- $('graphText').textContent=`x=${nice(state.x)}일 때 `+lines.filter(l=>!l.hide).map(l=>l.name+' = '+nice(l.f(state.x))).join(' / ');
+ $('legend').innerHTML=lines.filter(l=>!l.hide).map(l=>`<b style="color:${l.color}"><i class="dot" style="border-color:${l.color}"></i>${l.legend||('\\('+l.name+'\\)')}</b>`).join('');
+ $('graphText').innerHTML=`\\(x=${nice(state.x)}\\)일 때 `+lines.filter(l=>!l.hide).map(l=>'\\('+l.name+'='+nice(l.f(state.x))+'\\)').join(' / ');
  $('xvalue').textContent=nice(state.x);
- $('graphNote').textContent=note||'';
+ $('graphNote').innerHTML=note||'';
+ mjxAll();
 }
 function frac(n){ /* 0.5 -> 1/2 for display */
  if(Math.abs(n-Math.round(n))<1e-9)return nice(Math.round(n));
@@ -137,39 +140,39 @@ function graph(){
  let lines=[],note='',eq='';
  const i=state.stage;
  if(i===0){
-  lines=[{name:'y = x² + 5x',f:R,color:'#585254'}];
-  eq='a(x − 1)² + b(x − 1) + c = x² + 5x';
-  if(state.prediction!==null){lines.push({name:'y = (x − 1)² (a=1, b=0, c=0)',f:x=>(x-1)*(x-1),color:'#377566',width:3.5});
-   eq+='<br><b>a = 1, b = 0, c = 0 일 때의 좌변 — 아직 우변과 다릅니다</b>';note='b와 c도 맞춰야 완전히 겹칩니다. 다음 화면에서 직접 맞춰 보세요.';}
-  else note='우변 곡선을 먼저 보여 드립니다. x²의 계수를 예측해 보세요.';
+  lines=[{name:'y = x^{2} + 5x',f:R,color:'#585254'}];
+  eq='\\(a(x-1)^{2}+b(x-1)+c=x^{2}+5x\\)';
+  if(state.prediction!==null){lines.push({name:'y = (x-1)^{2}',legend:'\\(y=(x-1)^{2}\\) (\\(a=1, b=0, c=0\\))',f:x=>(x-1)*(x-1),color:'#377566',width:3.5});
+   eq+='<br><b>\\(a=1\\), \\(b=0\\), \\(c=0\\)일 때의 좌변 — 아직 우변과 다릅니다</b>';note='b와 c도 맞춰야 완전히 겹칩니다. 다음 화면에서 직접 맞춰 보세요.';}
+  else note='우변 곡선을 먼저 보여 드립니다. \\(x^{2}\\)의 계수를 예측해 보세요.';
  }
  else if(i===1){
-  lines=[{name:'y = a(x−1)² + b(x−1) + c',f:L,color:'#377566',width:3.5},
-   {name:'y = x² + 5x (목표)',f:R,color:'#585254',dash:'7 4'}];
-  eq=`전개: (${nice(state.a)})x² + (${nice(-2*state.a+state.b)})x + (${nice(state.a-state.b+state.c)})<br>목표: x² + 5x + 0`;
-  note=state.matched?'두 곡선이 완전히 겹쳤습니다! a = 1, b = 7, c = 6.':'세 슬라이더를 움직여 두 곡선을 완전히 겹쳐 보세요.';
+  lines=[{name:'y = a(x-1)^{2} + b(x-1) + c',f:L,color:'#377566',width:3.5},
+   {name:'y = x^{2} + 5x',legend:'\\(y=x^{2}+5x\\) (목표)',f:R,color:'#585254',dash:'7 4'}];
+  eq=`전개: \\(\\class{hlj}{(${nice(state.a)})}x^{2}+\\class{hlj}{(${nice(-2*state.a+state.b)})}x+\\class{hlj}{(${nice(state.a-state.b+state.c)})}\\)<br>목표: \\(\\class{hlj}{1}x^{2}+\\class{hlj}{5}x+\\class{hlj}{0}\\)`;
+  note=state.matched?'두 곡선이 완전히 겹쳤습니다! \\(a=1\\), \\(b=7\\), \\(c=6\\).':'세 슬라이더를 움직여 두 곡선을 완전히 겹쳐 보세요.';
  }
  else if(i===2){
-  lines=[{name:'y = a(x−1)² + b(x−1) + c',f:L,color:'#377566',width:3.5},
-   {name:'y = x² + 5x (목표)',f:R,color:'#585254',dash:'7 4'}];
-  eq=`전개: (${nice(state.a)})x² + (${nice(-2*state.a+state.b)})x + (${nice(state.a-state.b+state.c)})`;
+  lines=[{name:'y = a(x-1)^{2} + b(x-1) + c',f:L,color:'#377566',width:3.5},
+   {name:'y = x^{2} + 5x',legend:'\\(y=x^{2}+5x\\) (목표)',f:R,color:'#585254',dash:'7 4'}];
+  eq=`전개: \\((${nice(state.a)})x^{2}+\\class{hlj}{(${nice(-2*state.a+state.b)})}x+\\class{hlj}{(${nice(state.a-state.b+state.c)})}\\)`;
   note='계수를 비교하거나, 좋은 x 값을 대입해서 b와 c를 정해 보세요.';
  }
  else if(i===3){
-  lines=[{name:'y = (2x − 1)(x + 1)',f:x=>(2*x-1)*(x+1),color:'#377566',width:3.5}];
-  if(state.ok[3]){lines.push({name:'y = 2x² + x + 1 (좌변)',f:x=>2*x*x+x+1,color:'#585254',dash:'7 4'});
-   eq='<b>2x² + x + 1 = (2x − 1)(x + 1) + 2 — 완전히 겹칩니다</b>';note='c = 2 이면 두 곡선이 정확히 겹칩니다.';}
-  else{eq='ax² + bx + 1 = (2x − 1)(x + 1) + c';note='우변을 전개해서 양변의 계수를 비교하세요.';}
+  lines=[{name:'y = (2x-1)(x+1)',f:x=>(2*x-1)*(x+1),color:'#377566',width:3.5}];
+  if(state.ok[3]){lines.push({name:'y = 2x^{2} + x + 1',legend:'\\(y=2x^{2}+x+1\\) (좌변)',f:x=>2*x*x+x+1,color:'#585254',dash:'7 4'});
+   eq='<b>\\(2x^{2}+x+1=(2x-1)(x+1)+2\\) — 완전히 겹칩니다</b>';note='\\(c=2\\)이면 두 곡선이 정확히 겹칩니다.';}
+  else{eq='\\(\\class{hlj}{a}x^{2}+\\class{hlj}{b}x+\\class{hlj}{1}=(2x-1)(x+1)+c\\)';note='우변을 전개해서 양변의 계수를 비교하세요.';}
  }
  else{
   const a=isNaN(state.chA)?0:state.chA,b=isNaN(state.chB)?0:state.chB,c=isNaN(state.chC)?0:state.chC;
-  lines=[{name:'y = a(x+1)² + b(x+1) + c',f:x=>a*(x+1)*(x+1)+b*(x+1)+c,color:'#377566',width:3.5},
-   {name:'y = x² + 2x − 4 (목표)',f:x=>x*x+2*x-4,color:'#585254',dash:'7 4'}];
-  eq=`현재 입력: (${nice(a)})x² + (${nice(2*a+b)})x + (${nice(a+b+c)})<br>목표: x² + 2x − 4`;
-  note=(a===1&&b===0&&c===-5)?'두 곡선이 완전히 겹칩니다! a = 1, b = 0, c = −5.':'입력을 바꾸면 곡선이 바로 바뀝니다. 겹치는 순간을 찾아보세요.';
+  lines=[{name:'y = a(x+1)^{2} + b(x+1) + c',f:x=>a*(x+1)*(x+1)+b*(x+1)+c,color:'#377566',width:3.5},
+   {name:'y = x^{2} + 2x - 4',legend:'\\(y=x^{2}+2x-4\\) (목표)',f:x=>x*x+2*x-4,color:'#585254',dash:'7 4'}];
+  eq=`현재 입력: \\(\\class{hlj}{(${nice(a)})}x^{2}+\\class{hlj}{(${nice(2*a+b)})}x+\\class{hlj}{(${nice(a+b+c)})}\\)<br>목표: \\(\\class{hlj}{1}x^{2}+\\class{hlj}{2}x\\class{hlj}{-4}\\)`;
+  note=(a===1&&b===0&&c===-5)?'두 곡선이 완전히 겹칩니다! \\(a=1\\), \\(b=0\\), \\(c=-5\\).':'입력을 바꾸면 곡선이 바로 바뀝니다. 겹치는 순간을 찾아보세요.';
  }
- plot(lines,note);
  $('equations').innerHTML='<div class="equation">'+eq+'</div>';
+ plot(lines,note);
 }
 /* ---------- stages ---------- */
 function render(){let i=state.stage;
@@ -179,125 +182,125 @@ function render(){let i=state.stage;
  $('next').textContent=i===5?'학습 요약 보기':'다음';message('');let h='';
  if(i===0){h=`<h2 id="activityTitle">같은 식, 다른 모양</h2>
  <p>같은 다항식도 모양을 바꿔 쓸 수 있습니다.</p>
- <div class="equation">a(x − 1)² + b(x − 1) + c = x² + 5x</div>
- <p>이 등식이 x에 대한 항등식이 되려고 합니다. <strong>좌변을 전개했을 때 x²의 계수</strong>는 얼마여야 할까요?</p>
+ <div class="equation">\\(a(x-1)^{2}+b(x-1)+c=x^{2}+5x\\)</div>
+ <p>이 등식이 x에 대한 항등식이 되려고 합니다. <strong>좌변을 전개했을 때 \\(x^{2}\\)의 계수</strong>는 얼마여야 할까요?</p>
  <div class="choice"><button data-pred="1">1</button><button data-pred="2">2</button><button data-pred="5">5</button></div>
  <p class="muted">예측을 고른 뒤 그래프로 확인합니다. 틀려도 괜찮습니다.</p>`;}
  if(i===1){h=`<h2 id="activityTitle">세 슬라이더로 곡선을 겹쳐 보세요</h2>
- <p>a, b, c를 바꾸면 좌변의 곡선이 바뀝니다. 목표 곡선 y = x² + 5x 와 <strong>완전히</strong> 겹치게 만들어 보세요.</p>
+ <p>a, b, c를 바꾸면 좌변의 곡선이 바뀝니다. 목표 곡선 \\(y=x^{2}+5x\\)와 <strong>완전히</strong> 겹치게 만들어 보세요.</p>
  <div class="controls"><label for="asl">a: <b id="aval">${nice(state.a)}</b></label><input id="asl" type="range" min="-2" max="4" step="1" value="${state.a}">
  <label for="bsl">b: <b id="bval">${nice(state.b)}</b></label><input id="bsl" type="range" min="-5" max="10" step="1" value="${state.b}">
  <label for="csl">c: <b id="cval">${nice(state.c)}</b></label><input id="csl" type="range" min="-8" max="8" step="1" value="${state.c}"></div>
  <p class="muted">힌트 없이 겹치는 값을 찾아보세요. 어려우면 다음 화면의 두 가지 방법이 도와줍니다.</p>`;}
  if(i===2){h=`<h2 id="activityTitle">두 가지 방법으로 b와 c를 정하세요</h2>
- <p>예측과 조작에서 <strong>a = 1</strong>임을 확인했습니다 (x²의 계수).</p>
+ <p>예측과 조작에서 <strong>\\(a=1\\)</strong>임을 확인했습니다 (\\(x^{2}\\)의 계수).</p>
  <h3>방법 1 · 계수 비교</h3>
- <p class="steps">전개식의 x 계수: −2a + b = −2(1) + b = 5 → b = <input id="cb" type="number" step="any" style="width:80px"><br>
- 상수항: a − b + c = 1 − 7 + c = 0 → c = <input id="cc" type="number" step="any" style="width:80px">
+ <p class="steps">전개식의 \\(x\\) 계수: \\(\\class{hlj}{-2a+b}=-2(1)+b=\\class{hlj}{5} \\rightarrow b=\\) <input id="cb" type="number" step="any" style="width:80px"><br>
+ 상수항: \\(\\class{hlj}{a-b+c}=1-7+c=\\class{hlj}{0} \\rightarrow c=\\) <input id="cc" type="number" step="any" style="width:80px">
  <button id="coefBtn">확인</button></p>
  <h3>방법 2 · 수치 대입</h3>
- <p class="steps">x = 1 을 대입하면 (x − 1) 부분이 모두 0: c = 1² + 5·1 = <input id="sc" type="number" step="any" style="width:80px">
+ <p class="steps">\\(x=1\\)을 대입하면 \\(x-1\\) 부분이 모두 0: \\(c=1^{2}+5 \\cdot 1=\\) <input id="sc" type="number" step="any" style="width:80px">
  <button id="subBtn">확인</button></p>
- <p class="muted">두 방법이 같은 값을 주는지 비교해 보세요. (x − 1)을 0으로 만드는 x = 1 이 편한 대입값입니다.</p>`;}
+ <p class="muted">두 방법이 같은 값을 주는지 비교해 보세요. \\((x-1)\\)을 0으로 만드는 \\(x=1\\)이 편한 대입값입니다.</p>`;}
  if(i===3){h=`<h2 id="activityTitle">교과서 문제를 풀어 보세요</h2>
- <p class="muted">미래엔 공통수학1 · 25쪽 문제 2⑴</p>
- <p>등식 ax² + bx + 1 = (2x − 1)(x + 1) + c 가 x에 대한 항등식이 되도록 상수 a, b, c의 값을 정하시오.</p>
+ <p class="muted">공통수학1 · 25쪽 문제 2⑴</p>
+ <p>등식 \\(\\class{hlj}{a}x^{2}+\\class{hlj}{b}x+\\class{hlj}{1}=(2x-1)(x+1)+c\\)가 \\(x\\)에 대한 항등식이 되도록 상수 \\(a\\), \\(b\\), \\(c\\)의 값을 정하시오.</p>
  <div class="answer-grid three"><label>a<input id="ba" type="number" step="any" inputmode="decimal"></label><label>b<input id="bb" type="number" step="any" inputmode="decimal"></label><label>c<input id="bc" type="number" step="any" inputmode="decimal"></label></div>
  <div class="tools"><button id="checkBook" class="primary">채점하기</button><button id="hintBtn">단계별 도움 (${state.hints}/3)</button><button id="workedBtn">전체 풀이 보기</button></div>
  <div id="hints"></div><div id="worked"></div>
  <p class="muted">우변을 먼저 전개한 뒤, 양변에서 같은 차수의 계수를 비교하세요.</p>`;}
  if(i===4){h=`<h2 id="activityTitle">모양이 다른 항등식</h2>
- <p class="muted">미래엔 공통수학1 · 36쪽 중단원 마무리 문제 01⑵ · 4단계 도움 제공</p>
- <p>등식 x² + 2x − 4 = a(x + 1)² + b(x + 1) + c 가 x에 대한 항등식이 되도록 상수 a, b, c의 값을 정하시오.</p>
+ <p class="muted">공통수학1 · 36쪽 중단원 마무리 문제 01⑵ · 4단계 도움 제공</p>
+ <p>등식 \\(x^{2}+2x-4=a(x+1)^{2}+b(x+1)+c\\)가 \\(x\\)에 대한 항등식이 되도록 상수 \\(a\\), \\(b\\), \\(c\\)의 값을 정하시오.</p>
  <h3>1단계 · 문제 이해</h3>
- <p>우변을 전개했을 때 x²의 계수는?</p>
+ <p>우변을 전개했을 때 \\(x^{2}\\)의 계수는?</p>
  <div class="choice"><button data-u="a">a</button><button data-u="b">b</button><button data-u="ab">a + b</button></div>
  <h3>2단계 · 도움 카드</h3>
  <div class="tools"><button id="cHintBtn">도움 카드 열기 (${state.challenge.hints}/3)</button></div><div id="cHints"></div>
  <h3>3단계 · 부분 풀이</h3>
- <p class="steps">a(x + 1)² + b(x + 1) + c = ax² + (2a + b)x + (a + b + c)<br>
- x²의 계수: a = <input id="pa" type="number" step="any" style="width:80px">,
- x의 계수: 2a + b = 2 → b = <input id="pb" type="number" step="any" style="width:80px">,
- 상수항: a + b + c = −4 → c = <input id="pc" type="number" step="any" style="width:80px">
+ <p class="steps">\\(a(x+1)^{2}+b(x+1)+c=ax^{2}+(2a+b)x+(a+b+c)\\)<br>
+ \\(x^{2}\\)의 계수: \\(a=\\) <input id="pa" type="number" step="any" style="width:80px">,
+ \\(x\\)의 계수: \\(2a+b=2 \\rightarrow b=\\) <input id="pb" type="number" step="any" style="width:80px">,
+ 상수항: \\(a+b+c=-4 \\rightarrow c=\\) <input id="pc" type="number" step="any" style="width:80px">
  <button id="blankBtn">빈칸 확인</button></p>
  <h3>4단계 · 완성</h3>
  <div class="answer-grid three"><label>a<input id="ca" type="number" step="any" inputmode="decimal"></label><label>b<input id="cb2" type="number" step="any" inputmode="decimal"></label><label>c<input id="cc2" type="number" step="any" inputmode="decimal"></label></div>
  <div class="tools"><button id="checkCh" class="primary">채점하기</button><button id="cWorkedBtn">전체 풀이 보기</button></div><div id="cWorked"></div>
  <h3>수치를 바꾼 변형</h3>
- <p>x² − x + 1 = a(x + 2)² + b(x + 2) + c 가 항등식이 되도록 a, b, c를 정하시오.</p>
+ <p>\\(x^{2}-x+1=a(x+2)^{2}+b(x+2)+c\\)가 항등식이 되도록 \\(a\\), \\(b\\), \\(c\\)를 정하시오.</p>
  <div class="answer-grid three"><label>a<input id="va" type="number" step="any" inputmode="decimal"></label><label>b<input id="vb" type="number" step="any" inputmode="decimal"></label><label>c<input id="vc" type="number" step="any" inputmode="decimal"></label></div>
  <div class="tools"><button id="checkVar" class="primary">변형 채점</button></div>
  <p class="muted">입력한 a, b, c의 곡선이 왼쪽 목표 곡선과 겹치는지 함께 확인해 보세요.</p>`;}
  if(i===5){h=`<h2 id="activityTitle">마지막으로 개념을 정리해요</h2>
  <div class="formula"><h3>미정계수법</h3><p>항등식에서 아직 정해지지 않은 계수를 항등식의 성질로 정하는 방법입니다.</p></div>
- <div class="formula"><h3>방법 1 · 계수 비교법</h3><p>양변을 전개해 같은 차수의 계수끼리 같다고 놓고 연립합니다.</p><div class="equation">a = 1, −2a + b = 5, a − b + c = 0</div></div>
- <div class="formula"><h3>방법 2 · 수치 대입법</h3><p>양변에 적당한 수를 대입합니다. (x − 1)처럼 인수가 보이면 그 인수를 0으로 만드는 x = 1 이 편합니다.</p></div>
- <div class="formula"><h3>주의</h3><p>두 방법 모두 'x에 대한 항등식'일 때만 쓸 수 있습니다. 방정식에는 쓰지 않습니다.</p></div>
+ <div class="formula"><h3>방법 1 · 계수 비교법</h3><p>양변을 전개해 같은 차수의 계수끼리 같다고 놓고 연립합니다. 앞의 예 \\(a(x-1)^{2}+b(x-1)+c=x^{2}+5x\\)에서:</p><div class="equation">\\(\\class{hlj}{a}=\\class{hlj}{1}\\), \\(\\class{hlj}{-2a+b}=\\class{hlj}{5}\\), \\(\\class{hlj}{a-b+c}=\\class{hlj}{0}\\) \\(\\rightarrow a=1,\ b=7,\ c=6\\)</div></div>
+ <div class="formula"><h3>방법 2 · 수치 대입법</h3><p>양변에 적당한 수를 대입합니다. \\((x-1)\\)처럼 인수가 보이면 그 인수를 0으로 만드는 \\(x=1\\)이 편합니다.</p></div>
+ <div class="formula"><h3>주의</h3><p>두 방법 모두 \\(x\\)에 대한 항등식일 때만 쓸 수 있습니다. 방정식에는 쓰지 않습니다.</p></div>
  <label><input type="checkbox" id="reflect"> 계수 비교법과 수치 대입법을 언제 쓰는지 설명할 수 있습니다.</label>`;}
  if(i===6){let mins=Math.max(1,Math.round((Date.now()-state.start)/60000));h=`<h2 id="activityTitle">오늘의 학습 요약</h2><div class="summary">
- <p>예측한 x²의 계수 <b>${state.prediction}</b></p>
+ <p>예측한 \\(x^{2}\\)의 계수 <b>${state.prediction}</b></p>
  <p>곡선 겹치기 <b>${state.matched?'성공 (a=1, b=7, c=6)':'미완료'}</b> · 움직인 슬라이더 <b>${state.moved.size}개</b></p>
  <p>계수 비교 b, c <b>${state.coefB===7&&state.coefC===6?'확인 완료':'미완료'}</b> · 수치 대입 c <b>${state.subC===6?'확인 완료':'미완료'}</b></p>
  <p>교과서 문제 <b>${state.bookDone==='self'?'정답 확인':state.bookDone==='help'?'풀이 도움 후 완료':'미완료'}</b> · 도움 카드 <b>${state.hints} / 3장</b></p>
  <p>심화 문제 <b>${state.challenge.done==='self'?'정답 확인':state.challenge.done==='help'?'풀이 도움 후 완료':'미완료'}</b> · 도움 카드 <b>${state.challenge.hints} / 3장</b></p>
  <p>변형 문제 <b>${state.variation==='self'?'정답 확인':'미완료'}</b></p>
  <p>이 화면을 연 시간 <b>약 ${mins}분</b></p></div>
- <div class="notice">이 요약은 현재 화면에만 표시됩니다. 교사나 외부 서비스로 전송하지 않습니다. 배포판에서는 학생 동의 후 학습 이력을 Sheet에 기록하도록 연결할 예정입니다.</div>
+ <div class="notice">이 요약은 현재 화면에만 표시됩니다. 교사나 외부 서비스로 전송하지 않습니다.</div>
  <button id="restart" style="margin-top:18px">처음부터 다시</button>`;}
- $('activity').innerHTML=h;bind();graph();}
+ $('activity').innerHTML=h;mjxAll();bind();graph();}
 /* ---------- bindings ---------- */
 function bind(){let i=state.stage;
  if(i===0){document.querySelectorAll('[data-pred]').forEach(b=>b.onclick=()=>{state.prediction=Number(b.dataset.pred);state.ok[0]=true;
   document.querySelectorAll('[data-pred]').forEach(c=>c.style.background=c===b?'#edf5f2':'white');
-  message(state.prediction===1?'예측을 기록했어요. a = 1 일 때 좌변이 어떻게 보이는지 그래프로 확인하세요.':'예측을 기록했어요. x²의 계수가 왜 a인지 전개를 생각해 보세요.');
+  message(state.prediction===1?'예측을 기록했어요. \\(a=1\\)일 때 좌변이 어떻게 보이는지 그래프로 확인하세요.':'예측을 기록했어요. \\(x^{2}\\)의 계수가 왜 \\(a\\)인지 전개를 생각해 보세요.');
   $('next').disabled=false;graph();});}
  if(i===1){['asl','bsl','csl'].forEach(id=>{$(id).oninput=e=>{state.a=Number($('asl').value);state.b=Number($('bsl').value);state.c=Number($('csl').value);
    state.moved.add(id);$('aval').textContent=nice(state.a);$('bval').textContent=nice(state.b);$('cval').textContent=nice(state.c);
-   if(state.a===1&&state.b===7&&state.c===6){if(!state.matched)message('완전히 겹쳤습니다! a = 1, b = 7, c = 6.');state.matched=true;state.ok[1]=true;$('next').disabled=false;}
+   if(state.a===1&&state.b===7&&state.c===6){if(!state.matched)message('완전히 겹쳤습니다! \\(a=1\\), \\(b=7\\), \\(c=6\\).');state.matched=true;state.ok[1]=true;$('next').disabled=false;}
    graph();};});}
  if(i===2){$('coefBtn').onclick=()=>{let b=numVal('cb'),c=numVal('cc');
    if(isNaN(b)||isNaN(c)){message('두 칸을 모두 입력하세요.',true);return;}
    state.coefB=b;state.coefC=c;
-   message(b===7&&c===6?'맞습니다! b = 7, c = 6. 수치 대입법으로도 확인해 보세요.':'다시: −2(1) + b = 5, 1 − b + c = 0 을 푸세요.',!(b===7&&c===6));};
+   message(b===7&&c===6?'맞습니다! \\(b=7\\), \\(c=6\\). 수치 대입법으로도 확인해 보세요.':'다시: \\(-2(1)+b=5\\), \\(1-b+c=0\\)을 푸세요.',!(b===7&&c===6));};
   $('subBtn').onclick=()=>{let c=numVal('sc');
    if(isNaN(c)){message('값을 입력하세요.',true);return;}
    state.subC=c;
-   message(c===6?'맞습니다! x = 1 대입으로도 c = 6. 두 방법이 일치합니다.':'x = 1 을 x² + 5x 에 대입하면 얼마인가요?',c!==6);};
+   message(c===6?'맞습니다! \\(x=1\\) 대입으로도 \\(c=6\\). 두 방법이 일치합니다.':'\\(x=1\\)을 \\(x^{2}+5x\\)에 대입하면 얼마인가요?',c!==6);};
   if(state.coefB===7&&state.coefC===6&&state.subC===6){state.ok[2]=true;$('next').disabled=false;}
   let origCoef=$('coefBtn').onclick,origSub=$('subBtn').onclick;
   $('coefBtn').onclick=()=>{origCoef();if(state.coefB===7&&state.coefC===6&&state.subC===6){state.ok[2]=true;$('next').disabled=false;}};
   $('subBtn').onclick=()=>{origSub();if(state.coefB===7&&state.coefC===6&&state.subC===6){state.ok[2]=true;$('next').disabled=false;message('두 방법 모두 확인! 계수 비교와 수치 대입이 같은 답을 줍니다.');}};}
- if(i===3){const hints=['우변 전개: (2x − 1)(x + 1) = 2x² + x − 1.','계수 비교: a = 2, b = 1, 그리고 상수항 1 = −1 + c.','c = 2. 정리하면 a = 2, b = 1, c = 2.'];
-  $('hintBtn').onclick=()=>{if(state.hints<3){$('hints').innerHTML+=`<div class="hint">${hints[state.hints]}</div>`;state.hints++;$('hintBtn').textContent=`단계별 도움 (${state.hints}/3)`;}};
+ if(i===3){const hints=['우변 전개: \\((2x-1)(x+1)=\\class{hlj}{2}x^{2}+\\class{hlj}{1}x\\class{hlj}{-1}\\).','계수 비교: \\(\\class{hlj}{a}=\\class{hlj}{2}\\), \\(\\class{hlj}{b}=\\class{hlj}{1}\\), 그리고 상수항 \\(\\class{hlj}{1}=\\class{hlj}{-1+c}\\).','\\(c=2\\). 정리하면 \\(a=2\\), \\(b=1\\), \\(c=2\\).'];
+  $('hintBtn').onclick=()=>{if(state.hints<3){$('hints').innerHTML+=`<div class="hint">${hints[state.hints]}</div>`;state.hints++;$('hintBtn').textContent=`단계별 도움 (${state.hints}/3)`;mjxAll();}};
   $('checkBook').onclick=()=>{let v=[numVal('ba'),numVal('bb'),numVal('bc')];
    if(v.some(isNaN)){message('세 칸을 모두 입력해야 채점할 수 있습니다.',true);return;}
    if(v[0]===2&&v[1]===1&&v[2]===2){state.bookDone='self';state.ok[3]=true;$('next').disabled=false;
-    message('정답입니다! a = 2, b = 1, c = 2. 왼쪽에서 두 곡선이 겹치는지 확인하세요.');graph();}
-   else message('다시: 우변 (2x − 1)(x + 1) + c = 2x² + x + (c − 1). 좌변과 계수를 비교하세요.',true);};
-  $('workedBtn').onclick=()=>{$('worked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>① 우변 전개: (2x − 1)(x + 1) + c = 2x² + x − 1 + c<br>② 계수 비교: a = 2, b = 1, 1 = −1 + c<br>③ 따라서 a = 2, b = 1, c = 2<br>검산: 2x² + x + 1 = (2x − 1)(x + 1) + 2</div>`;
+    message('정답입니다! \\(a=2\\), \\(b=1\\), \\(c=2\\). 왼쪽에서 두 곡선이 겹치는지 확인하세요.');graph();}
+   else message('다시: 우변 \\((2x-1)(x+1)+c=2x^{2}+x+(c-1)\\). 좌변과 계수를 비교하세요.',true);};
+  $('workedBtn').onclick=()=>{$('worked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>① 우변 전개: \\((2x-1)(x+1)+c=\\class{hlj}{2}x^{2}+\\class{hlj}{1}x+\\class{hlj}{(-1+c)}\\)<br>② 계수 비교: \\(\\class{hlj}{a}=\\class{hlj}{2}\\), \\(\\class{hlj}{b}=\\class{hlj}{1}\\), \\(\\class{hlj}{1}=\\class{hlj}{-1+c}\\)<br>③ 따라서 \\(a=2\\), \\(b=1\\), \\(c=2\\)<br>검산: \\(2x^{2}+x+1=(2x-1)(x+1)+2\\)</div>`;mjxAll();
    state.bookDone='help';state.ok[3]=true;$('next').disabled=false;message('전체 풀이를 확인했습니다.');graph();};}
- if(i===4){const cHints=['우변 전개: a(x + 1)² + b(x + 1) + c = ax² + (2a + b)x + (a + b + c).','x²의 계수 비교: a = 1. 그러면 2a + b = 2 에서 b = 0.','상수항: a + b + c = −4 → 1 + 0 + c = −4 → c = −5.'];
+ if(i===4){const cHints=['우변 전개: \\(a(x+1)^{2}+b(x+1)+c=\\class{hlj}{a}x^{2}+\\class{hlj}{(2a+b)}x+\\class{hlj}{(a+b+c)}\\).','\\(x^{2}\\)의 계수 비교: \\(\\class{hlj}{a}=\\class{hlj}{1}\\). 그러면 \\(\\class{hlj}{2a+b}=\\class{hlj}{2}\\)에서 \\(b=0\\).','상수항: \\(\\class{hlj}{a+b+c}=\\class{hlj}{-4} \\rightarrow 1+0+c=-4 \\rightarrow c=-5\\).'];
   document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{let ok=b.dataset.u==='a';state.challenge.understood=ok||state.challenge.understood;
    document.querySelectorAll('[data-u]').forEach(c=>c.style.background=c===b?(ok?'#edf5f2':'#f8e7e8'):'white');
-   message(ok?'맞습니다. a(x + 1)² 에서 x²의 계수는 a 하나뿐입니다.':'(x + 1)² = x² + 2x + 1 에 곱해지는 것은 a뿐입니다. b(x + 1)에는 x²이 없습니다.',true);});
-  $('cHintBtn').onclick=()=>{if(state.challenge.hints<3){$('cHints').innerHTML+=`<div class="hint">${cHints[state.challenge.hints]}</div>`;state.challenge.hints++;$('cHintBtn').textContent=`도움 카드 열기 (${state.challenge.hints}/3)`;}};
+   message(ok?'맞습니다. \\(a(x+1)^{2}\\)에서 \\(x^{2}\\)의 계수는 \\(a\\) 하나뿐입니다.':'\\((x+1)^{2}=x^{2}+2x+1\\)에 곱해지는 것은 \\(a\\)뿐입니다. \\(b(x+1)\\)에는 \\(x^{2}\\)이 없습니다.',true);});
+  $('cHintBtn').onclick=()=>{if(state.challenge.hints<3){$('cHints').innerHTML+=`<div class="hint">${cHints[state.challenge.hints]}</div>`;state.challenge.hints++;$('cHintBtn').textContent=`도움 카드 열기 (${state.challenge.hints}/3)`;mjxAll();}};
   $('blankBtn').onclick=()=>{let pa=numVal('pa'),pb=numVal('pb'),pc=numVal('pc');
    if(isNaN(pa)||isNaN(pb)||isNaN(pc)){message('세 빈칸을 모두 입력하세요.',true);return;}
    let got=0;if(pa===1)got++;if(pb===0)got++;if(pc===-5)got++;state.challenge.blanks=got;
-   message(got===3?'맞습니다! a = 1, b = 0, c = −5. 아래 완성 단계에 입력해 보세요.':`빈칸 ${got}/3 정답. 계수 비교를 다시 확인하세요.`,got!==3);};
+   message(got===3?'맞습니다! \\(a=1\\), \\(b=0\\), \\(c=-5\\). 아래 완성 단계에 입력해 보세요.':`빈칸 ${got}/3 정답. 계수 비교를 다시 확인하세요.`,got!==3);};
   function syncInputs(){state.chA=numVal('ca');state.chB=numVal('cb2');state.chC=numVal('cc2');graph();}
   ['ca','cb2','cc2'].forEach(id=>$(id).oninput=syncInputs);
   $('checkCh').onclick=()=>{let a=numVal('ca'),b=numVal('cb2'),c=numVal('cc2');
    if(isNaN(a)||isNaN(b)||isNaN(c)){message('세 칸을 모두 입력해야 채점할 수 있습니다.',true);return;}
-   if(a===1&&b===0&&c===-5){state.challenge.done='self';message('정답입니다! a = 1, b = 0, c = −5. 왼쪽 곡선이 겹치는지 확인하세요.');}
-   else{message('다시: a = 1 부터, 2a + b = 2, a + b + c = −4 순서로 푸세요.',true);return;}
+   if(a===1&&b===0&&c===-5){state.challenge.done='self';message('정답입니다! \\(a=1\\), \\(b=0\\), \\(c=-5\\). 왼쪽 곡선이 겹치는지 확인하세요.');}
+   else{message('다시: \\(a=1\\)부터, \\(2a+b=2\\), \\(a+b+c=-4\\) 순서로 푸세요.',true);return;}
    maybeDone();};
-  $('cWorkedBtn').onclick=()=>{$('cWorked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>① 우변 전개: ax² + (2a + b)x + (a + b + c)<br>② 계수 비교: a = 1, 2a + b = 2, a + b + c = −4<br>③ a = 1, b = 0, c = −5<br>검산: (x + 1)² + 0·(x + 1) − 5 = x² + 2x − 4</div>`;
+  $('cWorkedBtn').onclick=()=>{$('cWorked').innerHTML=`<div class="hint"><b>전체 풀이</b><br>① 우변 전개: \\(ax^{2}+(2a+b)x+(a+b+c)\\)<br>② 계수 비교: \\(\\class{hlj}{a}=\\class{hlj}{1}\\), \\(\\class{hlj}{2a+b}=\\class{hlj}{2}\\), \\(\\class{hlj}{a+b+c}=\\class{hlj}{-4}\\)<br>③ \\(a=1\\), \\(b=0\\), \\(c=-5\\)<br>검산: \\((x+1)^{2}+0 \\cdot (x+1)-5=x^{2}+2x-4\\)</div>`;mjxAll();
    state.challenge.done='help';message('전체 풀이를 확인했습니다.');maybeDone();};
   $('checkVar').onclick=()=>{let a=numVal('va'),b=numVal('vb'),c=numVal('vc');
    if(isNaN(a)||isNaN(b)||isNaN(c)){message('세 칸을 모두 입력해야 채점할 수 있습니다.',true);return;}
-   if(a===1&&b===-5&&c===7){state.variation='self';message('정답입니다! a = 1, b = −5, c = 7.');}
-   else{message('다시: a = 1, 4a + b = −1 → b, 4a + 2b + c = 1 → c 순서로 푸세요.',true);return;}
+   if(a===1&&b===-5&&c===7){state.variation='self';message('정답입니다! \\(a=1\\), \\(b=-5\\), \\(c=7\\).');}
+   else{message('다시: \\(a=1\\), \\(4a+b=-1 \\rightarrow b\\), \\(4a+2b+c=1 \\rightarrow c\\) 순서로 푸세요.',true);return;}
    maybeDone();};
   function maybeDone(){if(state.challenge.done&&state.variation){state.ok[4]=true;$('next').disabled=false;graph();}}}
  if(i===5){$('reflect').onchange=e=>{state.ok[5]=e.target.checked;$('next').disabled=!state.ok[5];};}
@@ -314,5 +317,6 @@ $('xslider').oninput=e=>{state.x=Number(e.target.value);graph();};
  if(n>=5){state.challenge={understood:true,hints:3,blanks:3,done:'self'};state.variation='self';state.ok[4]=true;state.ok[5]=true;state.chA=1;state.chB=0;state.chC=-5;}
  state.stage=Math.min(n,6);}})();
 render();
+
 
 </script></body></html>
